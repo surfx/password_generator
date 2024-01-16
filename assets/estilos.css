@@ -1,0 +1,165 @@
+@import url("https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css");
+
+/* Fontes */
+
+@font-face {
+    font-family: roboto-light;
+    src: url(fontes/Roboto-Light.ttf);
+}
+
+@font-face {
+    font-family: roboto;
+    src: url(fontes/Roboto-Regular.ttf);
+}
+
+/* Semantic */
+
+body {
+    font-family: roboto;
+}
+
+header,
+main {
+    width: 1fr;
+    display: flex;
+    justify-content: center;
+}
+
+header div {
+    margin-top: 5vh;
+    border-bottom: 3pt solid crimson;
+    width: 50%;
+    text-align: center;
+}
+
+h1 {
+    font-size: 50px;
+    color: crimson;
+
+    padding-bottom: 5pt;
+}
+
+h1 i {
+    font-size: 40px;
+}
+
+main form {
+    margin-top: 50px;
+}
+
+/* frmDivPasswordText */
+
+.frmDivPasswordText {
+    display: flex;
+    flex-direction: row;
+}
+
+.frmDivPasswordText input {
+    border: 0.5pt solid;
+    border-right: 0;
+}
+
+.frmDivPasswordText input:focus {
+    outline: none;
+}
+
+.frmDivPasswordText button {
+    width: 35px;
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.frmDivPasswordText button:nth-child(2),
+.frmDivPasswordText button:nth-child(3) {
+    border-top: 0.5pt solid;
+    border-bottom: 0.5pt solid;
+}
+
+.frmDivPasswordText button:nth-child(3) {
+    border-right: 0.5pt solid;
+}
+
+.frmDivPasswordText button:hover {
+    background-color: aliceblue;
+}
+
+main form input[type=text] {
+    width: 70vh;
+
+    padding: 10pt;
+    font-size: 30px;
+}
+
+/* frmDivChks */
+
+.frmDivChks {
+    margin-top: 25px;
+    font-size: 30px;
+}
+
+.frmDivChks li {
+    margin-top: 5pt;
+    display: flex;
+    align-items: center;
+}
+
+.frmDivChks li label {
+    padding-left: 5pt;
+}
+
+.frmDivChks input[type=checkbox] {
+    width: 25px;
+    height: 25px;
+}
+
+/* divButtonCopiar */
+.divButtonCopiar {
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+.divButtonCopiar button {
+    color: white;
+    background-color: crimson;
+    border: 1pt solid;
+    border-radius: 15px;
+
+    padding: 20px 50px;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.divButtonCopiar button:hover {
+    background-color: white;
+    color: crimson;
+}
+
+/* divSpnMessage */
+.divSpnMessage {
+    margin-top: 30px;
+}
+
+
+/* CSS media query */
+@media (max-width: 620px) {
+    h1, h1 i {
+        font-size: 2rem;
+    }
+    main form input[type=text] {
+        width: 70%;
+        font-size: 15px;
+    }
+    .frmDivChks {
+        font-size: 15px;
+    }
+    .frmDivChks input[type=checkbox] {
+        width: 18px;
+        height: 18px;
+    }
+    .divButtonCopiar button {
+        padding: 20px 40px;
+        font-size: 20px;
+    }
+}

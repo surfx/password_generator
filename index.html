@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+
+    <link rel="stylesheet" href="assets/css_reset.css">
+    <link rel="stylesheet" href="assets/slider/slider.css">
+    <link rel="stylesheet" href="assets/estilos.css">
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <h1>
+                <i class="fi fi-rr-lock"></i>
+                Password Generator
+            </h1>
+        </div>
+    </header>
+    <main>
+
+        <form action="javascript:void(0);">
+
+            <div class="frmDivPasswordText">
+                <input type="text" name="txtPassword" id="txtPassword">
+                <button id="btnCopy">
+                    <svg height="15" viewBox="0 0 24 24" width="15" xmlns="http://www.w3.org/2000/svg"
+                        data-name="Layer 1">
+                        <path
+                            d="m18 5.086-5.086-5.086h-7.914a3 3 0 0 0 -3 3v17h16zm-14 12.914v-15a1 1 0 0 1 1-1h7v4h4v12zm18-9v15h-15v-2h13v-15z" />
+                    </svg>
+                </button>
+                <button id="btnRefresh">
+                    <i class="fi fi-rr-refresh"></i>
+                </button>
+            </div>
+
+            <div class="frmDivChks">
+                <ul>
+                    <li>
+
+                        <div class="mySliderContainer">
+                            <div class="slidecontainer">
+                                <input type="range" min="1" max="100" value="15" class="slider" id="mySlider">
+                            </div>
+                            <span id="spnValorSlider"></span>
+                        </div>
+
+                    </li>
+                    <li>
+                        <input type="checkbox" name="chkCaracteresEspeciais" id="chkCaracteresEspeciais" checked="true">
+                        <label for="chkCaracteresEspeciais">Caracteres Especiais</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" name="chkNumeros" id="chkNumeros" checked="true">
+                        <label for="chkNumeros">Números</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" name="chkMaiusculas" id="chkMaiusculas" checked="true">
+                        <label for="chkMaiusculas">Maiúsculas</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" name="chkMinusculas" id="chkMinusculas" checked="true">
+                        <label for="chkMinusculas">Minúsculas</label>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="divButtonCopiar">
+                <button id="btnCopiar">Copiar</button>
+            </div>
+
+            <div class="divSpnMessage">
+                <span id="spnMensagem"></span>
+            </div>
+        </form>
+
+    </main>
+
+    <!-- <a href="javascript:void(0);" onclick="javascript:gerarSenha()">gerarSenha()</a> -->
+
+    <script src="assets/control.js"></script>
+</body>
+
+</html>
