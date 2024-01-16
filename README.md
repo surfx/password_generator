@@ -2,8 +2,13 @@
 
 Gerador de senhas em HTML, CSS e Javascript
 
+site: [password generator](http://testes.hospedagem-gratis.com/)
+
 # Urls
 
+- [password generator](http://testes.hospedagem-gratis.com/)
+- [host free](https://hospedagem-gratis.com)
+- [github](https://github.com/surfx/password_generator)
 - [js shuffle](https://www.freecodecamp.org/news/how-to-shuffle-an-array-of-items-using-javascript-or-typescript/)
 - [js Copy text to clipboard](https://stackoverflow.com/questions/71873824/copy-text-to-clipboard-cannot-read-properties-of-undefined-reading-writetext)
 - [css reset](http://meyerweb.com/eric/tools/css/reset/)
