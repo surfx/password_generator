@@ -62,8 +62,24 @@ function gerarSenha() {
     txtPassword.value = rt;
 }
 
+// https://stackoverflow.com/questions/71873824/copy-text-to-clipboard-cannot-read-properties-of-undefined-reading-writetext
+const unsecuredCopyToClipboard = (text) => { const textArea = document.createElement("textarea"); textArea.value=text; document.body.appendChild(textArea); textArea.focus();textArea.select(); try{document.execCommand('copy')}catch(err){console.error('Unable to copy to clipboard',err)}document.body.removeChild(textArea)};
+
+/**
+ * Copies the text passed as param to the system clipboard
+ * Check if using HTTPS and navigator.clipboard is available
+ * Then uses standard clipboard API, otherwise uses fallback
+*/
+const copyToClipboard = (content) => {
+  if (window.isSecureContext && navigator.clipboard) {
+    navigator.clipboard.writeText(content);
+  } else {
+    unsecuredCopyToClipboard(content);
+  }
+};
+
 function copiarParaAreaTransferencia(){
-    navigator.clipboard.writeText(txtPassword.value);
+    copyToClipboard(txtPassword.value);
     showMsg('Copiado para a área de transferência');
 }
 
