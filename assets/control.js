@@ -14,7 +14,7 @@ let spnMensagem = document.getElementById('spnMensagem');
 data = {
     minusculas: [...'abcdefghijklmnopqrstuvwxyz'],
     maiusculas: [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'],
-    numeros: [...'012345678909'],
+    numeros: [...'0123456789'],
     caracteresEspeciais: [...'!@#$%&*+-*/ ']
 }
 
