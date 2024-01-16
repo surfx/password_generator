@@ -54,7 +54,7 @@ function gerarSenha() {
     if (dbChars.length <= 0) { return; }
 
     let rt = '';
-    while (rt.length <= size) {
+    while (rt.length < size) {
         let pos = Math.floor(Math.random() * dbChars.length);
         dbChars = shuffle(dbChars);
         rt += dbChars[pos];
