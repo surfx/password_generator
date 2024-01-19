@@ -1,0 +1,207 @@
+/* @import url("https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css"); */
+
+/* Fontes */
+
+@font-face {
+    font-family: roboto-light;
+    src: url(fontes/Roboto-Light.ttf);
+}
+
+@font-face {
+    font-family: roboto;
+    src: url(fontes/Roboto-Regular.ttf);
+}
+
+body {
+    min-width: 400px;
+    max-width: 100%;
+    font-family: roboto;
+}
+
+header,
+main {
+    width: 1fr;
+    display: flex;
+    justify-content: center;
+}
+
+header div {
+    margin-top: 8pt;
+    margin-bottom: 8pt;
+    border-bottom: 1pt solid crimson;
+    width: 90%;
+    text-align: center;
+}
+
+h1 {
+    font-size: 20px;
+    margin-bottom: 3pt;
+    color: crimson;
+}
+
+h1 svg {
+    font-size: 15px;
+}
+
+/* main */
+
+main {
+    margin-bottom: 10px;
+}
+
+main .divSearchSenhasSalvas {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.divSearchSenhasSalvas input,
+.divSearchSenhasSalvas button {
+    padding: 4pt;
+    border: 0.5pt solid;
+}
+
+.divSearchSenhasSalvas input {
+    border-right: 0;
+
+    width: 100%;
+    font-size: 15px;
+}
+
+.divSearchSenhasSalvas input:focus {
+    outline: none;
+}
+
+.divSearchSenhasSalvas button {
+    width: 35px;
+    background-color: transparent;
+    cursor: pointer;
+    border-left: none;
+
+    height: 29.5px;
+    width: 30px;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    background-image: url('data:image/svg+xml,<svg fill="%23000000" width="14px" height="14px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z"/></svg>');
+}
+
+.divSearchSenhasSalvas button:hover {
+    background-color: aliceblue;
+}
+
+/* divDominio */
+.divDominio {
+    margin: 3pt 0 3pt 0;
+}
+
+/* divSenhasSalvas */
+.divSenhasSalvas {
+    width: 360px;
+    overflow: hidden;
+
+    max-height: 200px;
+    overflow-y: auto;
+
+    display: grid;
+    grid-template-columns: 150px 25px 100px 25px 25px;
+    column-gap: 5px;
+    align-items: center;
+    justify-items: left;
+    border-top: 1pt solid;
+    padding: 5px;
+}
+
+.divSenhasSalvas div {
+    max-width: 120px;
+    overflow: hidden;
+
+    /* word-break: break-all; */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+
+}
+
+.divSenhasSalvas div:nth-child(4) {
+    overflow: hidden;
+}
+
+.divSenhasSalvas div button {
+    height: 25px;
+    width: 25px;
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.divSenhasSalvas div button:hover {
+    background-color: aliceblue;
+}
+
+.btnCopy {
+    background-image: url('data:image/svg+xml, <svg height="15px" width="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1"><path d="m18 5.086-5.086-5.086h-7.914a3 3 0 0 0 -3 3v17h16zm-14 12.914v-15a1 1 0 0 1 1-1h7v4h4v12zm18-9v15h-15v-2h13v-15z" /></svg>');
+}
+
+.btnExcluir {
+    background-image: url('data:image/svg+xml,<svg width="15px" height="15px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h4a1 1 0 1 1 0 2h-1.069l-.867 12.142A2 2 0 0 1 17.069 22H6.93a2 2 0 0 1-1.995-1.858L4.07 8H3a1 1 0 0 1 0-2h4V4zm2 2h6V4H9v2zM6.074 8l.857 12H17.07l.857-12H6.074zM10 10a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1zm4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1z" fill="%230D0D0D"/></svg>');
+}
+
+/* divFormAddSenhas */
+
+.divFormAddSenhas {
+    margin-top: 5pt;
+    padding-top: 5pt;
+    border-top: 1pt solid;
+
+    display: grid;
+    column-gap: 5pt;
+    align-items: center;
+    grid-template-columns: 145px 145px 30px 30px;
+}
+
+.divFormAddSenhas div:nth-child(2) {
+    grid-column: 2 / 5;
+}
+
+.divFormAddSenhas input {
+    width: 90%;
+}
+
+.divFormAddSenhas input:focus {
+    outline: none;
+}
+
+.divFormAddSenhas button {
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.divFormAddSenhas button:hover {
+    background-color: aliceblue;
+}
+
+.btnSaveAddSenhas {
+    background-image: url('data:image/svg+xml,<svg fill="%23000000" width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1"><path d="M20.71,9.29l-6-6a1,1,0,0,0-.32-.21A1.09,1.09,0,0,0,14,3H6A3,3,0,0,0,3,6V18a3,3,0,0,0,3,3H18a3,3,0,0,0,3-3V10A1,1,0,0,0,20.71,9.29ZM9,5h4V7H9Zm6,14H9V16a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1Zm4-1a1,1,0,0,1-1,1H17V16a3,3,0,0,0-3-3H10a3,3,0,0,0-3,3v3H6a1,1,0,0,1-1-1V6A1,1,0,0,1,6,5H7V8A1,1,0,0,0,8,9h6a1,1,0,0,0,1-1V6.41l4,4Z"/></svg>');
+}
+
+.btnRefreshSenha {
+    background-image: url('data:image/svg+xml,<svg version="1.1" id="Layer_1" width="16px" height="16px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve"><path fill="none" stroke="%23000000" stroke-width="2" stroke-miterlimit="10" d="M25.7,10.9C23.9,7.4,20.2,5,16,5c-4.7,0-8.6,2.9-10.2,7"/><path fill="none" stroke="%23000000" stroke-width="2" stroke-miterlimit="10" d="M6.2,21c1.8,3.5,5.5,6,9.8,6c4.7,0,8.6-2.9,10.2-7"/><polyline fill="none" stroke="%23000000" stroke-width="2" stroke-miterlimit="10" points="26,5 26,11 20,11 "/><polyline fill="none" stroke="%23000000" stroke-width="2" stroke-miterlimit="10" points="6,27 6,21 12,21 "/></svg>');
+}
+
+
+
+.tituloPassGen {
+    margin-top: 8pt;
+    margin-bottom: 8pt;
+    border-bottom: 1pt solid crimson;
+    width: 90%;
+    text-align: center;
+}

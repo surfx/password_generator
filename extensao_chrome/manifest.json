@@ -1,0 +1,28 @@
+{
+    "manifest_version": 3,
+    "name": "Generate Password",
+    "description": "Gera e armazena passwords",
+    "version": "1.0",
+    "author": "Emerson Testes",
+    "action": {
+        "default_popup": "index.html",
+        "default_title": "Password Generator",
+        "default_icon": "hello_extensions.png"
+    },
+    "permissions": [
+        "scripting",
+        "tabs",
+        "activeTab",
+        "storage"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.example.com/*"
+            ],
+            "js": [
+                "assets/scripts/testes/saveData.js"
+            ]
+        }
+    ]
+}
