@@ -141,6 +141,26 @@ main form input[type=text] {
     margin-top: 30px;
 }
 
+.divInfoProjeto {
+    display: grid;
+    place-items: center;
+    text-align: left;
+}
+
+.divInfoProjeto div {
+    display: flex;
+    align-items: center;
+    column-gap: 5px;
+}
+
+.divInfoProjeto div a {
+    color: crimson;
+    text-decoration: none;
+}
+
+.divInfoProjeto div a:hover{
+    text-decoration: underline dashed;
+}
 
 /* CSS media query */
 @media (max-width: 620px) {
