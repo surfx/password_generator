@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="assets/css/css_reset.css">
     <link rel="stylesheet" href="assets/css/index.css">
+    <link rel="stylesheet" href="assets/css/slider/slider.css">
 
 </head>
 
@@ -16,7 +17,10 @@
     <header>
         <div>
             <h1>
-                <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="crimson" d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" /></svg>
+                <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="crimson"
+                        d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
+                </svg>
                 Password Generator
             </h1>
         </div>
@@ -52,17 +56,64 @@
                 <div><button id="btnSaveAddSenhas" name="btnSaveAddSenhas" class="btnSaveAddSenhas"></button></div>
             </div>
 
-            <div>
-                <span id="spnMensagens"></span>
-            </div>
-
             <div class="tituloPassGen">
                 <h1>
-                    <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill="crimson" d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" /></svg>
+                    <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="crimson"
+                            d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
+                    </svg>
                     Tool Password Generator
                 </h1>
             </div>
 
+            <div class="frmDivPasswordText">
+                <input type="text" name="txtPassswordGen" id="txtPassswordGen" autocomplete="off">
+                <button id="btnCopyPassswordGen">
+                    <svg height="15px" width="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                        data-name="Layer 1">
+                        <path
+                            d="m18 5.086-5.086-5.086h-7.914a3 3 0 0 0 -3 3v17h16zm-14 12.914v-15a1 1 0 0 1 1-1h7v4h4v12zm18-9v15h-15v-2h13v-15z" />
+                    </svg>
+                </button>
+                <button id="btnRefreshPassswordGen">
+                    <svg width="15px" height="15px" viewBox="0 0 15 15" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M7.5 14.5C3.63401 14.5 0.5 11.366 0.5 7.5C0.5 5.26904 1.54367 3.28183 3.1694 2M7.5 0.5C11.366 0.5 14.5 3.63401 14.5 7.5C14.5 9.73096 13.4563 11.7182 11.8306 13M11.5 10V13.5H15M0 1.5H3.5V5"
+                            stroke="#000000" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="mySliderContainer">
+                <div class="slidecontainer">
+                    <input type="range" min="1" max="100" value="15" class="slider" id="mySlider">
+                </div>
+                <span id="spnValorSlider"></span>
+            </div>
+
+            <div class="divChks">
+                <input type="checkbox" name="chkCaracteresEspeciais" id="chkCaracteresEspeciais" checked="true">
+                <label for="chkCaracteresEspeciais">Especiais</label>
+
+                <input type="checkbox" name="chkNumeros" id="chkNumeros" checked="true">
+                <label for="chkNumeros">Números</label>
+
+                <input type="checkbox" name="chkMaiusculas" id="chkMaiusculas" checked="true">
+                <label for="chkMaiusculas">Maiúsculas</label>
+
+                <input type="checkbox" name="chkMinusculas" id="chkMinusculas" checked="true">
+                <label for="chkMinusculas">Minúsculas</label>
+            </div>
+
+            <div class="divButtonCopiar">
+                <button id="btnCopiar">Copiar</button>
+            </div>
+
+            <div class="divMensagens">
+                <span id="spnMensagens"></span>
+            </div>
+            
         </div>
 
 
@@ -71,7 +122,7 @@
     </main>
 
 
-    
+
 
     <script type="module" src="assets/scripts/index.js"></script>
 

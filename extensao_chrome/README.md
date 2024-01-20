@@ -54,3 +54,7 @@ Renomear o ícone para "hello_extensions.png", igual ao manifest
 
 <script src="scripts/corona_script.js"></script>
 ```
+
+# Extensão
+
+<img src="..\assets\extensao_chrome.png" alt="Password Generator">

@@ -196,7 +196,7 @@ main .divSearchSenhasSalvas {
     background-image: url('data:image/svg+xml,<svg version="1.1" id="Layer_1" width="16px" height="16px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve"><path fill="none" stroke="%23000000" stroke-width="2" stroke-miterlimit="10" d="M25.7,10.9C23.9,7.4,20.2,5,16,5c-4.7,0-8.6,2.9-10.2,7"/><path fill="none" stroke="%23000000" stroke-width="2" stroke-miterlimit="10" d="M6.2,21c1.8,3.5,5.5,6,9.8,6c4.7,0,8.6-2.9,10.2-7"/><polyline fill="none" stroke="%23000000" stroke-width="2" stroke-miterlimit="10" points="26,5 26,11 20,11 "/><polyline fill="none" stroke="%23000000" stroke-width="2" stroke-miterlimit="10" points="6,27 6,21 12,21 "/></svg>');
 }
 
-
+/* tituloPassGen */
 
 .tituloPassGen {
     margin-top: 8pt;
@@ -204,4 +204,79 @@ main .divSearchSenhasSalvas {
     border-bottom: 1pt solid crimson;
     width: 90%;
     text-align: center;
+}
+
+
+/* frmDivPasswordText */
+
+.frmDivPasswordText {
+    display: grid;
+    grid-template-columns: 1fr 30px 30px;
+}
+
+.frmDivPasswordText input {
+    border: 0.5pt solid;
+    border-right: 0;
+    padding: 5pt;
+    font-size: 15px;
+}
+
+.frmDivPasswordText input:focus {
+    outline: none;
+}
+
+.frmDivPasswordText button {
+    background-color: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.frmDivPasswordText button:nth-child(2),
+.frmDivPasswordText button:nth-child(3) {
+    border-top: 0.5pt solid;
+    border-bottom: 0.5pt solid;
+}
+
+.frmDivPasswordText button:nth-child(3) {
+    border-right: 0.5pt solid;
+}
+
+.frmDivPasswordText button:hover {
+    background-color: aliceblue;
+}
+
+.divMensagens {
+    margin-top: 10px;
+}
+
+.divChks {
+    margin-top: 5px;
+    display: grid;
+    grid-template-columns: 25px 110px 25px 1fr;
+    justify-items: start;
+    align-items: center;
+    row-gap: 5px;
+}
+
+/* divButtonCopiar */
+.divButtonCopiar {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.divButtonCopiar button {
+    color: white;
+    background-color: crimson;
+    border: 1pt solid;
+    border-radius: 7px;
+
+    padding: 13px 60px;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.divButtonCopiar button:hover {
+    background-color: white;
+    color: crimson;
 }

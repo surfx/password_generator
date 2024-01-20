@@ -132,6 +132,80 @@ if (!!btnSaveAddSenhas) {
 let btnRefreshSenha = document.getElementById('btnRefreshSenha');
 if (!!btnRefreshSenha){
     btnRefreshSenha.addEventListener("click", function () {
-        txtAddSenha.value = gerarSenha(15, true, true, true, true);
+        let txtAddSenha = document.getElementById('txtAddSenha');
+        if (!!txtAddSenha) { txtAddSenha.value = gerarSenha(15, true, true, true, true); }
     });
 }
+
+// -------------------------
+// Tool Password generator
+// -------------------------
+
+// Slider
+
+let slider = document.getElementById("mySlider");
+let output = document.getElementById("spnValorSlider");
+output.innerHTML = slider.value; // Display the default slider value
+
+let chkNumeros = document.getElementById('chkNumeros');
+let chkCaracteresEspeciais = document.getElementById('chkCaracteresEspeciais');
+let chkMaiusculas = document.getElementById('chkMaiusculas');
+let chkMinusculas = document.getElementById('chkMinusculas');
+
+let txtPassswordGen = document.getElementById('txtPassswordGen');
+function refreshSenha(){
+    if (!txtPassswordGen) { return; }
+    let size = slider.value;
+
+
+    //size, addNumeros, addCaracteresEspeciais, addMaiusculas, addMinusculas
+
+    if (size <= 0){ size = 15; }
+    txtPassswordGen.value = gerarSenha(
+        size, 
+        chkNumeros.checked, 
+        chkCaracteresEspeciais.checked, 
+        chkMaiusculas.checked, 
+        chkMinusculas.checked
+    );
+}
+
+chkCaracteresEspeciais.onchange = refreshSenha;
+chkNumeros.onchange = refreshSenha;
+chkMaiusculas.onchange = refreshSenha;
+chkMinusculas.onchange = refreshSenha;
+
+refreshSenha();
+
+let btnCopyPassswordGen = document.getElementById('btnCopyPassswordGen');
+if (!!btnCopyPassswordGen) {
+    btnCopyPassswordGen.addEventListener("click", function () {
+        copiarParaAreaTransferencia();
+    });
+}
+
+let btnRefreshPassswordGen = document.getElementById('btnRefreshPassswordGen');
+if (!!btnRefreshPassswordGen){
+    btnRefreshPassswordGen.addEventListener("click", function () {
+        refreshSenha();
+    });
+}
+
+function copiarParaAreaTransferencia(){
+    if (!txtPassswordGen) { return; }
+    if (!txtPassswordGen.value || txtPassswordGen.value.length <= 0) {
+        showMsg(spnMensagens, 'Senha vazia');
+        return;
+    }
+    copyToClipboard(txtPassswordGen.value);
+    showMsg(spnMensagens, 'Senha copiada');
+}
+
+// Slider
+slider.oninput = function () {
+    output.innerHTML = this.value;
+    refreshSenha();
+}
+
+
+document.getElementById('btnCopiar').onclick = copiarParaAreaTransferencia;
