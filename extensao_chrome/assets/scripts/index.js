@@ -29,7 +29,14 @@ if (!!txtSearch) {
     });
 }
 
-
+let btnClearSearchSenhas = document.getElementById('btnClearSearchSenhas');
+if (!!btnClearSearchSenhas){
+    btnClearSearchSenhas.addEventListener("click", function () {
+        txtSearch.value = '';
+        retrieveData('').then(data => { tratarDataHTMLSenhas(data); });
+        txtSearch.focus();
+    });
+}
 
 let urlRecuperada = '';
 getUrl(false).then(url => {

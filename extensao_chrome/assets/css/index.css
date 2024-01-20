@@ -1,5 +1,3 @@
-/* @import url("https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css"); */
-
 /* Fontes */
 
 @font-face {
@@ -10,6 +8,15 @@
 @font-face {
     font-family: roboto;
     src: url(fontes/Roboto-Regular.ttf);
+}
+
+:root {
+    --crimson-color: #dc143c;
+    --gray-color: #e0e0e0;
+    --green-color: #4fc399;
+    --alice-blue-color: #f0f8ff;
+
+    --hover-white-color: #f0f8ff;
 }
 
 body {
@@ -25,23 +32,40 @@ main {
     justify-content: center;
 }
 
-header div {
-    margin-top: 8pt;
+header {
+    padding: 8pt;
     margin-bottom: 8pt;
-    border-bottom: 1pt solid crimson;
-    width: 90%;
-    text-align: center;
+    border-bottom: 1pt solid var(--crimson-color);
+    color: var(--crimson-color);
+    column-gap: 10px;
+}
+
+header svg {
+    fill: var(--crimson-color);
+}
+
+header:hover {
+    cursor: pointer;
+    background-color: var(--crimson-color);
+    color: var(--hover-white-color);
+    border-bottom: 1pt solid #f0f8ff;
+}
+
+header:hover h1 {
+    color: var(--hover-white-color);
+}
+
+header:hover svg {
+    fill: var(--hover-white-color);
 }
 
 h1 {
     font-size: 20px;
     margin-bottom: 3pt;
-    color: crimson;
+    color: var(--crimson-color);
 }
 
-h1 svg {
-    font-size: 15px;
-}
+
 
 /* main */
 
@@ -55,8 +79,7 @@ main .divSearchSenhasSalvas {
     align-items: center;
 }
 
-.divSearchSenhasSalvas input,
-.divSearchSenhasSalvas button {
+.divSearchSenhasSalvas input {
     padding: 4pt;
     border: 0.5pt solid;
 }
@@ -73,6 +96,7 @@ main .divSearchSenhasSalvas {
 }
 
 .divSearchSenhasSalvas button {
+    padding: 4pt;
     width: 35px;
     background-color: transparent;
     cursor: pointer;
@@ -82,21 +106,50 @@ main .divSearchSenhasSalvas {
     width: 30px;
     background-repeat: no-repeat;
     background-position: center;
+}
 
+.btnSearchSenhas {
     background-image: url('data:image/svg+xml,<svg fill="%23000000" width="14px" height="14px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.71,20.29,18,16.61A9,9,0,1,0,16.61,18l3.68,3.68a1,1,0,0,0,1.42,0A1,1,0,0,0,21.71,20.29ZM11,18a7,7,0,1,1,7-7A7,7,0,0,1,11,18Z"/></svg>');
+    border: 0.5pt solid;
+    border-right: none;
+}
+
+.btnClearSearchSenhas {
+    background-image: url('data:image/svg+xml,<svg fill="%23000000" width="14px" height="14px" viewBox="0 0 24 24" version="1.2" baseProfile="tiny" xmlns="http://www.w3.org/2000/svg"><path d="M12 4c-4.419 0-8 3.582-8 8s3.581 8 8 8 8-3.582 8-8-3.581-8-8-8zm3.707 10.293c.391.391.391 1.023 0 1.414-.195.195-.451.293-.707.293s-.512-.098-.707-.293l-2.293-2.293-2.293 2.293c-.195.195-.451.293-.707.293s-.512-.098-.707-.293c-.391-.391-.391-1.023 0-1.414l2.293-2.293-2.293-2.293c-.391-.391-.391-1.023 0-1.414s1.023-.391 1.414 0l2.293 2.293 2.293-2.293c.391-.391 1.023-.391 1.414 0s.391 1.023 0 1.414l-2.293 2.293 2.293 2.293z"/></svg>');
+    border: 0.5pt solid;
+    border-left: none;
 }
 
 .divSearchSenhasSalvas button:hover {
-    background-color: aliceblue;
+    background-color: var(--alice-blue-color);
+}
+
+/* divDominioTitle */
+.divDominioTitle {
+    margin: 10px 0 10px 0;
 }
 
 /* divDominio */
 .divDominio {
-    margin: 3pt 0 3pt 0;
+    margin: 10px 0 10px 0;
+    padding: 5px;
+    
+    border-bottom: 1pt solid var(--crimson-color);
+    color: var(--crimson-color);
+    column-gap: 10px;
+
+    width: 1fr;
+    display: flex;
+    justify-content: center;
+}
+
+.divDominio svg {
+    fill: var(--crimson-color);
 }
 
 /* divSenhasSalvas */
 .divSenhasSalvas {
+    margin-top: 10px;
     width: 360px;
     overflow: hidden;
 
@@ -108,7 +161,7 @@ main .divSearchSenhasSalvas {
     column-gap: 5px;
     align-items: center;
     justify-items: left;
-    border-top: 1pt solid;
+    border-top: 1pt solid var(--green-color);
     padding: 5px;
 }
 
@@ -138,7 +191,7 @@ main .divSearchSenhasSalvas {
 }
 
 .divSenhasSalvas div button:hover {
-    background-color: aliceblue;
+    background-color: var(--alice-blue-color);
 }
 
 .btnCopy {
@@ -154,7 +207,7 @@ main .divSearchSenhasSalvas {
 .divFormAddSenhas {
     margin-top: 5pt;
     padding-top: 5pt;
-    border-top: 1pt solid;
+    border-top: 1pt solid var(--green-color);
 
     display: grid;
     column-gap: 5pt;
@@ -185,7 +238,7 @@ main .divSearchSenhasSalvas {
 }
 
 .divFormAddSenhas button:hover {
-    background-color: aliceblue;
+    background-color: var(--alice-blue-color);
 }
 
 .btnSaveAddSenhas {
@@ -201,7 +254,7 @@ main .divSearchSenhasSalvas {
 .tituloPassGen {
     margin-top: 8pt;
     margin-bottom: 8pt;
-    border-bottom: 1pt solid crimson;
+    border-bottom: 1pt solid var(--crimson-color);
     width: 90%;
     text-align: center;
 }
@@ -242,7 +295,7 @@ main .divSearchSenhasSalvas {
 }
 
 .frmDivPasswordText button:hover {
-    background-color: aliceblue;
+    background-color: var(--alice-blue-color);
 }
 
 .divMensagens {
@@ -267,7 +320,7 @@ main .divSearchSenhasSalvas {
 
 .divButtonCopiar button {
     color: white;
-    background-color: crimson;
+    background-color: var(--crimson-color);
     border: 1pt solid;
     border-radius: 7px;
 
@@ -278,5 +331,5 @@ main .divSearchSenhasSalvas {
 
 .divButtonCopiar button:hover {
     background-color: white;
-    color: crimson;
+    color: var(--crimson-color);
 }

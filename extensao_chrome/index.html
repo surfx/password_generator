@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 
 <head>
     <title>Password Generator</title>
-    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
+    <link rel="icon" type="image/x-icon" href="key_icon.png">
     <link rel="stylesheet" href="assets/css/css_reset.css">
     <link rel="stylesheet" href="assets/css/index.css">
     <link rel="stylesheet" href="assets/css/slider/slider.css">
@@ -15,24 +16,21 @@
 
 
     <header>
-        <div>
-            <h1>
-                <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="crimson"
-                        d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
-                </svg>
-                Password Generator
-            </h1>
-        </div>
+        <svg width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+                d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
+        </svg>
+        <h1>Password Generator</h1>
     </header>
 
     <main>
         <div>
             <div class="divSearchSenhasSalvas">
                 <input type="text" id="txtSearch" name="txtSearch">
-                <button></button>
+                <button class="btnSearchSenhas"></button>
+                <button class="btnClearSearchSenhas" id="btnClearSearchSenhas"></button>
             </div>
-            <div id="divDominio" class="divDominio"></div>
+            <div id="divDominio" class="divDominioTitle"></div>
             <div class="divSenhasSalvas" id="divSenhasSalvas">
                 <!-- <div>Usuário</div>
                 <div>
@@ -56,14 +54,12 @@
                 <div><button id="btnSaveAddSenhas" name="btnSaveAddSenhas" class="btnSaveAddSenhas"></button></div>
             </div>
 
-            <div class="tituloPassGen">
-                <h1>
-                    <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="crimson"
-                            d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
-                    </svg>
-                    Tool Password Generator
-                </h1>
+            <div class="divDominio">
+                <svg width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
+                </svg>
+                <h1>Tool Password Generator</h1>
             </div>
 
             <div class="frmDivPasswordText">

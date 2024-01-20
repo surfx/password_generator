@@ -7,7 +7,7 @@
     "action": {
         "default_popup": "index.html",
         "default_title": "Password Generator",
-        "default_icon": "hello_extensions.png"
+        "default_icon": "key_icon.png"
     },
     "permissions": [
         "scripting",

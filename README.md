@@ -13,3 +13,5 @@ A Extensão ainda está em desenvolvimento
 # Extensão
 
 <img src="assets\extensao_chrome.png" alt="Password Generator">
+
+A extensão pode ser baixada em [assets\extensao_chrome.7z](assets\extensao_chrome.7z)

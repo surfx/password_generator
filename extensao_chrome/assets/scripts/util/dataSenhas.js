@@ -12,7 +12,7 @@ export function saveDataSenhas(data) {
 
     if (dataSenhas.length <= 0) {
         dataSenhas.push(data);
-        localStorage["dataSenhas"] = JSON.stringify(dataSenhas);
+        localStorage["dataSenhas"] = btoa(JSON.stringify(dataSenhas));
         return;
     }
 
@@ -27,7 +27,7 @@ export function saveDataSenhas(data) {
     // sem o usuário para esse domínio
     if (!!auxDataSenhas && auxDataSenhas.length <= 0) {
         dataSenhas.push(data);
-        localStorage["dataSenhas"] = JSON.stringify(dataSenhas);
+        localStorage["dataSenhas"] = btoa(JSON.stringify(dataSenhas));
         return;
     }
 
@@ -43,7 +43,7 @@ export function saveDataSenhas(data) {
         break;
     }
 
-    localStorage["dataSenhas"] = JSON.stringify(dataSenhas);
+    localStorage["dataSenhas"] = btoa(JSON.stringify(dataSenhas));
 }
 
 export function recuperarDataSenhasDominio(dominio, filtroUsuario) {
@@ -76,7 +76,7 @@ export function recuperarDataSenhas() {
     let rt = localStorage["dataSenhas"];
     if (!rt) { return undefined; }
     try {
-        return JSON.parse(rt);
+        return JSON.parse(atob(rt));
     } catch (error) {
         localStorage.removeItem("dataSenhas");
         return undefined;
@@ -98,6 +98,6 @@ export function excluirSenha(dominio, usuario) {
     );
     if (indexRemover < 0) { return false; }
     dataSenhas.splice(indexRemover, 1);
-    localStorage["dataSenhas"] = JSON.stringify(dataSenhas);
+    localStorage["dataSenhas"] = btoa(JSON.stringify(dataSenhas));
     return true;
 }
