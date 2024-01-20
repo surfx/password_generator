@@ -59,4 +59,4 @@ Renomear o ícone para "hello_extensions.png", igual ao manifest
 
 <img src="..\assets\extensao_chrome.png" alt="Password Generator">
 
-A extensão pode ser baixada em [..\assets\extensao_chrome.7z](..\assets\extensao_chrome.7z)
+A extensão pode ser baixada em [../assets/extensao_chrome.7z](../assets/extensao_chrome.7z)
