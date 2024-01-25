@@ -1,0 +1,3 @@
+# Shutdown
+
+`wsl --shutdown`
