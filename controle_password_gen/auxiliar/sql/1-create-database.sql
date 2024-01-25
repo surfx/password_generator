@@ -39,6 +39,5 @@ CREATE TABLE tokens (
 );
 
 
--- master, senha: plana: { b6K+x!nasGfaCDk, cript: UpE5MOvWx1P5gNKVsGrs }, id do master: 1
-INSERT INTO usuarios (nome, uuid, login, senha, verificado, ativo) VALUES ('Master', uuid(), 'master123@master.com', 'UpE5MOvWx1P5gNKVsGrs', '1', '1');
+
 COMMIT;

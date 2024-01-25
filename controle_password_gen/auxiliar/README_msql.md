@@ -55,10 +55,10 @@ port=33066
 ```
 mysql -u root -h localhost -p -P 33066
 
-CREATE USER 'teste'@'localhost' IDENTIFIED BY 'password';
+CREATE USER 'teste'@'localhost' IDENTIFIED BY '234234234';
 GRANT ALL PRIVILEGES ON *.* TO 'teste'@'localhost' WITH GRANT OPTION;
 GRANT CREATE, SELECT ON *.* TO 'teste'@'localhost';
-CREATE USER 'teste'@'%' IDENTIFIED BY 'password';
+CREATE USER 'teste'@'%' IDENTIFIED BY '2234234';
 GRANT ALL PRIVILEGES ON *.* TO 'teste'@'%' WITH GRANT OPTION;
 GRANT CREATE, SELECT ON *.* TO 'teste'@'%';
 FLUSH PRIVILEGES;
