@@ -23,6 +23,18 @@ class SQLToken {
         return $tokens[0];
     }
 
+    // recupera o token pela string do token
+    public function get_by_token($token){
+        if (!isset($this->_base_aux) || !isset($token)){return null;}
+
+        $sql =  "SELECT id, token, validade FROM tokens ".
+                "WHERE token = '".$token."' ".
+                "AND validade >= CURRENT_TIMESTAMP";
+        $tokens = $this->_base_aux->get_result($sql, function($row) { return $this->converter_token($row); });
+        if (!isset($tokens) || count($tokens) <= 0){return null;}
+        return $tokens[0];
+    }
+
     public function insert_token($token){
         $rt = array("ok" => false, "msg" => "", "token" => null);
         if (!isset($token) || !isset($this->_base_aux)){
@@ -42,16 +54,12 @@ class SQLToken {
         }
 
         // exclui os demais tokens do usuário, pois estão expirados
-        $sql = "DELETE FROM tokens WHERE id = ".$token->getId();
-        $this->_base_aux->execute_sql($sql);
-
-        // echo $sql."<br><br>";
+        $this->excluir_tokens_byid($token->getId());
 
         // 15 horas de validade
         $sql = "INSERT INTO tokens (id, token, validade) VALUES (".
                 $token->getId().", '".$token->getToken()."', ".
                 "date_add(CURRENT_TIMESTAMP, interval 15 HOUR))";
-        
         // echo $sql."<br><br>";
 
         $rt["ok"] = $this->_base_aux->execute_sql($sql);
@@ -60,7 +68,14 @@ class SQLToken {
         return $rt;
     }
 
+    public function excluir_tokens_byid($id_token){
+        if (!isset($id_token)){return false;}
+        $sql = "DELETE FROM tokens WHERE id = ".$id_token;
+        // echo $sql."<br><br>";
+        return $this->_base_aux->execute_sql($sql);
+    }
 
+    // $token aqui é um objeto
     private function validar_token($token){
         $rt = array("ok" => false, "msg" => "", "token" => $token);
         if (!isset($token)){return $rt;}

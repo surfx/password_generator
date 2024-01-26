@@ -32,16 +32,16 @@ class Token {
         return [
             "id" => $this->getId(),
             "token" => $this->getToken(),
-            "validade" => $this->getValidade(),
-            "is_admin" => $this->is_admin()
+            "validade" => $this->getValidade()
+            //"is_admin" => $this->is_admin()
         ];
     }
 
     // serialize(...)
     public function __toString() {
+        //"is_admin: {$this->is_admin()}
         return "id: {$this->_id}, token: {$this->_token}, ". 
-                "validade: {$this->_validade}, ".
-                "is_admin: {$this->is_admin()}";
+                "validade: {$this->_validade}";
     }
 
 }

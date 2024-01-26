@@ -35,18 +35,16 @@
 
 <?php
 
-    //obs: usuario_login e senha estão em base 64
     function tratar_post($http_util, $sql_usuarios, $sql_token){
         if (!isset($http_util) || !isset($sql_usuarios)){ $http_util->retorno("[1] Erro método não permitido", false, 404); return; }
-        $usuario_login=$http_util->get_header_value('usuario');
-        $senha=$http_util->get_header_value('senha');
-        if (!isset($usuario_login) || !isset($senha)){$http_util->retorno("[2] Erro método não permitido", false, 404); return;}
-        $usuario_login = base64_decode($usuario_login);
-        $senha = base64_decode($senha);
-        $usuario = $sql_usuarios->do_login($usuario_login, $senha);
+        $login = $http_util->get_body_value("login");
+        $senha = $http_util->get_body_value("senha");
+        if (!isset($login) || !isset($senha)){$http_util->retorno("[2] Erro método não permitido", false, 404); return;}
+        //$login = base64_decode($login); $senha = base64_decode($senha);
+        $usuario = $sql_usuarios->do_login($login, $senha);
         if (!isset($usuario)){$http_util->retorno("Usuário inválido", false, 404); return;}
 
-        //echo "user: ".$usuario_login.", pass: ".$senha."<br />";
+        //echo "user: ".$login.", pass: ".$senha."<br />";
         //echo "usuario: ".$usuario."<br />";
 
         $token = $sql_token->get_token($usuario->getIdUsuario());
@@ -72,4 +70,5 @@
         $http_util->retorno($rt["token"]->__toJson(), true, 200);
 
     }
+    
 ?>

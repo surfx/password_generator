@@ -30,6 +30,25 @@ class SQLUsuarios {
         return $this->_base_aux->get_result($sql, function($row) { return $this->converter_user($row); });
     }
 
+    // select
+    public function get_user_byparams($uuid, $login, $id){
+        if (!isset($uuid) || !isset($login) || !isset($id) || !isset($this->_base_aux)){return null;}
+        
+        $sql = "SELECT id_usuario, nome, uuid, login, senha, verificado, ativo FROM usuarios ".
+               "WHERE id_usuario = '$id' ".
+               "AND login = '$login' ".
+               "AND uuid = '$uuid' ".
+               "LIMIT 1";
+
+        //echo $sql."<br><br>";
+
+        $usuarios = $this->_base_aux->get_result($sql, function($row) { return $this->converter_user($row); });
+
+        if (!isset($usuarios) || count($usuarios) <= 0){return null;}
+        //foreach ($usuarios as $usuario) { echo "$usuario <br>"; }
+        return $usuarios[0];
+    }
+
     public function do_login($login, $senha){
         if (!isset($login) || !isset($senha) || 
             !isset($this->_base_aux) || 
@@ -49,6 +68,7 @@ class SQLUsuarios {
         return $usuarios[0];
     }
 
+    // insert
     public function insert_user($usuario){
         $rt = array("ok" => false, "msg" => "", "usuario" => null);
         if (!isset($usuario) || !isset($this->_base_aux) || !isset($this->_cript)){
@@ -76,10 +96,12 @@ class SQLUsuarios {
         #echo $sql."<br><br>";
 
         $rt["ok"] = $this->_base_aux->execute_sql($sql);
+        $rt["msg"] = "Usuário criado com sucesso";
         $rt["usuario"] = $this->get_user_bylogin($usuario->getLogin());
         return $rt;
     }
 
+    // update
     public function update_user($usuario){
         $rt = array("ok" => false, "msg" => "", "usuario" => null);
         if (!isset($usuario) || !isset($this->_base_aux) || !isset($this->_cript)){
@@ -118,6 +140,7 @@ class SQLUsuarios {
         return $rt;
     }
 
+    // update
     public function ativar_inativar_usuario($id_usuario, $ativo){
         $rt = array("ok" => false, "msg" => "");
         if (!isset($id_usuario) || !isset($this->_base_aux) || !isset($this->_cript)){
@@ -125,7 +148,8 @@ class SQLUsuarios {
             return $rt;
         }
 
-        $user_byid = $this->get_user_byid($id_usuario);
+        // recupero o usuário pelo inverso do status que quero alterar
+        $user_byid = $this->get_user_byid($id_usuario, !$ativo);
         if (!isset($user_byid) || 
             $user_byid->getIdUsuario() <= 0){
             $rt["ok"] = false;
@@ -137,7 +161,7 @@ class SQLUsuarios {
                 " ativo = '".($ativo ? "1": "0")."' ".
                 " WHERE id_usuario = ".$id_usuario;
         
-        echo $sql."<br><br>";
+        //echo $sql."<br><br>";
 
         $rt["ok"] = $this->_base_aux->execute_sql($sql);
         $rt["msg"] = $rt["ok"] ? 
@@ -146,6 +170,7 @@ class SQLUsuarios {
         return $rt;
     }
 
+    // update
     public function verificacao_usuario($id_usuario, $verificado){
         $rt = array("ok" => false, "msg" => "");
         if (!isset($id_usuario) || !isset($this->_base_aux) || !isset($this->_cript)){
@@ -262,11 +287,15 @@ class SQLUsuarios {
         return $usuarios[0];
     }
 
-    private function get_user_byid($id){
+    private function get_user_byid($id, $ativo = null){
         if (!isset($id) || !isset($this->_base_aux)){return null;}
         
         $sql = "SELECT id_usuario, nome, uuid, login, senha, verificado, ativo FROM usuarios ".
-               "WHERE id_usuario = '$id' LIMIT 1";
+               "WHERE id_usuario = '$id' ";
+        if (isset($ativo) && $ativo){
+            $sql = $sql." AND ativo = '1' ";
+        }
+        $sql = $sql." LIMIT 1";
 
         #echo $sql."<br><br>";
 

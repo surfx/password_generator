@@ -13,6 +13,7 @@ class HTTPUtil {
 
     public function get_header_value($key){
         if (!isset($key)){return null;}
+        $key = strtolower(trim($key));
         $header_aux = $this->get_headers();
         return isset($header_aux) && isset($header_aux[$key]) ? $header_aux[$key] : null;
     }
@@ -53,6 +54,37 @@ class HTTPUtil {
     }
 
     //-------------------
+    // token
+    //-------------------
+    public function get_token_authorization($sql_token){
+        if (!isset($sql_token)){return null;}
+        $authorizacao = $this->get_header_value("authorization");
+        if (!isset($authorizacao)){return null;}
+        $authorizacao = base64_decode($authorizacao);
+        return $sql_token->get_by_token($authorizacao); 
+    }
+
+    public function is_token_ok($sql_token, $admin=false){
+        $token = $this->get_token_authorization($sql_token);
+        if (!isset($token)){return false;}
+        if ($admin){return $token->is_admin();}
+        return true;
+    }
+
+    // token quando cadastra ou loga no sistema
+    public function get_token($usuario_login, $senha, $sql_usuarios, $sql_token){
+        $usuario = $sql_usuarios->do_login($usuario_login, $senha);
+        if (!isset($usuario)){return null;}
+        $token = $sql_token->get_token($usuario->getIdUsuario());
+        if (isset($token)){ return $token; }
+        $token_text = bin2hex(random_bytes(16));
+        $token = new Token($usuario->getIdUsuario(), $token_text);
+        $aux = $sql_token->insert_token($token);
+        if (!isset($aux) || !$aux["ok"] || !isset($aux["token"])){return null;}
+        return $aux["token"];
+    }
+
+    //-------------------
     public function send_output($data, $httpHeaders=array()) {
         header_remove('Set-Cookie');
         if (is_array($httpHeaders) && count($httpHeaders)) {
@@ -67,7 +99,7 @@ class HTTPUtil {
     public function get_http_status_code($http_status = 200){
         switch(intval($http_status)){
             case 400: case 401: case 402: case 403:
-            case 404: return 'HTTP/1.1 '.$http_status.' Not Found';
+            case 404: case 405: return 'HTTP/1.1 '.$http_status.' Not Found';
             case 200: default: return 'HTTP/1.1 '.$http_status.' OK';
         }
     }

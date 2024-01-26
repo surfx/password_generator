@@ -46,13 +46,13 @@ class Usuario {
 
     public function __toJson(){
         return [
-            //"id_usuario" => $this->getIdUsuario(),
+            "id_usuario" => $this->getIdUsuario(),
             "nome" => $this->getNome(),
-            //"uuid" => $this->getUUID(),
+            "uuid" => $this->getUUID(),
             "login" => $this->getLogin(),
             // "senha" => $this->getSenha(),
-            "verificado" => $this->getVerificado(),
-            "ativo" => $this->getAtivo()
+            "verificado" => $this->getVerificado()=="1",
+            "ativo" => $this->getAtivo()=="1"
         ];
     }
 

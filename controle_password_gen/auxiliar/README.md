@@ -6,35 +6,117 @@
 
 # Métodos
 
-## Tokens
+# Login
 
-*obs*: `usuario` e `senha` são base 64
-
-admin:
+## Login
 
 ```
-curl -i -k -X POST \
-   -H "Content-Type:application/json" \
-   -H "usuario:bWFzdGVyMTIzQG1hc3Rlci5jb20=" \
-   -H "senha:YjZLK3ghbmFzR2ZhQ0Rr" \
- 'http://192.168.0.4/helloworld/code/service/authenticacao/'
+curl -k -i -X POST \
+-H "Content-Type:application/json" \
+-d '{ "login": "eme@...", "senha": "..." }' \
+'http://localhost/helloworld/code/service/userservice/?tipo=login'
 ```
 
-usuário comum:
+# Token
+
+## Token get
 
 ```
-curl -i -k -X POST \
-   -H "Content-Type:application/json" \
-   -H "usuario:ZW1lQGdtYWlsLmNvbQ==" \
-   -H "senha:MTIz" \
- 'http://192.168.0.4/helloworld/code/service/authenticacao/'
+curl -k -i -X POST \
+-H "Content-Type:application/json" \
+-d '{"login": "mar@...","senha": "..."}' \
+'http://localhost/helloworld/code/service/authenticacao/'
 ```
 
-## Usuários
+## Validar Token
 
-TODO: add header validation
+token em base 64
 
-Listar top 10 ativos:
+```
+curl -k -i -X GET \
+-H "authorization:M...U=" \
+'http://localhost/helloworld/code/service/userservice/?tipo=tokenvalido'
+```
 
-`curl -i -k -X GET http://192.168.0.4/helloworld/code/service/userservice/?tipo=listuser`
+# User
 
+## User List
+
+Token em base 64 do usuário admin
+
+```
+curl -k -i -X GET \
+-H "Authorization:MW...=" \
+'http://localhost/helloworld/code/service/userservice/?tipo=listuser'
+```
+
+## User insert
+
+```
+curl -k -i -X POST \
+-H "Content-Type:application/json" \
+-d '{"nome": "novo usuário","login": "new@...","senha": "..."}' \
+'http://localhost/helloworld/code/service/userservice/?tipo=insert'
+```
+
+## User delete
+
+token em base 64 do usuário
+
+```
+curl -k -i -X POST \
+-H "Content-Type:application/json" \
+-H "authorization:Y...k=" \
+-d '{"uuid": "81d9f5a...","id": "7","login": "new@..."}' \
+'http://localhost/helloworld/code/service/userservice/?tipo=excluir'
+```
+
+# Senha
+
+## Senha salvar
+
+token em base 64 do usuário
+
+```
+curl -k -i -X POST \
+-H "Content-Type:application/json" \
+-H "authorization:N...=" \
+-d '{"id_usuario": "2","dominio": "...","login": "user2@...","senha": "..."}' \
+'http://localhost/helloworld/code/service/senhas/?tipo=salvar'
+```
+
+## Senha listar
+
+token em base 64 do usuário
+
+```
+curl -k -i -X POST \
+-H "Content-Type:application/json" \
+-H "authorization:N...=" \
+-d '{"id_usuario": "2","dominio": "..."}' \
+'http://localhost/helloworld/code/service/senhas/?tipo=listar'
+```
+
+## Senha editar
+
+token em base 64 do usuário
+
+```
+curl -k -i -X POST \
+-H "authorization:N...Y=" \
+-H "Content-Type:application/json" \
+-d '{"id_senha": 1,"id_usuario": "2","dominio": "...","login": "user2@...","senha": "..."}' \
+'http://localhost/helloworld/code/service/senhas/?tipo=editar'
+```
+
+## Senha excluir
+
+token em base 64 do usuário
+
+```
+curl -k -i -X POST \
+-H "Content-Type:application/json" \
+-H "authorization:O...=" \
+-d '{"id_senha": 4,"id_usuario": 7, "dominio": "..."}' \
+'http://localhost/helloworld/code/service/senhas/?tipo=excluir'
+```
