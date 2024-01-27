@@ -102,8 +102,10 @@ class SQLToken {
 
     private function converter_token($row){
         if (!isset($row)){return null;}
+        $id = $row["id"];
+        $id = isset($id) ? intval($id) : 0;
         return new Token(
-            $row["id"],
+            $id,
             $row["token"],
             $row["validade"]
         );

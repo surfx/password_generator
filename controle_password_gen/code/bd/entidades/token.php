@@ -7,7 +7,7 @@ class Token {
     private $_validade;
 
     public function __construct(
-        $id = "",
+        $id = 0,
         $token = "",
         $validade = ""
     ) {

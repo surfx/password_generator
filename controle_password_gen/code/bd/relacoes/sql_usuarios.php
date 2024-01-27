@@ -310,8 +310,11 @@ class SQLUsuarios {
     private function converter_user($row){
         if (!isset($row)){return null;}
 
+        $id_usuario = $row["id_usuario"];
+        $id_usuario = isset($id_usuario) ? intval($id_usuario) : 0;
+
         return new Usuario(
-            $row["id_usuario"],
+            $id_usuario,
             $row["nome"],
             $row["uuid"],
             $row["login"],

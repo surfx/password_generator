@@ -63,7 +63,7 @@
 
             if (!isset($id_usuario) || !isset($dominio) || !isset($id_token) ||
                 $id_token != $id_usuario){
-                $http_util->retorno("Erro", false, 404); return;
+                $http_util->retorno_erro("Erro", 404); return;
             }
 
             $senhas = $sql_senhas->list_senhas($id_usuario, $dominio);
@@ -92,7 +92,7 @@
             if (!isset($id_usuario) || !isset($dominio) || 
                 !isset($login) || !isset($senha) || 
                 !isset($id_token) || $id_token != $id_usuario){
-                $http_util->retorno("Erro", false, 404); return;
+                $http_util->retorno_erro("Erro", 404); return;
             }
 
             $senha_salvar = new Senha(
@@ -132,7 +132,7 @@
                 !isset($dominio) || 
                 !isset($login) || !isset($senha) || 
                 !isset($id_token) || $id_token != $id_usuario){
-                $http_util->retorno("Erro", false, 404); return;
+                $http_util->retorno_erro("Erro", 404); return;
             }
 
             $senha_atualizar = new Senha(
@@ -169,7 +169,7 @@
             if (!isset($id_senha) || !isset($id_usuario) || 
                 !isset($dominio) || 
                 !isset($id_token) || $id_token != $id_usuario){
-                $http_util->retorno("Erro", false, 404); return;
+                $http_util->retorno_erro("Erro", 404); return;
             }
 
             $senha_excluir = new Senha(

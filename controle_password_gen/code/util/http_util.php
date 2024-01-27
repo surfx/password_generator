@@ -122,6 +122,12 @@ class HTTPUtil {
         ;
     }
 
+    public function retorno_erro($msg = "Erro", $http_status = 400){
+        $msg = isset($msg) ? $msg : "Erro";
+        $this->retorno(["ok" => false, "msg" => $msg], true, $http_status);
+        die("retorno com erro. ".$msg." ".$http_status);
+    }
+
 }
 ?>
 

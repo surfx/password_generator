@@ -59,7 +59,7 @@
 
         }
 
-        $http_util->retorno("Erro", false, 401);
+        $http_util->retorno_erro("Erro", 401);
         return;
     }
 
@@ -70,7 +70,7 @@
 
         if (!isset($tipo) || !in_array($tipo, $tipos_validos)){
             $msg = !isset($tipo) ? "Informe o tipo" : "Tipo inválido (".(isset($tipo)?$tipo:"null").")";
-            $http_util->retorno($msg, false, 404);
+            $http_util->retorno_erro($msg, 404);
             return;
         }
 
@@ -78,19 +78,19 @@
         if ($tipo == 'listuser'){
                     
             if (!$http_util->is_token_ok($sql_token, true)){
-                $http_util->retorno("Sem permissão", false, 401);
+                $http_util->retorno_erro("Sem permissão", 401);
                 return;
             }
 
             $usuarios = $sql_usuarios->list_users(true, 10);
             if (!isset($usuarios)){
-                $http_util->retorno("No Data", false, 400);
+                $http_util->retorno_erro("No Data", 400);
                 return;
             }
 
             $array[] = []; $array = array_shift($array);
             foreach ($usuarios as $usuario) { array_push($array, $usuario->__toJson()); }
-            $http_util->retorno($array, true, 200);
+            $http_util->retorno( ["ok" => true, "data" => $array] , true, 200);
             //echo "<br /><br />encode: ".json_encode($array)."<br /><br />";
             return;
         }
@@ -100,7 +100,7 @@
             $senha = $http_util->get_body_value("senha");
 
             if (!isset($login) || !isset($senha)){
-                $http_util->retorno("Erro", false, 404); return;
+                $http_util->retorno_erro("Erro", 404); return;
             }
 
             //echo "login: {$login}<br />\r\n";
@@ -108,14 +108,14 @@
 
             $user = $sql_usuarios->do_login($login, $senha);
             if (!isset($user)){
-                $http_util->retorno("Erro", false, 404); return;
+                $http_util->retorno_erro("Erro", 404); return;
             }
 
             $rt = $user->__toJson();
             $aux_token = $http_util->get_token($login, $senha, $sql_usuarios, $sql_token);
             if (isset($aux_token)){ $rt["token"] = $aux_token->__toJson(); }
 
-            $http_util->retorno($rt, true, 200);
+            $http_util->retorno( ["ok" => true, "data" => $rt] , true, 200);
             return;
         }
 
@@ -129,7 +129,7 @@
             $senha = $http_util->get_body_value("senha");
 
             if (!isset($nome) || !isset($login) || !isset($senha)){
-                $http_util->retorno("Erro", false, 404); return;
+                $http_util->retorno_erro("Erro", 404); return;
             }
 
             $user_add = new Usuario(null, $nome, null, $login, $senha, "0", "1");
@@ -137,7 +137,7 @@
 
             $rt = $sql_usuarios->insert_user($user_add);
             if (!isset($rt)){
-                $http_util->retorno("Erro", false, 404); return;
+                $http_util->retorno_erro("Erro", 404); return;
             }
             if (!$rt["ok"]){
                 $http_util->retorno($rt, true, 404); return;
@@ -155,13 +155,13 @@
         if ($tipo == 'excluir'){
             $authorizacao = $http_util->get_header_value("authorization");
             if (!isset($authorizacao) || !$http_util->is_token_ok($sql_token, false)){
-                $http_util->retorno("Sem permissão", false, 401);
+                $http_util->retorno_erro("Sem permissão", 401);
                 return;
             }
             $authorizacao = base64_decode($authorizacao);
             #echo "authorizacao: {$authorizacao}<br />";
             $token = $sql_token->get_by_token($authorizacao);
-            if (!isset($token)){ $http_util->retorno("Sem permissão", false, 401); return; }
+            if (!isset($token)){ $http_util->retorno_erro("Sem permissão", 401); return; }
 
             //echo "token: [{$token}]<br />";
 
@@ -172,21 +172,21 @@
             if (
                 !isset($uuid) || !isset($id) || !isset($login) ||
                 $id != $token->getId()
-            ){ $http_util->retorno("Erro", false, 404); return; }
+            ){ $http_util->retorno_erro("Erro", 404); return; }
 
             // echo "uuid: {$uuid}<br />";
             // echo "id: {$id}<br />";
             // echo "login: {$login}<br />";
 
             $user = $sql_usuarios->get_user_byparams($uuid, $login, $id);
-            if (!isset($user)){ $http_util->retorno("Erro", false, 404); return; }
+            if (!isset($user)){ $http_util->retorno_erro("Erro", 404); return; }
             
             #echo "user: {$user}\r\n<br />";
 
             $rt = $sql_usuarios->ativar_inativar_usuario($user->getIdUsuario(), false);
             $msg = isset($rt["msg"]) ? $rt["msg"] : "Erro ao excluir o usuário: ".$user->getNome();
             if (!isset($rt) || !$rt["ok"]){ 
-                $http_util->retorno($msg, false, 404); return; 
+                $http_util->retorno_erro($msg, 404); return; 
             }
 
             // excluir tokens deste usuário

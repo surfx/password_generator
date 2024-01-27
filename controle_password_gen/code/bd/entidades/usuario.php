@@ -12,7 +12,7 @@ class Usuario {
     private $_ativo;
 
     public function __construct(
-        $id_usuario = "",
+        $id_usuario = 0,
         $nome = "",
         $uuid = "",
         $login = "",
@@ -58,10 +58,10 @@ class Usuario {
 
     // serialize(...)
     public function __toString() {
-        return "id_usuario: {$this->_id_usuario}, nome: {$this->_nome}, ". 
-                "uuid: {$this->_uuid}, login: {$this->_login}, " .
-                "senha: {$this->_senha}, verificado: {$this->_verificado}, ".
-                "ativo: {$this->_ativo}";
+        return "id_usuario: {$this->getIdUsuario()}, nome: {$this->getNome()}, ". 
+                "uuid: {$this->getUUID()}, login: {$this->getLogin()}, " .
+                "senha: {$this->getSenha()}, verificado: {$this->getVerificado()}, ".
+                "ativo: {$this->getAtivo()}";
     }
 
 }

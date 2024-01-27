@@ -29,20 +29,20 @@
 
     switch($method){
         case 'post': tratar_post($http_util, $sql_usuarios, $sql_token); return;
-        default: $http_util->retorno("Erro método não permitido: ".$method, false, 404);
+        default: $http_util->retorno_erro("Erro método não permitido: ".$method, 404);
     }
 ?>
 
 <?php
 
     function tratar_post($http_util, $sql_usuarios, $sql_token){
-        if (!isset($http_util) || !isset($sql_usuarios)){ $http_util->retorno("[1] Erro método não permitido", false, 404); return; }
+        if (!isset($http_util) || !isset($sql_usuarios)){ $http_util->retorno_erro("[1] Erro método não permitido", 404); return; }
         $login = $http_util->get_body_value("login");
         $senha = $http_util->get_body_value("senha");
-        if (!isset($login) || !isset($senha)){$http_util->retorno("[2] Erro método não permitido", false, 404); return;}
+        if (!isset($login) || !isset($senha)){$http_util->retorno_erro("[2] Erro método não permitido", 404); return;}
         //$login = base64_decode($login); $senha = base64_decode($senha);
         $usuario = $sql_usuarios->do_login($login, $senha);
-        if (!isset($usuario)){$http_util->retorno("Usuário inválido", false, 404); return;}
+        if (!isset($usuario)){$http_util->retorno_erro("Usuário inválido", 404); return;}
 
         //echo "user: ".$login.", pass: ".$senha."<br />";
         //echo "usuario: ".$usuario."<br />";
@@ -51,7 +51,8 @@
         if (isset($token)){
             //echo "possui token ativo: ".$token."<br />";
             //echo "json: ".json_encode($token->__toJson())."<br />";
-            $http_util->retorno($token->__toJson(), true, 200);
+            $http_util->retorno( ["ok" => true, "data" => $token->__toJson()] , true, 200);
+
             return;
         }
 
@@ -62,12 +63,12 @@
         $rt = $sql_token->insert_token($token);
 
         if (!isset($rt) || !isset($rt["ok"]) || !$rt["ok"] || !isset($rt["token"])) {
-            $http_util->retorno("[2] Erro ao salvar o token [".$token."], mgs: ".$rt["msg"], false, 402);
+            $http_util->retorno_erro("[2] Erro ao salvar o token [".$token."], mgs: ".$rt["msg"], 402);
             return;
         }
 
         //echo "Token salvo: ".$rt["msg"].", token: ".$rt["token"];
-        $http_util->retorno($rt["token"]->__toJson(), true, 200);
+        $http_util->retorno( ["ok" => true, "data" => $rt["token"]->__toJson()] , true, 200);
 
     }
     
