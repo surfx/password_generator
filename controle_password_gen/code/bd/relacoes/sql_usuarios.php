@@ -70,7 +70,7 @@ class SQLUsuarios {
 
     // insert
     public function insert_user($usuario){
-        $rt = array("ok" => false, "msg" => "", "usuario" => null);
+        $rt = array("ok" => false, "msg" => "", "data" => $usuario);
         if (!isset($usuario) || !isset($this->_base_aux) || !isset($this->_cript)){
             $rt["msg"] = "Usuário inválido";
             return $rt;
@@ -83,7 +83,7 @@ class SQLUsuarios {
         if (isset($user_bylogin)){
             $rt["ok"] = false;
             $rt["msg"] = "Já existe o login informado: ".$usuario->getLogin();
-            $rt["usuario"] = $user_bylogin;
+            $rt["data"] = $user_bylogin;
             return $rt;
         }
 
@@ -97,13 +97,13 @@ class SQLUsuarios {
 
         $rt["ok"] = $this->_base_aux->execute_sql($sql);
         $rt["msg"] = "Usuário criado com sucesso";
-        $rt["usuario"] = $this->get_user_bylogin($usuario->getLogin());
+        $rt["data"] = $this->get_user_bylogin($usuario->getLogin());
         return $rt;
     }
 
     // update
     public function update_user($usuario){
-        $rt = array("ok" => false, "msg" => "", "usuario" => null);
+        $rt = array("ok" => false, "msg" => "", "data" => null);
         if (!isset($usuario) || !isset($this->_base_aux) || !isset($this->_cript)){
             $rt["msg"] = "Usuário inválido";
             return $rt;
@@ -119,7 +119,15 @@ class SQLUsuarios {
             $user_byid->getIdUsuario() <= 0){
             $rt["ok"] = false;
             $rt["msg"] = "Não existe o id informado: ".$usuario->getIdUsuario();
-            $rt["usuario"] = $usuario;
+            $rt["data"] = $usuario;
+            return $rt;
+        }
+
+        $user_bylogin = $this->get_user_bylogin($usuario->getLogin(), $usuario->getIdUsuario());
+        if (isset($user_bylogin)){
+            $rt["ok"] = false;
+            $rt["msg"] = "Já existe o login informado: ".$usuario->getLogin();
+            $rt["data"] = $user_bylogin;
             return $rt;
         }
 
@@ -136,7 +144,8 @@ class SQLUsuarios {
         #echo $sql."<br><br>";
 
         $rt["ok"] = $this->_base_aux->execute_sql($sql);
-        $rt["usuario"] = $this->get_user_byid($id_user);
+        $rt["msg"] = "Usuário atualizado";
+        $rt["data"] = $this->get_user_byid($id_user);
         return $rt;
     }
 
@@ -200,7 +209,7 @@ class SQLUsuarios {
     }
 
     private function validar_usuario($usuario, $verificar_id = false, $verificar_uuid = false){
-        $rt = array("ok" => false, "msg" => "", "usuario" => $usuario);
+        $rt = array("ok" => false, "msg" => "", "data" => $usuario);
         if (!isset($usuario)){return $rt;}
         $rt["ok"] = true;
 
@@ -272,11 +281,15 @@ class SQLUsuarios {
         return isset($usuario);
     }
 
-    private function get_user_bylogin($login){
+    private function get_user_bylogin($login, $id_usuario_ignorar = null){
         if (!isset($login) || !isset($this->_base_aux)){return null;}
         
         $sql = "SELECT id_usuario, nome, uuid, login, senha, verificado, ativo FROM usuarios ".
-               "WHERE login = '$login' LIMIT 1";
+               "WHERE login = '$login' ";
+        if (isset($id_usuario_ignorar)){
+            $sql = $sql." AND id_usuario != ".$id_usuario_ignorar." ";
+        }
+        $sql = $sql."LIMIT 1";
 
         #echo $sql."<br><br>";
 

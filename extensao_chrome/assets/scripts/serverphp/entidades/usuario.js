@@ -1,17 +1,27 @@
 class Usuario {
 
     #id_usuario; #nome; #uuid;
-    #login; #verificado; #ativo;
+    #login; #senha; #verificado; #ativo;
     #token;
 
-    constructor() {
-        this.#id_usuario = 0;
-        this.#nome = '';
-        this.#uuid = '';
-        this.#login = '';
-        this.#verificado = false;
-        this.#ativo = false;
-        this.#token = undefined;
+    constructor(
+        id_usuario = 0,
+        nome = '',
+        uuid = '',
+        login = '',
+        senha = '',
+        verificado = false,
+        ativo = false,
+        token = undefined
+    ) {
+        this.#id_usuario = id_usuario;
+        this.#nome = nome;
+        this.#uuid = uuid;
+        this.#login = login;
+        this.#senha = senha;
+        this.#verificado = verificado;
+        this.#ativo = ativo;
+        this.#token = token;
     }
 
     get id_usuario() { return this.#id_usuario; }
@@ -22,6 +32,8 @@ class Usuario {
     set uuid(valor) { this.#uuid = valor; }
     get login() { return this.#login; }
     set login(valor) { this.#login = valor; }
+    get senha() { return this.#senha; }
+    set senha(valor) { this.#senha = valor; }
     get verificado() { return this.#verificado; }
     set verificado(valor) { this.#verificado = valor; }
     get ativo() { return this.#ativo; }

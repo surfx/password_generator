@@ -66,7 +66,7 @@
     function tratar_post($http_util, $sql_usuarios, $sql_token){
         $tipo=$http_util->get_querystring_value("tipo");
         $tipo = isset($tipo) ? strtolower(trim($tipo)) : null;
-        $tipos_validos = ['listuser', 'login', 'insert', 'excluir'];
+        $tipos_validos = ['listuser', 'login', 'insert', 'update', 'excluir'];
 
         if (!isset($tipo) || !in_array($tipo, $tipos_validos)){
             $msg = !isset($tipo) ? "Informe o tipo" : "Tipo inválido (".(isset($tipo)?$tipo:"null").")";
@@ -136,18 +136,62 @@
             //echo "user_add: [{$user_add}]<br />\r\n";
 
             $rt = $sql_usuarios->insert_user($user_add);
+            if (isset($rt["data"])){
+                $rt["data"] = $rt["data"]->__toJson();
+            }
             if (!isset($rt)){
                 $http_util->retorno_erro("Erro", 404); return;
             }
             if (!$rt["ok"]){
                 $http_util->retorno($rt, true, 404); return;
             }
-
-            if (isset($rt["usuario"])){
-                $rt["usuario"] = $rt["usuario"]->__toJson();
-            }
+           
             $aux_token = $http_util->get_token($login, $senha, $sql_usuarios, $sql_token);
             if (isset($aux_token)){ $rt["token"] = $aux_token->__toJson(); }
+
+            $http_util->retorno($rt, true, 201);return;
+        }
+
+        if ($tipo == 'update'){
+            $authorizacao = $http_util->get_header_value("authorization");
+            if (!isset($authorizacao) || !$http_util->is_token_ok($sql_token, false)){
+                $http_util->retorno_erro("Sem permissão", 401);
+                return;
+            }
+            $authorizacao = base64_decode($authorizacao);
+            #echo "authorizacao: {$authorizacao}<br />";
+            $token = $sql_token->get_by_token($authorizacao);
+            if (!isset($token)){ $http_util->retorno_erro("Sem permissão", 401); return; }
+
+            $id_usuario = $http_util->get_body_value("id_usuario");
+            $nome = $http_util->get_body_value("nome");
+            $uuid = $http_util->get_body_value("uuid");
+            $login = $http_util->get_body_value("login");
+            $senha = $http_util->get_body_value("senha");
+            $verificado = $http_util->get_body_value("verificado");
+            $ativo = $http_util->get_body_value("ativo");
+
+            if (!isset($id_usuario) || !isset($nome) || !isset($uuid) || !isset($login) || 
+                !isset($senha) || !isset($verificado)|| !isset($ativo)){
+                $http_util->retorno_erro("Erro", 404); return;
+            }
+
+            $user_update = new Usuario($id_usuario, $nome, $uuid, $login, $senha, $verificado, $ativo);
+            //echo "user_add: [{$user_update}]<br />\r\n";
+
+            $rt = $sql_usuarios->update_user($user_update);
+            if (isset($rt["data"])){
+                $rt["data"] = $rt["data"]->__toJson();
+            }
+            if (!isset($rt)){
+                $http_util->retorno_erro("Erro", 404); return;
+            }
+            if (!$rt["ok"]){
+                $http_util->retorno($rt, true, 404); return;
+            }
+           
+            // $aux_token = $http_util->get_token($login, $senha, $sql_usuarios, $sql_token);
+            // if (isset($aux_token)){ $rt["token"] = $aux_token->__toJson(); }
 
             $http_util->retorno($rt, true, 201);return;
         }
