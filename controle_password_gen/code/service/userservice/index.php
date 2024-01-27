@@ -35,32 +35,11 @@
     function tratar_get($http_util, $sql_usuarios, $sql_token){
         $tipo=$http_util->get_querystring_value("tipo");
         $tipo = isset($tipo) ? strtolower(trim($tipo)) : null;
-        $tipos_validos = ['tokenvalido', 'listuser', "verificado"];
+        $tipos_validos = ['tokenvalido', "verificado"];
 
         if (!isset($tipo) || !in_array($tipo, $tipos_validos)){
             $msg = !isset($tipo) ? "Informe o tipo" : "Tipo inválido (".(isset($tipo)?$tipo:"null").")";
             $http_util->retorno($msg, false, 404);
-            return;
-        }
-
-        // recuperar os 10 primeiros ativos
-        if ($tipo == 'listuser'){
-            
-            if (!$http_util->is_token_ok($sql_token, true)){
-                $http_util->retorno("Sem permissão", false, 401);
-                return;
-            }
-
-            $usuarios = $sql_usuarios->list_users(true, 10);
-            if (!isset($usuarios)){
-                $http_util->retorno("No Data", false, 400);
-                return;
-            }
-
-            $array[] = []; $array = array_shift($array);
-            foreach ($usuarios as $usuario) { array_push($array, $usuario->__toJson()); }
-            $http_util->retorno($array, true, 200);
-            //echo "<br /><br />encode: ".json_encode($array)."<br /><br />";
             return;
         }
 
@@ -87,11 +66,32 @@
     function tratar_post($http_util, $sql_usuarios, $sql_token){
         $tipo=$http_util->get_querystring_value("tipo");
         $tipo = isset($tipo) ? strtolower(trim($tipo)) : null;
-        $tipos_validos = ['login', 'insert', 'excluir'];
+        $tipos_validos = ['listuser', 'login', 'insert', 'excluir'];
 
         if (!isset($tipo) || !in_array($tipo, $tipos_validos)){
             $msg = !isset($tipo) ? "Informe o tipo" : "Tipo inválido (".(isset($tipo)?$tipo:"null").")";
             $http_util->retorno($msg, false, 404);
+            return;
+        }
+
+        // recuperar os 10 primeiros ativos
+        if ($tipo == 'listuser'){
+                    
+            if (!$http_util->is_token_ok($sql_token, true)){
+                $http_util->retorno("Sem permissão", false, 401);
+                return;
+            }
+
+            $usuarios = $sql_usuarios->list_users(true, 10);
+            if (!isset($usuarios)){
+                $http_util->retorno("No Data", false, 400);
+                return;
+            }
+
+            $array[] = []; $array = array_shift($array);
+            foreach ($usuarios as $usuario) { array_push($array, $usuario->__toJson()); }
+            $http_util->retorno($array, true, 200);
+            //echo "<br /><br />encode: ".json_encode($array)."<br /><br />";
             return;
         }
 

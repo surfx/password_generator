@@ -22,10 +22,7 @@ class ServerPHP {
 
     async fetchDataUK() {
         const res = await fetch("https://api.coronavirus.data.gov.uk/v1/data", {
-            method: "GET",
-            headers: {
-                "Authorization": "MWFhM2UzOGViMTU4NTM4OTkxOWU5MmEyYTU4NGQ0ZWU="
-            }
+            method: "GET"
         });
         const record = await res.json();
         console.log(record);
@@ -33,12 +30,10 @@ class ServerPHP {
 
     async listUsers() {
         const res = await fetch("http://192.168.0.4/helloworld/code/service/userservice/?tipo=listuser", {
-            method: "GET",
+            method: "POST",
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
-                'Access-Control-Allow-Origin': 'no-cors',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                "Authorization": "MWFhM2UzOGViMTU4NTM4OTkxOWU5MmEyYTU4NGQ0ZWU="
+                "authorization": "MWFhM2UzOGViMTU4NTM4OTkxOWU5MmEyYTU4NGQ0ZWU="
             }
         });
         const record = await res.json();

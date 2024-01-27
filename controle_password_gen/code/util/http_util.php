@@ -114,7 +114,7 @@ class HTTPUtil {
             array(
                 'Content-Type: '.($is_json ? 'application/json': 'text/plain'),
                 'Access-Control-Allow-Origin: *',
-                'Access-Control-Allow-Headers: X-Requested-With, token, Content-Type, no-cors',
+                'Access-Control-Allow-Headers: X-Requested-With, token, Content-Type, no-cors, authorization',
                 'Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS',
                 'Access-Control-Max-Age: 1728000'
             ), 
