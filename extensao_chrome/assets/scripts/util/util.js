@@ -45,3 +45,11 @@ export function showMsg(alvo, mensagem) {
         alvo.innerHTML = '';
     }, 1000);
 }
+
+// export const exPromisse = (algumParametro) => {
+//     return new Promise((resolve, reject) => {
+//         //.. do some thing
+//         resolve('vc me passou: ' + algumParametro);
+//     });
+// }
+// ex call: exPromisse("aas").then(data => { console.log(`data: ${data}`); });

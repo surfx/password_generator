@@ -45,6 +45,7 @@
 
         // recuperar os 10 primeiros ativos
         if ($tipo == 'listuser'){
+            
             if (!$http_util->is_token_ok($sql_token, true)){
                 $http_util->retorno("Sem permissão", false, 401);
                 return;

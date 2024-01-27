@@ -87,6 +87,7 @@ class HTTPUtil {
     //-------------------
     public function send_output($data, $httpHeaders=array()) {
         header_remove('Set-Cookie');
+
         if (is_array($httpHeaders) && count($httpHeaders)) {
             foreach ($httpHeaders as $httpHeader) {
                 header($httpHeader);
@@ -105,11 +106,20 @@ class HTTPUtil {
     }
 
     public function retorno($data, $is_json, $http_status = 200){
+
+        // header: Access-Control-Allow-Origin: * - resolve o problema de CORS
+
         $this->send_output(
             isset($data) ? ($is_json ? json_encode($data) : $data) : "",
-            array('Content-Type: '.($is_json ? 'application/json': 'text/plain'), 
+            array(
+                'Content-Type: '.($is_json ? 'application/json': 'text/plain'),
+                'Access-Control-Allow-Origin: *',
+                'Access-Control-Allow-Headers: X-Requested-With, token, Content-Type, no-cors',
+                'Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS',
+                'Access-Control-Max-Age: 1728000'
+            ), 
             $this->get_http_status_code($http_status))
-        );
+        ;
     }
 
 }
