@@ -10,7 +10,7 @@
 
 ## Login
 
-```
+```bash
 curl -k -i -X POST \
 -H "Content-Type:application/json" \
 -d '{ "login": "eme@...", "senha": "..." }' \
@@ -21,7 +21,7 @@ curl -k -i -X POST \
 
 ## Token get
 
-```
+```bash
 curl -k -i -X POST \
 -H "Content-Type:application/json" \
 -d '{"login": "mar@...","senha": "..."}' \
@@ -32,7 +32,7 @@ curl -k -i -X POST \
 
 token em base 64
 
-```
+```bash
 curl -k -i -X GET \
 -H "authorization:M...U=" \
 'http://localhost/helloworld/code/service/userservice/?tipo=tokenvalido'
@@ -44,7 +44,7 @@ curl -k -i -X GET \
 
 Token em base 64 do usuário admin
 
-```
+```bash
 curl -k -i -X GET \
 -H "Authorization:MW...=" \
 'http://localhost/helloworld/code/service/userservice/?tipo=listuser'
@@ -52,7 +52,7 @@ curl -k -i -X GET \
 
 ## User insert
 
-```
+```bash
 curl -k -i -X POST \
 -H "Content-Type:application/json" \
 -d '{"nome": "novo usuário","login": "new@...","senha": "..."}' \
@@ -63,7 +63,7 @@ curl -k -i -X POST \
 
 token em base 64 do usuário
 
-```
+```bash
 curl -k -i -X POST \
 -H "Content-Type:application/json" \
 -H "authorization:Y...k=" \
@@ -71,13 +71,26 @@ curl -k -i -X POST \
 'http://localhost/helloworld/code/service/userservice/?tipo=excluir'
 ```
 
+## User update
+
+token em base 64 do usuário
+
+```bash
+curl -k -i -X POST \
+-H "Content-Type:application/json" \
+-H "authorization:M...ZjM=" \
+-d '{ "id_usuario": 7, "nome": "novo nome", "uuid": "81...2",  "login": "new...", "senha": "s...", "verificado": "1", "ativo": "1" }' \
+'http://localhost/helloworld/code/service/userservice/?tipo=update'
+```
+
+
 # Senha
 
 ## Senha salvar
 
 token em base 64 do usuário
 
-```
+```bash
 curl -k -i -X POST \
 -H "Content-Type:application/json" \
 -H "authorization:N...=" \
@@ -89,7 +102,7 @@ curl -k -i -X POST \
 
 token em base 64 do usuário
 
-```
+```bash
 curl -k -i -X POST \
 -H "Content-Type:application/json" \
 -H "authorization:N...=" \
@@ -101,7 +114,7 @@ curl -k -i -X POST \
 
 token em base 64 do usuário
 
-```
+```bash
 curl -k -i -X POST \
 -H "authorization:N...Y=" \
 -H "Content-Type:application/json" \
@@ -113,7 +126,7 @@ curl -k -i -X POST \
 
 token em base 64 do usuário
 
-```
+```bash
 curl -k -i -X POST \
 -H "Content-Type:application/json" \
 -H "authorization:O...=" \

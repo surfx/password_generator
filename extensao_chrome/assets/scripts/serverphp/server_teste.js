@@ -1,4 +1,3 @@
-
 let link1 = document.getElementById('link1');
 let link2 = document.getElementById('link2');
 let link3 = document.getElementById('link3'); // listUsers
@@ -7,6 +6,9 @@ let link5 = document.getElementById('link5');
 let link6 = document.getElementById('link6');
 let link7 = document.getElementById('link7');
 let link8 = document.getElementById('link8');
+let link9 = document.getElementById('link9');
+let link10 = document.getElementById('link10');
+let link11 = document.getElementById('link11');
 
 const server = new ServerPHP();
 
@@ -72,14 +74,51 @@ addclick(link7, ()=>{
     server.insertUser(nome, login, senha).then(res => {
         if (!res.ok){ console.log(res.msg, "{", res.data.toString(), "}"); return; }
         //console.log(res);
-        console.log(res.msg, "{", res.data.toString(), "}");
+        console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido", "}");
     });
 });
 addclick(link8, ()=>{ 
-    let token = 'YWU2NTVkMzNkN2E0NDAyNDYyMWEwMGM5YWVjZmNlOWE=';
-    let user = new Usuario(15, 'novo nome 2', 'dsfasdfasdfsadf', 'afsdsdm@gmail.com', "senha", true, true, undefined);
+    let token = 'MDBkMTQ3ZWRmZGJmMTdjZjYxNDdmMTY4OTQ5ZDJjZjM=';
+    let user = new Usuario(7, 'novo nome 2', '81d9f5a7-bbef-11ee-9108-d85ed38ea852', 'new@gmail.com', "senha", true, true, undefined);
     server.updateUser(user, token).then(res => {
-        if (!res.ok){ console.log(res.msg, "{", res.data.toString(), "}"); return; }
-        console.log(res.msg, "{", res.data.toString(), "}");
+        if (!res.ok){ console.log(res.msg, "{", 
+        !!res.data ? res.data.toString() : "indefinido"
+        , "}"); return; }
+        console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido", "}");
     });
+});
+addclick(link9, ()=>{ 
+    let token = 'MDBkMTQ3ZWRmZGJmMTdjZjYxNDdmMTY4OTQ5ZDJjZjM=';
+    let user = new Usuario(8, 'novo nome 311', '81d9f5a7-bbef-11ee-9108-d85ed38ea852', 'new78@gmail.com', "senha", true, undefined, undefined);
+    server.updateUserPart(user, token).then(res => {
+        if (!res.ok){ console.log(res.msg, "{", 
+        !!res.data ? res.data.toString() : "indefinido"
+        , "}"); return; }
+        console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido", "}");
+    });
+});
+
+addclick(link10, ()=>{
+    let token = 'M2YwYWJhYWRkYTIzMjY3OTE4ZmI0NTM3YzUyZGIzYjk=';
+    let id_usuario = 16;
+    let dominio = 'youtube';
+    server.listarSenhas(id_usuario, dominio, token).then(res => {
+        if (!res.ok){ console.log(res.msg, "{", res.data , "}"); return; }
+        res.data.forEach(senha => { console.log(senha.toString()); })
+    });
+});
+
+addclick(link11, ()=>{
+    let token = 'M2YwYWJhYWRkYTIzMjY3OTE4ZmI0NTM3YzUyZGIzYjk=';
+    let id_usuario = 16;
+    let dominio = 'youtube';
+    let login = 'login_yt@gmail.com';
+    let senha = 'senha yt2 123';
+    server.salvarSenha(id_usuario, dominio, login, senha, token).then(res => {
+        if (!res.ok){ console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido" , "}"); return; }
+        console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido", "}");
+    });
+
+    //salvarSenha(id_usuario, dominio, login, senha, token)
+
 });

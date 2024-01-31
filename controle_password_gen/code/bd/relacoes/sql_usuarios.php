@@ -150,6 +150,56 @@ class SQLUsuarios {
     }
 
     // update
+    public function update_user_part($usuario){
+        $rt = array("ok" => false, "msg" => "", "data" => null);
+        if (!isset($usuario) || !isset($this->_base_aux) || !isset($this->_cript)){
+            $rt["msg"] = "Usuário inválido";
+            return $rt;
+        }
+
+        // apenas para passar na validação, o valor não importa aqui
+        $usuario->setVerificado("1");
+        $usuario->setAtivo("1");
+
+        $rt = $this->validar_usuario($usuario, true, true);
+        if (!$rt["ok"]){return $rt;}
+
+        $user_byid = $this->get_user_byparams_id_uuid($usuario->getIdUsuario(), $usuario->getUUID());
+        $id_user = isset($user_byid) ? $user_byid->getIdUsuario() : null;
+        if (!isset($user_byid) || 
+            !isset($id_user) || 
+            $user_byid->getIdUsuario() <= 0){
+            $rt["ok"] = false;
+            $rt["msg"] = "Não existe o id informado: ".$usuario->getIdUsuario()." e uuid: ".$usuario->getUUID();
+            $rt["data"] = $usuario;
+            return $rt;
+        }
+
+        $user_bylogin = $this->get_user_bylogin($usuario->getLogin(), $usuario->getIdUsuario());
+        if (isset($user_bylogin)){
+            $rt["ok"] = false;
+            $rt["msg"] = "Já existe o login informado: ".$usuario->getLogin();
+            $rt["data"] = $user_bylogin;
+            return $rt;
+        }
+
+        $id_user = $usuario->getIdUsuario();
+
+        $sql = "UPDATE usuarios SET ".
+                " nome = '".$usuario->getNome()."', ".
+                " login = '".$usuario->getLogin()."', ".
+                " senha = '".$this->_cript->criptografar($usuario->getSenha())."' ".
+                " WHERE id_usuario = ".$id_user;
+        
+        #echo $sql."<br><br>";
+
+        $rt["ok"] = $this->_base_aux->execute_sql($sql);
+        $rt["msg"] = "Usuário atualizado";
+        $rt["data"] = $this->get_user_byid($id_user);
+        return $rt;
+    }
+
+    // update
     public function ativar_inativar_usuario($id_usuario, $ativo){
         $rt = array("ok" => false, "msg" => "");
         if (!isset($id_usuario) || !isset($this->_base_aux) || !isset($this->_cript)){
@@ -309,6 +359,23 @@ class SQLUsuarios {
             $sql = $sql." AND ativo = '1' ";
         }
         $sql = $sql." LIMIT 1";
+
+        #echo $sql."<br><br>";
+
+        $usuarios = $this->_base_aux->get_result($sql, function($row) { return $this->converter_user($row); });
+
+        if (!isset($usuarios) || count($usuarios) <= 0){return null;}
+        //foreach ($usuarios as $usuario) { echo "$usuario <br>"; }
+        return $usuarios[0];
+    }
+
+    private function get_user_byparams_id_uuid($id_usuario, $uuid){
+        if (!isset($id_usuario) || !isset($uuid) || !isset($this->_base_aux)){return null;}
+        
+        $sql = "SELECT id_usuario, nome, uuid, login, senha, verificado, ativo FROM usuarios ".
+               "WHERE id_usuario = '$id_usuario' ".
+               "AND uuid = '$uuid' ".
+               "LIMIT 1";
 
         #echo $sql."<br><br>";
 

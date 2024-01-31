@@ -7,7 +7,7 @@ class ServerPHP {
         return new Promise((resolve, reject) => { resolve(new Erro(false, msg)); });
     }
     #toerr_res(res) {
-        if (!res) { return { "ok": false, "msg": "Erro - null" }; }
+        if (!res || res === undefined) { return { "ok": false, "msg": "Erro - null" }; }
         if (!res.ok) { return Erro.from(res); }
         if (!res.data) { return { "ok": true, "data": undefined }; }
         return undefined;
@@ -32,6 +32,8 @@ class ServerPHP {
         });
     }
 
+    //-- token
+
     getToken(login, senha) {
         if (!login || !senha) { return this.#toerr("Informe o login e a senha"); }
         return fetch(`${this.#url}authenticacao/`, {
@@ -51,13 +53,26 @@ class ServerPHP {
         });
     }
 
+    tokenValido(token){
+        if (!token) { return this.#toerr("Informe o token em base 64"); }
+        return fetch(`${this.#url}userservice/?tipo=tokenvalido`, {
+            method: "GET",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token
+            }
+        }).then(res => res.json());
+    }
 
+    // apenas testes
     fetchDataUK() {
         return fetch("https://api.coronavirus.data.gov.uk/v1/data", {
             method: "GET"
         }).then(res => res.json());
     }
 
+    //-- usuário
+    
     listUsers(token) {
         if (!token) { return this.#toerr("Informe o token em base 64"); }
         //let autorizacaook = 'OTUxZjJkMzAzY2QyYTY1N2QzZDE5ZjAxNjc0NzU3NjU=';
@@ -82,18 +97,6 @@ class ServerPHP {
         });
 
     }
-
-    tokenValido(token){
-        if (!token) { return this.#toerr("Informe o token em base 64"); }
-        return fetch(`${this.#url}userservice/?tipo=tokenvalido`, {
-            method: "GET",
-            headers: {
-                "Content-type": "application/json; charset=UTF-8",
-                "authorization": token
-            }
-        }).then(res => res.json());
-    }
-
 
     insertUser(nome, login, senha) {
         if (!nome || !login || !senha) { return this.#toerr("Informe o nome, login e senha"); }
@@ -159,10 +162,93 @@ class ServerPHP {
         });
     }
 
-    // TODO: criar um update menos completo
-    // nome, login e senha
-    // passando o token, id_usuario e o uuid
-    // tanto no server php e na chamada js
+    // atualiza apenas o nome, login e senha
+    updateUserPart(usuario_obj, token) {
+        if (
+            !token ||
+            !usuario_obj || !usuario_obj.id_usuario || 
+            !usuario_obj.nome || !usuario_obj.uuid ||
+            !usuario_obj.login || !usuario_obj.senha
+        ) { return this.#toerr("Informe os dados do usuário"); }
+        return fetch(`${this.#url}userservice/?tipo=update_part`, {
+            method: "POST",
+            body: JSON.stringify({
+                id_usuario: usuario_obj.id_usuario,
+                nome: usuario_obj.nome,
+                uuid: usuario_obj.uuid,
+                login: usuario_obj.login,
+                senha: usuario_obj.senha
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token
+            }
+        }).then(res => res.json())
+        .then(res => {
+            let aux = this.#toerr_res(res);
+            if (!!aux || !aux.ok) { 
+                aux.data = !!res.data ? Usuario.from(res.data) : undefined;
+                return aux; 
+            }
+            res.data = Usuario.from(res.data);
+            return res;
+        });
+    }
+
+    //-- senha
+    listarSenhas(id_usuario, dominio, token){
+        if (!token || !id_usuario || !dominio) { 
+            return this.#toerr("Informe os dados para consulta"); 
+        }
+        return fetch(`${this.#url}senhas/?tipo=listar`, {
+            method: "POST",
+            body: JSON.stringify({
+                id_usuario: id_usuario,
+                dominio: dominio
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token
+            }
+        }).then(res => res.json())
+        .then(res => {
+            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+
+            let data = [];
+            res.data.forEach(element => {
+                data.push(Senha.from(element));
+            });
+            res.data = data;
+            return res;
+        });
+    }
+
+
+    //salvar
+    salvarSenha(id_usuario, dominio, login, senha, token){
+        if (!token || !id_usuario || !login || !senha || !dominio) { 
+            return this.#toerr("Informe os dados da senha"); 
+        }
+        return fetch(`${this.#url}senhas/?tipo=salvar`, {
+            method: "POST",
+            body: JSON.stringify({
+                id_usuario: id_usuario,
+                dominio: dominio,
+                login: login,
+                senha: senha
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token
+            }
+        }).then(res => res.json())
+        .then(res => {
+            res.data = !!res.data ? Senha.from(res.data) : undefined;
+            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+            return res;
+        });
+    }
+
 
     testescors() {
         return fetch(`${this.#url}testes/?tipo=cors`, {

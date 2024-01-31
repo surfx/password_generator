@@ -85,6 +85,26 @@ class HTTPUtil {
     }
 
     //-------------------
+    // permissões
+    //-------------------
+    private function validar_token_e_id($token, $id){
+        if(!isset($token)){$this->retorno_erro("Erro - Sem permissão", 404); return false;}
+        $id_token = $token->getId();
+        if (!isset($id_token) || !isset($id) || $id_token != $id){
+            $this->retorno_erro("Erro - Sem permissão", 404); 
+            return false;
+        }
+        return true;
+    }
+
+    public function tem_permissao($sql_token, $id=null){
+        // autorização já é verificado no método get_token_authorization
+        $token = $this->get_token_authorization($sql_token);
+        if (!isset($token)){ $this->retorno_erro("Erro - Sem permissão", 401); return false; }
+        return isset($id) ? $this->validar_token_e_id($token, $id) : true;
+    }
+
+    //-------------------
     public function send_output($data, $httpHeaders=array()) {
         header_remove('Set-Cookie');
 
@@ -112,7 +132,7 @@ class HTTPUtil {
         $this->send_output(
             isset($data) ? ($is_json ? json_encode($data) : $data) : "",
             array(
-                'Content-Type: '.($is_json ? 'application/json': 'text/plain'),
+                'Content-Type: '.($is_json ? 'application/json; charset=UTF-8': 'text/plain'),
                 'Access-Control-Allow-Origin: *',
                 'Access-Control-Allow-Headers: X-Requested-With, token, Content-Type, no-cors, authorization',
                 'Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS',

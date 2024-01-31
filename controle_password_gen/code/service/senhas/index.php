@@ -51,18 +51,12 @@
         }
 
         if ($tipo == "listar"){
-            if (!tem_permissao($http_util, $sql_token)){return;}
-
-            //echo "token: [{$token}]<br />";
-
             $id_usuario = $http_util->get_body_value("id_usuario");
             $dominio = $http_util->get_body_value("dominio");
+            if (!$http_util->tem_permissao($sql_token, $id_usuario)){return;}
+            //echo "token: [{$token}]<br />";
 
-            $token = get_token($http_util, $sql_token);
-            $id_token = $token->getId();
-
-            if (!isset($id_usuario) || !isset($dominio) || !isset($id_token) ||
-                $id_token != $id_usuario){
+            if (!isset($id_usuario) || !isset($dominio)){
                 $http_util->retorno_erro("Erro", 404); return;
             }
 
@@ -73,25 +67,20 @@
             //foreach ($senhas as $senha) { echo "$senha <br>"; }
             $array[] = []; $array = array_shift($array);
             foreach ($senhas as $senha) { array_push($array, $senha->__toJson()); }
-            $http_util->retorno($array, true, 200);
+            $http_util->retorno(["ok" => true, "data" => $array], true, 200);
             return;
         }
 
         if ($tipo == "salvar"){
-            if (!tem_permissao($http_util, $sql_token)){return;}
-            //echo "token: [{$token}]<br />";
-
             $id_usuario = $http_util->get_body_value("id_usuario");
             $dominio = $http_util->get_body_value("dominio");
             $login = $http_util->get_body_value("login");
             $senha = $http_util->get_body_value("senha");
-
-            $token = get_token($http_util, $sql_token);
-            $id_token = $token->getId();
+            if (!$http_util->tem_permissao($sql_token, $id_usuario)){return;}
+            //echo "token: [{$token}]<br />";
 
             if (!isset($id_usuario) || !isset($dominio) || 
-                !isset($login) || !isset($senha) || 
-                !isset($id_token) || $id_token != $id_usuario){
+                !isset($login) || !isset($senha)){
                 $http_util->retorno_erro("Erro", 404); return;
             }
 
@@ -117,21 +106,16 @@
         }
         
         if ($tipo == "editar"){
-            if (!tem_permissao($http_util, $sql_token)){return;}
-
             $id_senha = $http_util->get_body_value("id_senha");
             $id_usuario = $http_util->get_body_value("id_usuario");
             $dominio = $http_util->get_body_value("dominio");
             $login = $http_util->get_body_value("login");
             $senha = $http_util->get_body_value("senha");
-
-            $token = get_token($http_util, $sql_token);
-            $id_token = $token->getId();
+            if (!$http_util->tem_permissao($sql_token, $id_usuario)){return;}
 
             if (!isset($id_senha) || !isset($id_usuario) || 
                 !isset($dominio) || 
-                !isset($login) || !isset($senha) || 
-                !isset($id_token) || $id_token != $id_usuario){
+                !isset($login) || !isset($senha)){
                 $http_util->retorno_erro("Erro", 404); return;
             }
 
@@ -157,18 +141,12 @@
         }
 
         if ($tipo == "excluir"){
-            if (!tem_permissao($http_util, $sql_token)){return;}
-
             $id_senha = $http_util->get_body_value("id_senha");
             $id_usuario = $http_util->get_body_value("id_usuario");
             $dominio = $http_util->get_body_value("dominio");
+            if (!$http_util->tem_permissao($sql_token, $id_usuario)){return;}
 
-            $token = get_token($http_util, $sql_token);
-            $id_token = $token->getId();
-
-            if (!isset($id_senha) || !isset($id_usuario) || 
-                !isset($dominio) || 
-                !isset($id_token) || $id_token != $id_usuario){
+            if (!isset($id_senha) || !isset($id_usuario) || !isset($dominio)){
                 $http_util->retorno_erro("Erro", 404); return;
             }
 
@@ -195,21 +173,7 @@
 
     }
 
-    function get_token($http_util, $sql_token){
-        return $sql_token->get_by_token(base64_decode($http_util->get_header_value("authorization")));
-    }
-
-    function tem_permissao($http_util, $sql_token){
-        $authorizacao = $http_util->get_header_value("authorization");
-        if (!isset($authorizacao) || !$http_util->is_token_ok($sql_token, false)){
-            $http_util->retorno("Sem permissão", false, 401);
-            return false;
-        }
-
-        $token = get_token($http_util, $sql_token);
-        if (!isset($token)){ $http_util->retorno("Sem permissão", false, 401); return false; }
-        return true;
-    }
+    
 
     $http_util->retorno("", false, 401);
 ?>

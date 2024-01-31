@@ -30,7 +30,7 @@ class SQLSenhas {
 
     // insert
     public function insert_senha($senha){
-        $rt = array("ok" => false, "msg" => "", "senha" => null);
+        $rt = array("ok" => false, "msg" => "", "data" => null);
         if (!isset($senha) || !isset($this->_base_aux) || !isset($this->_cript)){
             $rt["msg"] = "Senha inválida";
             return $rt;
@@ -38,6 +38,9 @@ class SQLSenhas {
 
         $rt = $this->validar_senha($senha);
         if (!$rt["ok"]){return $rt;}
+
+        // TODO: para um domínio, o login deve ser único
+        // mesmo que a senha mude !
 
         $senha_by_lsd = $this->existe_login_senha_dominio(
             $senha->getIdUsuario(),
@@ -49,7 +52,7 @@ class SQLSenhas {
         if (isset($senha_by_lsd) && $senha_by_lsd){
             $rt["ok"] = false;
             $rt["msg"] = "Já existe a senha para o domínio: ".$senha->getDominio();
-            $rt["senha"] = $senha;
+            $rt["data"] = $senha->__toJson();
             return $rt;
         }
         
@@ -63,17 +66,17 @@ class SQLSenhas {
 
         $rt["ok"] = $this->_base_aux->execute_sql($sql);
         $rt["msg"] = "Senha salva com sucesso";
-        $rt["senha"] = $this->get_senha_params(
+        $rt["data"] = $this->get_senha_params(
             $senha->getIdUsuario(),
             $senha->getDominio(),
             $senha->getLogin(),
-            $senha->getSenha());
+            $senha->getSenha())->__toJson();
         return $rt;
     }
 
     // update
     public function update_senha($senha){
-        $rt = array("ok" => false, "msg" => "", "senha" => null);
+        $rt = array("ok" => false, "msg" => "", "data" => null);
         if (!isset($senha) || !isset($this->_base_aux) || !isset($this->_cript)){
             $rt["msg"] = "Senha inválida";
             return $rt;
@@ -89,7 +92,7 @@ class SQLSenhas {
             $senha_byid->getIdSenha() <= 0){
             $rt["ok"] = false;
             $rt["msg"] = "Não existe o id informado: ".$senha->getIdSenha();
-            $rt["senha"] = $senha;
+            $rt["data"] = $senha;
             return $rt;
         }
 
@@ -104,7 +107,7 @@ class SQLSenhas {
 
         $rt["ok"] = $this->_base_aux->execute_sql($sql);
         $rt["msg"] = "Senha salva com sucesso";
-        $rt["senha"] = $this->get_senha_params(
+        $rt["data"] = $this->get_senha_params(
             $senha->getIdUsuario(),
             $senha->getDominio(),
             $senha->getLogin(),
@@ -114,7 +117,7 @@ class SQLSenhas {
 
     // delete
     public function delete_senha($senha_obj){
-        $rt = array("ok" => false, "msg" => "", "senha" => null);
+        $rt = array("ok" => false, "msg" => "", "data" => null);
         if (!isset($senha_obj) || !isset($this->_base_aux) || !isset($this->_cript)){
             $rt["msg"] = "Senha inválida";
             return $rt;
@@ -154,7 +157,7 @@ class SQLSenhas {
     }
 
     private function validar_senha($senha_obj, $validar_id_senha = false){
-        $rt = array("ok" => false, "msg" => "", "senha" => $senha_obj);
+        $rt = array("ok" => false, "msg" => "", "data" => $senha_obj);
         if (!isset($senha_obj)){return $rt;}
         $rt["ok"] = true;
 
