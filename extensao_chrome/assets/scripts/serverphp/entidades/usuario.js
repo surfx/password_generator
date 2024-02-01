@@ -73,9 +73,6 @@ class Usuario {
         let js = JSON.parse(json);
         if (!js) { return undefined; }
 
-        console.log("js.token: ", js.token);
-        console.log("tk: ", Token.fromJsonSerialize(js.token));
-
         return new Usuario(
             js.id_usuario, js.nome, js.uuid,
             js.login, js.senha, js.verificado,

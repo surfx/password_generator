@@ -7,15 +7,15 @@ class ServerPHP {
         return new Promise((resolve, reject) => { resolve(new Erro(false, msg)); });
     }
     #toerr_res(res) {
-        if (!res || res === undefined) { return { "ok": false, "msg": "Erro - null" }; }
+        if (!res || res === undefined || res === 'undefined') { return { "ok": false, "msg": "Erro - null" }; }
         if (!res.ok) { return Erro.from(res); }
         if (!res.data) { return { "ok": true, "data": undefined }; }
         return undefined;
     }
 
-    doLogin(login, senha) {
+    async doLogin(login, senha) {
         if (!login || !senha) { return this.#toerr("Informe o login e a senha"); }
-        return fetch(`${this.#url}userservice/?tipo=login`, {
+        const res = await fetch(`${this.#url}userservice/?tipo=login`, {
             method: "POST",
             body: JSON.stringify({
                 login: login,
@@ -24,19 +24,19 @@ class ServerPHP {
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
-        }).then(res => res.json())
-        .then(res => {
-            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-            res.data = !!res.data ? Usuario.from(res.data) : undefined;
-            return res;
         });
+        const res_1 = await res.json();
+        let aux = this.#toerr_res(res_1);
+        if (!!aux) { return aux; }
+        res_1.data = !!res_1.data ? Usuario.from(res_1.data) : undefined;
+        return res_1;
     }
 
     //-- token
 
-    getToken(login, senha) {
+    async getToken(login, senha) {
         if (!login || !senha) { return this.#toerr("Informe o login e a senha"); }
-        return fetch(`${this.#url}authenticacao/`, {
+        let res = await fetch(`${this.#url}authenticacao/`, {
             method: "POST",
             body: JSON.stringify({
                 login: login,
@@ -45,62 +45,50 @@ class ServerPHP {
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
-        }).then(res => res.json())
-        .then(res => {
-            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-            res.data = !!res.data ? Token.from(res.data) : undefined;
-            return res;
         });
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        res.data = !!res.data ? Token.from(res.data) : undefined;
+        return res;
     }
 
-    tokenValido(token){
+    async tokenValido(token) {
         if (!token) { return this.#toerr("Informe o token em base 64"); }
-        return fetch(`${this.#url}userservice/?tipo=tokenvalido`, {
+        let res = await fetch(`${this.#url}userservice/?tipo=tokenvalido`, {
             method: "GET",
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
                 "authorization": token
             }
-        }).then(res => res.json());
-    }
-
-    // apenas testes
-    fetchDataUK() {
-        return fetch("https://api.coronavirus.data.gov.uk/v1/data", {
-            method: "GET"
-        }).then(res => res.json());
+        });
+        res = !res ? undefined : await res.json();
+        return !!res ? res : this.#toerr_res(res);
     }
 
     //-- usuário
-    
-    listUsers(token) {
+
+    async listUsers(token) {
         if (!token) { return this.#toerr("Informe o token em base 64"); }
-        //let autorizacaook = 'OTUxZjJkMzAzY2QyYTY1N2QzZDE5ZjAxNjc0NzU3NjU=';
-        //autorizacaook = "MWFhM2UzOGViMTU4NTM4OTkxOWU5MmEyYTU4NGQ0ZWU="; // err
-        return fetch(`${this.#url}userservice/?tipo=listuser`, {
+        let res = await fetch(`${this.#url}userservice/?tipo=listuser`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
                 "authorization": token
             }
-        }).then(res => res.json())
-        .then(res => {
-            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-
-            let data = [];
-            res.data.forEach(element => {
-                data.push(Usuario.from(element));
-            });
-
-            res.data = data;
-            return res;
         });
-
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        let data = [];
+        res.data.forEach(element => { data.push(Usuario.from(element)); });
+        res.data = data;
+        return res;
     }
 
-    insertUser(nome, login, senha) {
+    async insertUser(nome, login, senha) {
         if (!nome || !login || !senha) { return this.#toerr("Informe o nome, login e senha"); }
-        return fetch(`${this.#url}userservice/?tipo=insert`, {
+        let res = await fetch(`${this.#url}userservice/?tipo=insert`, {
             method: "POST",
             body: JSON.stringify({
                 nome: nome,
@@ -110,32 +98,27 @@ class ServerPHP {
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
             }
-        }).then(res => res.json())
-        .then(res => {
-            let aux = this.#toerr_res(res);
-            if (!!aux) { 
-                aux.data = !!res.data ? Usuario.from(res.data) : undefined;
-                return aux; 
-            }
-            let user = !!res.data ? Usuario.from(res.data) : undefined;
-            // token está em uma variável separada no json
-            if (!!user && !!res && !!res.token){ user.token = Token.from(res.token); }
-            res.data = user;
-            return res;
         });
+        res = !res ? undefined : await res.json();
+        res.data = !!res.data ? Usuario.from(res.data) : undefined;
+        // token está em uma variável separada no json
+        if (!!res.data && !!res.token) { res.data.token = Token.from(res.token); }
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        return res;
     }
 
     // update all fields
-    updateUser(usuario_obj, token) {
+    async updateUser(usuario_obj, token) {
         if (
             !token ||
-            !usuario_obj || !usuario_obj.id_usuario || 
+            !usuario_obj || !usuario_obj.id_usuario ||
             !usuario_obj.nome || !usuario_obj.uuid ||
             !usuario_obj.login || !usuario_obj.senha ||
             usuario_obj.verificado === undefined ||
             usuario_obj.ativo === undefined
         ) { return this.#toerr("Informe os dados do usuário"); }
-        return fetch(`${this.#url}userservice/?tipo=update`, {
+        let res = await fetch(`${this.#url}userservice/?tipo=update`, {
             method: "POST",
             body: JSON.stringify({
                 id_usuario: usuario_obj.id_usuario,
@@ -150,27 +133,23 @@ class ServerPHP {
                 "Content-type": "application/json; charset=UTF-8",
                 "authorization": token
             }
-        }).then(res => res.json())
-        .then(res => {
-            let aux = this.#toerr_res(res);
-            if (!!aux) { 
-                aux.data = !!res.data ? Usuario.from(res.data) : undefined;
-                return aux; 
-            }
-            res.data = Usuario.from(res.data);
-            return res;
         });
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        res.data = !!res.data ? Usuario.from(res.data) : undefined;
+        return res;
     }
 
     // atualiza apenas o nome, login e senha
-    updateUserPart(usuario_obj, token) {
+    async updateUserPart(usuario_obj, token) {
         if (
             !token ||
-            !usuario_obj || !usuario_obj.id_usuario || 
+            !usuario_obj || !usuario_obj.id_usuario ||
             !usuario_obj.nome || !usuario_obj.uuid ||
             !usuario_obj.login || !usuario_obj.senha
         ) { return this.#toerr("Informe os dados do usuário"); }
-        return fetch(`${this.#url}userservice/?tipo=update_part`, {
+        let res = await fetch(`${this.#url}userservice/?tipo=update_part`, {
             method: "POST",
             body: JSON.stringify({
                 id_usuario: usuario_obj.id_usuario,
@@ -183,24 +162,20 @@ class ServerPHP {
                 "Content-type": "application/json; charset=UTF-8",
                 "authorization": token
             }
-        }).then(res => res.json())
-        .then(res => {
-            let aux = this.#toerr_res(res);
-            if (!!aux || !aux.ok) { 
-                aux.data = !!res.data ? Usuario.from(res.data) : undefined;
-                return aux; 
-            }
-            res.data = Usuario.from(res.data);
-            return res;
         });
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        res.data = !!res.data ? Usuario.from(res.data) : undefined;
+        return res;
     }
 
     //-- senha
-    listarSenhas(id_usuario, dominio, token){
-        if (!token || !id_usuario || id_usuario <= 0 || !dominio) { 
-            return this.#toerr("Informe os dados para consulta"); 
+    async listarSenhas(id_usuario, dominio, token) {
+        if (!token || !id_usuario || id_usuario <= 0 || !dominio) {
+            return this.#toerr("Informe os dados para consulta");
         }
-        return fetch(`${this.#url}senhas/?tipo=listar`, {
+        let res = await fetch(`${this.#url}senhas/?tipo=listar`, {
             method: "POST",
             body: JSON.stringify({
                 id_usuario: id_usuario,
@@ -210,26 +185,23 @@ class ServerPHP {
                 "Content-type": "application/json; charset=UTF-8",
                 "authorization": token
             }
-        }).then(res => res.json())
-        .then(res => {
-            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-
-            let data = [];
-            res.data.forEach(element => {
-                data.push(Senha.from(element));
-            });
-            res.data = data;
-            return res;
         });
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        let data = [];
+        res.data.forEach(element => { data.push(Senha.from(element)); });
+        res.data = data;
+        return res;
     }
 
 
     //salvar
-    salvarSenha(id_usuario, dominio, login, senha, token){
-        if (!token || !id_usuario || id_usuario <= 0 || !login || !senha || !dominio) { 
-            return this.#toerr("Informe os dados da senha"); 
+    async salvarSenha(id_usuario, dominio, login, senha, token) {
+        if (!token || !id_usuario || id_usuario <= 0 || !login || !senha || !dominio) {
+            return this.#toerr("Informe os dados da senha");
         }
-        return fetch(`${this.#url}senhas/?tipo=salvar`, {
+        let res = await fetch(`${this.#url}senhas/?tipo=salvar`, {
             method: "POST",
             body: JSON.stringify({
                 id_usuario: id_usuario,
@@ -241,20 +213,20 @@ class ServerPHP {
                 "Content-type": "application/json; charset=UTF-8",
                 "authorization": token
             }
-        }).then(res => res.json())
-        .then(res => {
-            res.data = !!res.data ? Senha.from(res.data) : undefined;
-            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-            return res;
         });
+        res = !res ? undefined : await res.json();
+        res.data = !!res.data ? Senha.from(res.data) : undefined;
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        return res;
     }
 
     //atualizar
-    atualizarSenha(id_senha, id_usuario, dominio, login, senha, token){
-        if (!token || !id_senha || id_senha <= 0 || !token || !id_usuario || id_usuario <= 0 || !login || !senha || !dominio) { 
-            return this.#toerr("Informe os dados da senha"); 
+    async atualizarSenha(id_senha, id_usuario, dominio, login, senha, token) {
+        if (!token || !id_senha || id_senha <= 0 || !token || !id_usuario || id_usuario <= 0 || !login || !senha || !dominio) {
+            return this.#toerr("Informe os dados da senha");
         }
-        return fetch(`${this.#url}senhas/?tipo=editar`, {
+        let res = await fetch(`${this.#url}senhas/?tipo=editar`, {
             method: "POST",
             body: JSON.stringify({
                 id_senha: id_senha,
@@ -267,20 +239,20 @@ class ServerPHP {
                 "Content-type": "application/json; charset=UTF-8",
                 "authorization": token
             }
-        }).then(res => res.json())
-        .then(res => {
-            res.data = !!res.data ? Senha.from(res.data) : undefined;
-            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-            return res;
         });
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        res.data = !!res.data ? Senha.from(res.data) : undefined;
+        return res;
     }
 
     //deletar
-    deletarSenha(id_senha, id_usuario, dominio, token){
-        if (!token || !id_senha || id_senha <= 0 || !token || !id_usuario || !dominio) { 
-            return this.#toerr("Informe os dados para excluir a senha"); 
+    async deletarSenha(id_senha, id_usuario, dominio, token) {
+        if (!token || !id_senha || id_senha <= 0 || !token || !id_usuario || !dominio) {
+            return this.#toerr("Informe os dados para excluir a senha");
         }
-        return fetch(`${this.#url}senhas/?tipo=excluir`, {
+        let res = await fetch(`${this.#url}senhas/?tipo=excluir`, {
             method: "POST",
             body: JSON.stringify({
                 id_senha: id_senha,
@@ -291,18 +263,30 @@ class ServerPHP {
                 "Content-type": "application/json; charset=UTF-8",
                 "authorization": token
             }
-        }).then(res => res.json())
-        .then(res => {
-            res.data = !!res.data ? Senha.from(res.data) : undefined;
-            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-            return res;
         });
+        res = !res ? undefined : await res.json();
+        res.data = !!res.data ? Senha.from(res.data) : undefined;
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        return res;
     }
 
-    testescors() {
-        return fetch(`${this.#url}testes/?tipo=cors`, {
+
+
+    //-- teste
+    async fetchDataUK() {
+        const res = await fetch("https://api.coronavirus.data.gov.uk/v1/data", {
+            method: "GET"
+        });
+        return await res.json();
+    }
+
+    async testescors() {
+        let res = await fetch(`${this.#url}testes/?tipo=cors`, {
             method: "POST"
-        }).then(res => res.json());
+        });
+        res = !res ? undefined : await res.json();
+        return !!res ? res : this.#toerr_res(res);
     }
 
 
