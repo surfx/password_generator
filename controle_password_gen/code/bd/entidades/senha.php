@@ -10,8 +10,8 @@ class Senha {
     private $_senha;
 
     public function __construct(
-        $id_senha = "",
-        $id_usuario = "",
+        $id_senha = 0,
+        $id_usuario = 0,
         $dominio = "",
         $login = "",
         $senha = ""
@@ -34,14 +34,15 @@ class Senha {
     public function getSenha() {return $this->_senha;}
     public function setSenha($senha) {$this->_senha=$senha;}
 
-    public function __toJson(){
-        return [
+    public function __toJson($add_senha = true){
+        $rt = [
             "id_senha" => $this->getIdSenha(),
             "id_usuario" => $this->getIdUsuario(),
             "dominio" => $this->getDominio(),
-            "login" => $this->getLogin(),
-            "senha" => $this->getSenha()
+            "login" => $this->getLogin()
         ];
+        if (isset($add_senha) && $add_senha){ $rt["senha"] = $this->getSenha(); }
+        return $rt;
     }
 
     // serialize(...)

@@ -94,13 +94,12 @@
             //echo "senha_salvar: $senha_salvar\r\n\r\n";
 
             $rt = $sql_senhas->insert_senha($senha_salvar);
-            if (isset($rt) && isset($rt["senha"])){
-                $rt["senha"] = $rt["senha"]->__toJson();
+            if (isset($rt) && isset($rt["data"])){
+                // máscara a senha
+                $rt["data"] = $rt["data"]->__toJson(false);
             }
 
-            if (!isset($rt) || !$rt["ok"]){ 
-                $http_util->retorno($rt, true, 404); return;
-            }
+            if (!isset($rt) || !$rt["ok"]){  $http_util->retorno($rt, true, 404); return; }
 
             $http_util->retorno($rt, true, 201);return;
         }
@@ -129,13 +128,12 @@
             //echo "senha_atualizar: $senha_atualizar\r\n\r\n";
 
             $rt = $sql_senhas->update_senha($senha_atualizar);
-            if (isset($rt) && isset($rt["senha"])){
-                $rt["senha"] = $rt["senha"]->__toJson();
+            if (isset($rt) && isset($rt["data"])){
+                // máscara a senha
+                $rt["data"] = $rt["data"]->__toJson(false);
             }
 
-            if (!isset($rt) || !$rt["ok"]){
-                $http_util->retorno($rt, true, 404); return;
-            }
+            if (!isset($rt) || !$rt["ok"]){ $http_util->retorno($rt, true, 404); return; }
 
             $http_util->retorno($rt, true, 201);return;
         }
@@ -160,8 +158,8 @@
             # echo "excluir: ".$token."\r\n\nsenha_excluir: ".$senha_excluir;
 
             $rt = $sql_senhas->delete_senha($senha_excluir);
-            if (isset($rt) && isset($rt["senha"])){
-                $rt["senha"] = $rt["senha"]->__toJson();
+            if (isset($rt) && isset($rt["data"])){
+                $rt["data"] = $rt["data"]->__toJson(false);
             }
 
             if (!isset($rt) || !$rt["ok"]){ 

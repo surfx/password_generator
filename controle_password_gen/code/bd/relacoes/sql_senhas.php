@@ -39,20 +39,23 @@ class SQLSenhas {
         $rt = $this->validar_senha($senha);
         if (!$rt["ok"]){return $rt;}
 
-        // TODO: para um domínio, o login deve ser único
-        // mesmo que a senha mude !
-
+        //$senha->getSenha()
         $senha_by_lsd = $this->existe_login_senha_dominio(
             $senha->getIdUsuario(),
             $senha->getDominio(),
             $senha->getLogin(),
-            $senha->getSenha(),
+            null
         );
 
-        if (isset($senha_by_lsd) && $senha_by_lsd){
+        if (isset($senha_by_lsd) && $senha_by_lsd["existe"]){
+            $aux = $senha;
+            if (isset($senha_by_lsd["data"])){
+                $aux = $senha_by_lsd["data"];
+            }
+
             $rt["ok"] = false;
-            $rt["msg"] = "Já existe a senha para o domínio: ".$senha->getDominio();
-            $rt["data"] = $senha->__toJson();
+            $rt["msg"] = "Já existe o login (".$senha->getLogin().") para o domínio (".$senha->getDominio().")";
+            $rt["data"] = $aux;
             return $rt;
         }
         
@@ -70,7 +73,7 @@ class SQLSenhas {
             $senha->getIdUsuario(),
             $senha->getDominio(),
             $senha->getLogin(),
-            $senha->getSenha())->__toJson();
+            $senha->getSenha());
         return $rt;
     }
 
@@ -96,6 +99,27 @@ class SQLSenhas {
             return $rt;
         }
 
+        // verifica se o login existe para o domínio
+        $senha_by_lsd = $this->existe_login_senha_dominio(
+            $senha->getIdUsuario(),
+            $senha->getDominio(),
+            $senha->getLogin(),
+            null
+        );
+
+        if (
+            isset($senha_by_lsd) && 
+            $senha_by_lsd["existe"] &&
+            isset($senha_by_lsd["data"]) &&
+            $senha_by_lsd["data"]->getIdSenha() != $senha->getIdSenha()
+        ){
+            $aux = (isset($senha_by_lsd["data"]) ? $senha_by_lsd["data"] : $senha);
+            $rt["ok"] = false;
+            $rt["msg"] = "Já existe o login (".$senha->getLogin().") para o domínio (".$senha->getDominio().")";
+            $rt["data"] = $aux;
+            return $rt;
+        }
+
         $sql =  "UPDATE senhas SET ".
                 "login='".$senha->getLogin()."', ".
                 "senha = '".$this->_cript->criptografar($senha->getSenha())."' ".
@@ -117,7 +141,7 @@ class SQLSenhas {
 
     // delete
     public function delete_senha($senha_obj){
-        $rt = array("ok" => false, "msg" => "", "data" => null);
+        $rt = array("ok" => false, "msg" => "", "data" => $senha_obj);
         if (!isset($senha_obj) || !isset($this->_base_aux) || !isset($this->_cript)){
             $rt["msg"] = "Senha inválida";
             return $rt;
@@ -128,6 +152,7 @@ class SQLSenhas {
                 $senha_obj->getIdUsuario(), 
                 $senha_obj->getDominio()
             );
+        $rt["data"] = $senha_obj;
         if (!$rt["ok"]){return $rt;}
         
         $senha_byid = $this->get_senha_aux_excluir(
@@ -259,17 +284,21 @@ class SQLSenhas {
 
     private function get_senha_params($id_usuario, $dominio, $login, $senha){
         if (!isset($id_usuario) || !isset($dominio) || !isset($login) || 
-            !isset($senha) || !isset($this->_base_aux) || !isset($this->_cript)){return null;}
+            !isset($this->_base_aux) || !isset($this->_cript)){return null;}
         
-        $senha_cripto = $this->_cript->criptografar($senha);
+        $senha_cripto = isset($senha) ? $this->_cript->criptografar($senha) : null;
         $sql = "SELECT id_senha,id_usuario,dominio,login,senha FROM senhas ".
                "WHERE id_usuario = $id_usuario ".
                "AND dominio = '$dominio' ".
-               "AND login = '$login' ".
-               "AND senha = '$senha_cripto' ".
-               "LIMIT 1";
+               "AND login = '$login' ";
+
+        if (isset($senha_cripto)){
+            $sql = $sql." AND senha = '$senha_cripto' ";
+        }
+
+        $sql = $sql." LIMIT 1";
         //echo $sql."<br><br>\r\n\n\n";
-        
+
         $senhas = $this->_base_aux->get_result($sql, function($row) { return $this->converter_senhas($row); });
         if (!isset($senhas) || count($senhas) <= 0){return null;}
         return $senhas[0];
@@ -277,16 +306,22 @@ class SQLSenhas {
 
     private function existe_login_senha_dominio($id_usuario, $dominio, $login, $senha){
         $aux = $this->get_senha_params($id_usuario, $dominio, $login, $senha);
-        return isset($aux);
+        return [ "existe" => isset($aux) && $aux->getIdSenha() > 0, "data" => $aux ]; // array
     }
 
 
     private function converter_senhas($row){
         if (!isset($row)){return null;}
 
+        $id_senha = $row["id_senha"];
+        $id_senha = isset($id_senha) ? intval($id_senha) : 0;
+
+        $id_usuario = $row["id_usuario"];
+        $id_usuario = isset($id_usuario) ? intval($id_usuario) : 0;
+
         return new Senha(
-            $row["id_senha"],
-            $row["id_usuario"],
+            $id_senha,
+            $id_usuario,
             $row["dominio"],
             $row["login"],
             $this->_cript->decriptografar($row["senha"])

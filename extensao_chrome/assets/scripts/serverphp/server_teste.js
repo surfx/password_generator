@@ -9,6 +9,8 @@ let link8 = document.getElementById('link8');
 let link9 = document.getElementById('link9');
 let link10 = document.getElementById('link10');
 let link11 = document.getElementById('link11');
+let link12 = document.getElementById('link12');
+let link13 = document.getElementById('link13');
 
 const server = new ServerPHP();
 
@@ -99,7 +101,7 @@ addclick(link9, ()=>{
 });
 
 addclick(link10, ()=>{
-    let token = 'M2YwYWJhYWRkYTIzMjY3OTE4ZmI0NTM3YzUyZGIzYjk=';
+    let token = 'OGYyZWJjZDMxNWNiM2NjNjI0NmRkYTNhYmQ0NWIwNGI=';
     let id_usuario = 16;
     let dominio = 'youtube';
     server.listarSenhas(id_usuario, dominio, token).then(res => {
@@ -108,17 +110,39 @@ addclick(link10, ()=>{
     });
 });
 
-addclick(link11, ()=>{
-    let token = 'M2YwYWJhYWRkYTIzMjY3OTE4ZmI0NTM3YzUyZGIzYjk=';
+addclick(link11, ()=>{ //salvarSenha
+    let token = 'OGYyZWJjZDMxNWNiM2NjNjI0NmRkYTNhYmQ0NWIwNGI=';
     let id_usuario = 16;
     let dominio = 'youtube';
-    let login = 'login_yt@gmail.com';
+    let login = 'login_yt2@gmail.com';
     let senha = 'senha yt2 123';
     server.salvarSenha(id_usuario, dominio, login, senha, token).then(res => {
         if (!res.ok){ console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido" , "}"); return; }
         console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido", "}");
     });
+});
 
-    //salvarSenha(id_usuario, dominio, login, senha, token)
+addclick(link12, ()=>{ //atualizarSenha
+    let token = 'OGYyZWJjZDMxNWNiM2NjNjI0NmRkYTNhYmQ0NWIwNGI=';
+    let id_senha = 6;
+    let id_usuario = 16;
+    let dominio = 'youtube';
+    let login = 'user2@gmail.com';
+    let senha = '123as';
+    server.atualizarSenha(id_senha, id_usuario, dominio, login, senha, token).then(res => {
+        if (!res.ok){ console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido" , "}"); return; }
+        console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido", "}");
+    });
+});
 
+
+addclick(link13, ()=>{ //deletarSenha
+    let token = 'OGYyZWJjZDMxNWNiM2NjNjI0NmRkYTNhYmQ0NWIwNGI=';
+    let id_senha = 12;
+    let id_usuario = 16;
+    let dominio = 'youtube';
+    server.deletarSenha(id_senha, id_usuario, dominio, token).then(res => {
+        if (!res.ok){ console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido" , "}"); return; }
+        console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido", "}");
+    });
 });

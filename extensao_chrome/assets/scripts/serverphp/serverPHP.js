@@ -197,7 +197,7 @@ class ServerPHP {
 
     //-- senha
     listarSenhas(id_usuario, dominio, token){
-        if (!token || !id_usuario || !dominio) { 
+        if (!token || !id_usuario || id_usuario <= 0 || !dominio) { 
             return this.#toerr("Informe os dados para consulta"); 
         }
         return fetch(`${this.#url}senhas/?tipo=listar`, {
@@ -226,7 +226,7 @@ class ServerPHP {
 
     //salvar
     salvarSenha(id_usuario, dominio, login, senha, token){
-        if (!token || !id_usuario || !login || !senha || !dominio) { 
+        if (!token || !id_usuario || id_usuario <= 0 || !login || !senha || !dominio) { 
             return this.#toerr("Informe os dados da senha"); 
         }
         return fetch(`${this.#url}senhas/?tipo=salvar`, {
@@ -249,6 +249,55 @@ class ServerPHP {
         });
     }
 
+    //atualizar
+    atualizarSenha(id_senha, id_usuario, dominio, login, senha, token){
+        if (!token || !id_senha || id_senha <= 0 || !token || !id_usuario || id_usuario <= 0 || !login || !senha || !dominio) { 
+            return this.#toerr("Informe os dados da senha"); 
+        }
+        return fetch(`${this.#url}senhas/?tipo=editar`, {
+            method: "POST",
+            body: JSON.stringify({
+                id_senha: id_senha,
+                id_usuario: id_usuario,
+                dominio: dominio,
+                login: login,
+                senha: senha
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token
+            }
+        }).then(res => res.json())
+        .then(res => {
+            res.data = !!res.data ? Senha.from(res.data) : undefined;
+            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+            return res;
+        });
+    }
+
+    //deletar
+    deletarSenha(id_senha, id_usuario, dominio, token){
+        if (!token || !id_senha || id_senha <= 0 || !token || !id_usuario || !dominio) { 
+            return this.#toerr("Informe os dados para excluir a senha"); 
+        }
+        return fetch(`${this.#url}senhas/?tipo=excluir`, {
+            method: "POST",
+            body: JSON.stringify({
+                id_senha: id_senha,
+                id_usuario: id_usuario,
+                dominio: dominio
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token
+            }
+        }).then(res => res.json())
+        .then(res => {
+            res.data = !!res.data ? Senha.from(res.data) : undefined;
+            let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+            return res;
+        });
+    }
 
     testescors() {
         return fetch(`${this.#url}testes/?tipo=cors`, {
