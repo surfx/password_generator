@@ -393,12 +393,14 @@ class SQLUsuarios {
         $id_usuario = $row["id_usuario"];
         $id_usuario = isset($id_usuario) ? intval($id_usuario) : 0;
 
+        //$this->_cript->decriptografar($row["senha"]),
+
         return new Usuario(
             $id_usuario,
             $row["nome"],
             $row["uuid"],
             $row["login"],
-            $this->_cript->decriptografar($row["senha"]),
+            $row["senha"],
             $row["verificado"],
             $row["ativo"]
         );

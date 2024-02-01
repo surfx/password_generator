@@ -1,0 +1,61 @@
+
+/* divLogin */
+
+.divLogin {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    row-gap: 5px;
+    align-items: center;
+}
+
+.divLogin input[type="text"], .divLogin input[type="password"]{
+    width: 97%;
+    outline: none;
+}
+
+/* divButtonLogin */
+.divButtonLogin {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.divButtonLogin button {
+    color: white;
+    background-color: var(--crimson-color);
+    border: 1pt solid;
+    border-radius: 5px;
+
+    width: 100%;
+    padding: 5px 0;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.divButtonLogin button:hover {
+    background-color: white;
+    color: var(--crimson-color);
+}
+
+/* divButtonRecuperarSenha */
+.divButtonRecuperarSenha {
+    width: 100%;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.divButtonRecuperarSenha button {
+    background-color: white;
+    color: var(--disabled-color);
+    border: 1pt solid;
+    border-radius: 5px;
+
+    width: 100%;
+    padding: 5px 0;
+    font-size: 15px;
+}
+

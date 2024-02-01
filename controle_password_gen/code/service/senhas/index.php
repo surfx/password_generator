@@ -54,15 +54,13 @@
             $id_usuario = $http_util->get_body_value("id_usuario");
             $dominio = $http_util->get_body_value("dominio");
             if (!$http_util->tem_permissao($sql_token, $id_usuario)){return;}
-            //echo "token: [{$token}]<br />";
-
             if (!isset($id_usuario) || !isset($dominio)){
                 $http_util->retorno_erro("Erro", 404); return;
             }
 
             $senhas = $sql_senhas->list_senhas($id_usuario, $dominio);
             if (!$senhas || count($senhas) <= 0){
-                $http_util->retorno([], true, 200); return;
+                $http_util->retorno(["ok" => true, "data" => null], true, 200); return;
             }
             //foreach ($senhas as $senha) { echo "$senha <br>"; }
             $array[] = []; $array = array_shift($array);

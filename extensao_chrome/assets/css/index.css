@@ -17,6 +17,8 @@
     --alice-blue-color: #f0f8ff;
 
     --hover-white-color: #f0f8ff;
+
+    --disabled-color: #e2e2e2;
 }
 
 body {
@@ -332,4 +334,22 @@ main .divSearchSenhasSalvas {
 .divButtonCopiar button:hover {
     background-color: white;
     color: var(--crimson-color);
+}
+
+/* divLinkAction */
+.divLinkAction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 15px;
+}
+
+.divLinkAction a {
+    text-decoration: none;
+    color: var(--crimson-color);
+}
+
+.divLinkAction a:hover {
+    border-bottom: 1pt dotted;
 }

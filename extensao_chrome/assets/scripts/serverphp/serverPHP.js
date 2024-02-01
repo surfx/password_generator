@@ -136,8 +136,8 @@ class ServerPHP {
         });
         res = !res ? undefined : await res.json();
         if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
         res.data = !!res.data ? Usuario.from(res.data) : undefined;
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
         return res;
     }
 

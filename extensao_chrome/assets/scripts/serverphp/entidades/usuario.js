@@ -51,7 +51,7 @@ class Usuario {
 
     toString() {
         let tk = !!this.#token ? this.#token.toString() : "nulo";
-        return `${this.#id_usuario}, ${this.#nome}, ${this.#uuid}, ${this.#login}, ${this.#verificado}, ${this.#ativo}, {${tk}}`;
+        return `${this.#id_usuario}, ${this.#nome}, ${this.#uuid}, ${this.#login}, ${this.#senha}, ${this.#verificado}, ${this.#ativo}, {${tk}}`;
     }
 
     //------------

@@ -112,6 +112,7 @@
             }
 
             $rt = $user->__toJson();
+            // separa o token pois nesta modelagem Usuário não possui esta propriedade
             $aux_token = $http_util->get_token($login, $senha, $sql_usuarios, $sql_token);
             if (isset($aux_token)){ $rt["token"] = $aux_token->__toJson(); }
 
@@ -136,16 +137,19 @@
             //echo "user_add: [{$user_add}]<br />\r\n";
 
             $rt = $sql_usuarios->insert_user($user_add);
-            if (isset($rt["data"])){
-                $rt["data"] = $rt["data"]->__toJson();
-            }
             if (!isset($rt)){
                 $http_util->retorno_erro("Erro", 404); return;
             }
             if (!$rt["ok"]){
+                if (isset($rt["data"])){
+                    $rt["data"]->setSenha(null); // esconde a senha
+                    $rt["data"] = $rt["data"]->__toJson();
+                }
                 $http_util->retorno($rt, true, 404); return;
             }
-           
+            
+            if (isset($rt["data"])){ $rt["data"] = $rt["data"]->__toJson(); }
+
             $aux_token = $http_util->get_token($login, $senha, $sql_usuarios, $sql_token);
             if (isset($aux_token)){ $rt["token"] = $aux_token->__toJson(); }
 
@@ -171,16 +175,18 @@
             //echo "user_update: [{$user_update}]<br />\r\n";
 
             $rt = $sql_usuarios->update_user($user_update);
-            if (isset($rt["data"])){
-                $rt["data"] = $rt["data"]->__toJson();
-            }
             if (!isset($rt)){
                 $http_util->retorno_erro("Erro", 404); return;
             }
             if (!$rt["ok"]){
+                if (isset($rt["data"])){
+                    $rt["data"]->setSenha(null); // esconde a senha
+                    $rt["data"] = $rt["data"]->__toJson();
+                }
                 $http_util->retorno($rt, true, 404); return;
             }
-           
+            if (isset($rt["data"])){ $rt["data"] = $rt["data"]->__toJson(); }
+
             // $aux_token = $http_util->get_token($login, $senha, $sql_usuarios, $sql_token);
             // if (isset($aux_token)){ $rt["token"] = $aux_token->__toJson(); }
 
@@ -204,15 +210,17 @@
             //echo "user_update: [{$user_update}]<br />\r\n";
 
             $rt = $sql_usuarios->update_user_part($user_update);
-            if (isset($rt["data"])){
-                $rt["data"] = $rt["data"]->__toJson();
-            }
             if (!isset($rt)){
                 $http_util->retorno_erro("Erro", 404); return;
             }
             if (!$rt["ok"]){
+                if (isset($rt["data"])){
+                    $rt["data"]->setSenha(null); // esconde a senha
+                    $rt["data"] = $rt["data"]->__toJson();
+                }
                 $http_util->retorno($rt, true, 404); return;
             }
+            if (isset($rt["data"])){ $rt["data"] = $rt["data"]->__toJson(); }
            
             // $aux_token = $http_util->get_token($login, $senha, $sql_usuarios, $sql_token);
             // if (isset($aux_token)){ $rt["token"] = $aux_token->__toJson(); }
