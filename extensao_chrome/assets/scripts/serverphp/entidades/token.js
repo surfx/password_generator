@@ -2,10 +2,14 @@ class Token {
 
     #id; #token; #validade;
 
-    constructor() {
-        this.#id = 0;
-        this.#token = '';
-        this.#validade = '';
+    constructor(
+        id = 0,
+        token = '',
+        validade = ''
+    ) {
+        this.#id = id;
+        this.#token = token;
+        this.#validade = validade;
     }
 
     get id() { return this.#id; }
@@ -23,9 +27,23 @@ class Token {
         return `${this.#id}, ${this.#token}, ${this.#validade}`;
     }
 
-    tokenToBase64(){
-        if (!this.#token){return undefined;}
+    tokenToBase64() {
+        if (!this.#token) { return undefined; }
         return btoa(this.#token);
+    }
+
+    //------------
+    // Serializar
+    //------------
+    toJsonSerialize() {
+        return JSON.stringify({ id: this.#id, token: this.#token, validade: this.#validade });
+    };
+
+    static fromJsonSerialize(json) {
+        if (!json) { return undefined; }
+        let js = JSON.parse(json);
+        if (!js) { return undefined; }
+        return new Token(js.id, js.token, js.validade);
     }
 
 }

@@ -54,4 +54,33 @@ class Usuario {
         return `${this.#id_usuario}, ${this.#nome}, ${this.#uuid}, ${this.#login}, ${this.#verificado}, ${this.#ativo}, {${tk}}`;
     }
 
+    //------------
+    // Serializar
+    //------------
+    toJsonSerialize() {
+        return JSON.stringify(
+            { 
+                id_usuario: this.#id_usuario, nome: this.#nome, uuid: this.#uuid,
+                login: this.#login, senha: this.#senha, verificado: this.#verificado,
+                ativo: this.#ativo, 
+                token: this.#token.toJsonSerialize()
+            }
+        );
+    };
+
+    static fromJsonSerialize(json) {
+        if (!json) { return undefined; }
+        let js = JSON.parse(json);
+        if (!js) { return undefined; }
+
+        console.log("js.token: ", js.token);
+        console.log("tk: ", Token.fromJsonSerialize(js.token));
+
+        return new Usuario(
+            js.id_usuario, js.nome, js.uuid,
+            js.login, js.senha, js.verificado,
+            js.ativo, Token.fromJsonSerialize(js.token)
+        );
+    }
+
 }
