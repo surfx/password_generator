@@ -1,5 +1,6 @@
 import {
-    getUrl, copyToClipboard, showMsg
+    getUrl, copyToClipboard, showMsg,
+    addclick
 } from './util/util.js';
 
 import {
@@ -11,6 +12,10 @@ import {
     gerarSenha
 } from './passwordgen/pasword_generator.js';
 
+
+const server = new ServerPHP();
+
+
 let txtSearch = document.getElementById("txtSearch");
 let divDominio = document.getElementById('divDominio');
 let divSenhasSalvas = document.getElementById('divSenhasSalvas');
@@ -19,10 +24,11 @@ let spnMensagens = document.getElementById('spnMensagens');
 
 if (!!txtSearch) {
     txtSearch.focus();
-    txtSearch.addEventListener("input", function (e) {
+    addclick(txtSearch, () => {
         let filtro = txtSearch.value;
         if (!filtro || filtro.length <= 0) {
-            loadDataSenhas();
+            //loadDataSenhas();
+            loadSenhas();
             return;
         }
         retrieveData(filtro).then(data => { tratarDataHTMLSenhas(data); });
@@ -30,7 +36,7 @@ if (!!txtSearch) {
 }
 
 let btnClearSearchSenhas = document.getElementById('btnClearSearchSenhas');
-if (!!btnClearSearchSenhas){
+if (!!btnClearSearchSenhas) {
     btnClearSearchSenhas.addEventListener("click", function () {
         txtSearch.value = '';
         retrieveData('').then(data => { tratarDataHTMLSenhas(data); });
@@ -55,7 +61,7 @@ export const retrieveData = (filtroUsuario) => {
 
 function templateUsuariosSenhas(i, data) {
     if (!data) { return ''; }
-    return `<div>${data.usuario}</div>
+    return `<div>${data.login}</div>
     <div>
         <button class="btnCopy" id="btnCopyUser${i}"></button>
     </div>
@@ -68,7 +74,7 @@ function templateUsuariosSenhas(i, data) {
     </div>`;
 }
 
-function tratarDataHTMLSenhas(data){
+function tratarDataHTMLSenhas(data) {
     divSenhasSalvas.innerHTML = '';
     let size = data.length;
     for (let i = 0; i < size; i++) {
@@ -79,7 +85,7 @@ function tratarDataHTMLSenhas(data){
     for (let i = 0; i < size; i++) {
         let btnCopyUser = document.getElementById('btnCopyUser' + i);
         btnCopyUser.addEventListener("click", function () {
-            copyToClipboard(data[i].usuario);
+            copyToClipboard(data[i].login);
             showMsg(spnMensagens, 'Usuário copiado');
         });
         let btnCopyPassword = document.getElementById('btnCopyPassword' + i);
@@ -89,29 +95,32 @@ function tratarDataHTMLSenhas(data){
         });
         let btnExcluirPassword = document.getElementById('btnExcluirPassword' + i);
         btnExcluirPassword.addEventListener("click", function () {
-            if (!window.confirm("Deseja excluir a senha? [" + data[i].usuario + "]")) { return; }
-            if (excluirSenha(data[i].dominio, data[i].usuario)) {
-                showMsg(spnMensagens, 'Usuário ' + data[i].usuario + ' excluído');
+            if (!window.confirm("Deseja excluir a senha? [" + data[i].login + "]")) { return; }
+            if (excluirSenha(data[i].dominio, data[i].login)) {
+                showMsg(spnMensagens, 'Usuário ' + data[i].login + ' excluído');
             } else {
-                showMsg(spnMensagens, 'Erro ao excluir o usuário: ' + data[i].usuario);
+                showMsg(spnMensagens, 'Erro ao excluir o usuário: ' + data[i].login);
             }
-            loadDataSenhas();
-
+            //loadDataSenhas();
+            loadSenhas();
         });
     }
 }
 
-function loadDataSenhas() {
-    retrieveData(undefined).then(data => { tratarDataHTMLSenhas(data); });
-}
+// function loadDataSenhas() {
+//     retrieveData(undefined).then(data => { tratarDataHTMLSenhas(data); });
+// }
 
-if (!!divSenhasSalvas) { loadDataSenhas(); }
+if (!!divSenhasSalvas) { 
+    //loadDataSenhas(); 
+    loadSenhas();
+}
 
 
 let btnSaveAddSenhas = document.getElementById('btnSaveAddSenhas');
 if (!!btnSaveAddSenhas) {
 
-    btnSaveAddSenhas.addEventListener("click", function () {
+    btnSaveAddSenhas.addEventListener("click", async function () {
         let txtAddUsuario = document.getElementById('txtAddUsuario');
         let txtAddSenha = document.getElementById('txtAddSenha');
         let userAdd = !!txtAddUsuario ? txtAddUsuario.value : undefined;
@@ -125,19 +134,28 @@ if (!!btnSaveAddSenhas) {
         }
 
         if (!window.confirm("Deseja salvar a senha?")) { return; }
+
+        let res = await saveSenha(userAdd, senhaAdd);
+        if (!res || !res.ok) {
+            showMsg(spnMensagens, !res.msg ? res.msg : "Erro ao salvar a senha");
+            return;
+        }
+        console.log(res);
+
         txtAddUsuario.value = '';
         txtAddSenha.value = '';
 
-        saveDataSenhas({ usuario: userAdd, senha: senhaAdd, dominio: urlRecuperada });
+        //saveDataSenhas({ usuario: userAdd, senha: senhaAdd, dominio: urlRecuperada });
 
         showMsg(spnMensagens, 'Senha Salva');
 
-        loadDataSenhas();
+        //loadDataSenhas();
+        loadSenhas();
     });
 }
 
 let btnRefreshSenha = document.getElementById('btnRefreshSenha');
-if (!!btnRefreshSenha){
+if (!!btnRefreshSenha) {
     btnRefreshSenha.addEventListener("click", function () {
         let txtAddSenha = document.getElementById('txtAddSenha');
         if (!!txtAddSenha) { txtAddSenha.value = gerarSenha(15, true, true, true, true); }
@@ -160,19 +178,19 @@ let chkMaiusculas = document.getElementById('chkMaiusculas');
 let chkMinusculas = document.getElementById('chkMinusculas');
 
 let txtPassswordGen = document.getElementById('txtPassswordGen');
-function refreshSenha(){
+function refreshSenha() {
     if (!txtPassswordGen) { return; }
     let size = slider.value;
 
 
     //size, addNumeros, addCaracteresEspeciais, addMaiusculas, addMinusculas
 
-    if (size <= 0){ size = 15; }
+    if (size <= 0) { size = 15; }
     txtPassswordGen.value = gerarSenha(
-        size, 
-        chkNumeros.checked, 
-        chkCaracteresEspeciais.checked, 
-        chkMaiusculas.checked, 
+        size,
+        chkNumeros.checked,
+        chkCaracteresEspeciais.checked,
+        chkMaiusculas.checked,
         chkMinusculas.checked
     );
 }
@@ -192,13 +210,13 @@ if (!!btnCopyPassswordGen) {
 }
 
 let btnRefreshPassswordGen = document.getElementById('btnRefreshPassswordGen');
-if (!!btnRefreshPassswordGen){
+if (!!btnRefreshPassswordGen) {
     btnRefreshPassswordGen.addEventListener("click", function () {
         refreshSenha();
     });
 }
 
-function copiarParaAreaTransferencia(){
+function copiarParaAreaTransferencia() {
     if (!txtPassswordGen) { return; }
     if (!txtPassswordGen.value || txtPassswordGen.value.length <= 0) {
         showMsg(spnMensagens, 'Senha vazia');
@@ -216,3 +234,51 @@ slider.oninput = function () {
 
 
 document.getElementById('btnCopiar').onclick = copiarParaAreaTransferencia;
+
+function deslogar() { DataAux.deslogar(); location.reload(); }
+
+function verificarUsuarioLogado() {
+    let usuario = DataAux.getUsuarioLogado();
+    if (!usuario) { return; }
+
+    let divLoginLink = document.getElementById('divLoginLink');
+    if (!divLoginLink) { return; }
+    divLoginLink.remove();
+
+    let divDeslogarLink = document.getElementById('divDeslogarLink');
+    if (!divDeslogarLink) { return; } divDeslogarLink.style = '';
+
+    let linkDeslogar = document.getElementById('linkDeslogar');
+    if (!linkDeslogar) { return; }
+    addclick(linkDeslogar, () => {
+        deslogar();
+    });
+
+    let divBemVindo = document.getElementById('divBemVindo');
+    if (!divBemVindo) { return; }
+    divBemVindo.style = '';
+    divBemVindo.innerHTML = `<div>usuário: ${usuario.nome}</div><div><a href="#">Sair</a></div>`;
+}
+
+async function saveSenha(login, senha) {
+    let usuario = DataAux.getUsuarioLogado();
+    if (!usuario || !urlRecuperada || !usuario.id_usuario || !login || !senha || !usuario.token || !usuario.token.tokenToBase64()) { return; }
+    return await server.salvarSenha(usuario.id_usuario, urlRecuperada, login, senha, usuario.token.tokenToBase64());
+}
+
+async function loadSenhas() {
+    let usuario = DataAux.getUsuarioLogado();
+    if (!usuario || !urlRecuperada || !usuario.id_usuario || !usuario.token || !usuario.token.tokenToBase64()) { return; }
+
+    let res = await server.listarSenhas(usuario.id_usuario, urlRecuperada, usuario.token.tokenToBase64());
+    if (!res || !res.ok || !res.data || res.data.length <= 0) { return; }
+
+    //res.data.forEach(senha => {console.log(senha);});
+    tratarDataHTMLSenhas(res.data);
+}
+
+document.body.onload = () => {
+    verificarUsuarioLogado();
+    loadSenhas();
+};
+

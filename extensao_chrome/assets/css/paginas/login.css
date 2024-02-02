@@ -13,8 +13,8 @@
     outline: none;
 }
 
-/* divButtonLogin */
-.divButtonLogin {
+/* divButtonAction */
+.divButtonAction {
     width: 100%;
     margin-top: 20px;
     display: flex;
@@ -22,7 +22,7 @@
     justify-content: center;
 }
 
-.divButtonLogin button {
+.divButtonAction button {
     color: white;
     background-color: var(--crimson-color);
     border: 1pt solid;
@@ -34,7 +34,7 @@
     cursor: pointer;
 }
 
-.divButtonLogin button:hover {
+.divButtonAction button:hover {
     background-color: white;
     color: var(--crimson-color);
 }
@@ -59,3 +59,15 @@
     font-size: 15px;
 }
 
+/* divDadosUsuario */
+.divDadosUsuario {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    row-gap: 5px;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.divDadosUsuario div {
+    padding-bottom: 5px;
+}

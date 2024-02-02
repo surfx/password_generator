@@ -1,16 +1,7 @@
 import {
-    showMsg
+    showMsg,
+    addclick
 } from '../util/util.js';
-// import './../serverphp/serverPHP.js';
-
-//http://127.0.0.1:5500/assets/scripts/paginas/assets/scripts/serverphp/serverPHP.js
-//http://127.0.0.1:5500/assets/scripts/serverphp/serverPHP.js
-
-/* <script src="../serverphp/serverPHP.js"></script> */
-
-// http://127.0.0.1:5500/assets/scripts/paginas/util/util.js
-
-//http://127.0.0.1:5500/assets/scripts/util/util.js
 
 const server = new ServerPHP();
 
@@ -18,8 +9,6 @@ let txtUsuario = document.getElementById('txtUsuario');
 let txtSenha = document.getElementById('txtSenha');
 let btnLogin = document.getElementById('btnLogin');
 let spnMensagens = document.getElementById('spnMensagens');
-
-function addclick(obj, fn) { if (!obj || !fn) { return; } obj.addEventListener("click", function () { fn(); }); }
 
 if (!!txtUsuario) { txtUsuario.focus(); }
 
@@ -39,5 +28,48 @@ addclick(btnLogin, async () => {
     console.log(res.data.toString());
 
     showMsg(spnMensagens, "Sucesso");
+    DataAux.saveUser(res.data);
+    verificarUsuarioLogado();
+
+    // redireciona para a tela anterior
+    location.href = '../index.html';
 
 });
+
+function verificarUsuarioLogado(){
+    let usuario = DataAux.getUsuarioLogado();
+    if (!usuario){return;}
+
+    let divLogin = document.getElementById('divLogin');
+    !!divLogin && divLogin.remove();
+    let divButtonLogin = document.getElementById('divButtonLogin');
+    !!divButtonLogin && divButtonLogin.remove();
+    let divDadosUsuario = document.getElementById('divDadosUsuario');
+    if (!divDadosUsuario){return;} divDadosUsuario.style = '';
+    let divButtonSair = document.getElementById('divButtonSair');
+    if (!divButtonSair){return;} divButtonSair.style = '';
+
+    let html =
+        `<div>id_usuario</div>
+        <div>${usuario.id_usuario}</div>
+        <div>nome</div>
+        <div>${usuario.nome}</div>
+        <div>login</div>
+        <div>${usuario.login}</div>
+        <div>senha</div>
+        <div>***</div>
+        <div>verificado</div>
+        <div>${usuario.verificado}</div>`;
+    divDadosUsuario.innerHTML = html;
+
+    let btnSair = document.getElementById('btnSair');
+    if (!btnSair){return;}
+    addclick(btnSair, async () => {
+        DataAux.deslogar();
+        location.reload();
+    });
+}
+
+document.body.onload = () => {
+    verificarUsuarioLogado();
+};

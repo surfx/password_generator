@@ -1,3 +1,7 @@
+import {
+    addclick
+} from '../util/util.js';
+
 let link1 = document.getElementById('link1'); // doLogin
 let link2 = document.getElementById('link2');
 let link3 = document.getElementById('link3'); // listUsers
@@ -16,12 +20,11 @@ let link15 = document.getElementById('link15'); // alterar senha admin
 let link16 = document.getElementById('link16'); // alterar senha
 
 const server = new ServerPHP();
-const dtlocal = new DataLocal();
+//const dtlocal = new DataLocal();
 
 let login = "new9@gmail.com";
 let senha = "#@asdas";
 
-function addclick(obj, fn) { if (!obj || !fn) { return; } obj.addEventListener("click", function () { fn(); }); }
 
 addclick(link1, async () => { // doLogin
     //login = "ma...m"; senha = "b...k"; //master
@@ -140,31 +143,9 @@ addclick(link13, async () => { //deletarSenha
     console.log(res.msg, "{", !!res.data ? res.data.toString() : "indefinido", "}");
 });
 
-// TODO: criar classes para controle de objetos no browser
-async function loadUser(login, senha, key_user = "usuario_logado") {
-    let usuario = dtlocal.load_obj(key_user, Usuario.fromJsonSerialize);
-
-    if (!!usuario && !!usuario.id_usuario && usuario.id_usuario > 0) {
-        // verifica se o login informados correspondem com o que está na memória
-        if (usuario.login === login) {
-            return usuario;
-        }
-        dtlocal.clear(key_user);
-    }
-
-    let res = await server.doLogin(login, senha);
-    if (!res || !res.ok) {
-        dtlocal.clear(key_user);
-        console.log(res.toString());
-        return undefined;
-    }
-
-    dtlocal.save_obj(key_user, res.data, u => u.toJsonSerialize()); //salva o usuário
-    return res.data;
-}
 
 addclick(link14, async () => { //roteiro 1
-    let usuario = await loadUser(login, senha);
+    let usuario = await DataAux.loadUser(login, senha);
     console.log(usuario);
     if (!usuario) { return; }
 
@@ -216,7 +197,7 @@ addclick(link15, async () => { //alterar senha master
 });
 
 addclick(link16, async () => { //alterar senha
-    let usuario = await loadUser(login, senha);
+    let usuario = await DataAux.loadUser(login, senha);
     console.log(usuario);
     if (!usuario) { return; }
 

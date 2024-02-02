@@ -10,6 +10,14 @@
     <link rel="stylesheet" href="assets/css/index.css">
     <link rel="stylesheet" href="assets/css/slider/slider.css">
 
+    <script src="assets/scripts/serverphp/serverPHP.js"></script>
+    <script src="assets/scripts/data_local/dataLocal.js"></script>
+    <script src="assets/scripts/data_local/dataAux.js"></script>
+    <script src="assets/scripts/serverphp/entidades/erro.js"></script>
+    <script src="assets/scripts/serverphp/entidades/token.js"></script>
+    <script src="assets/scripts/serverphp/entidades/usuario.js"></script>
+    <script src="assets/scripts/serverphp/entidades/senha.js"></script>
+
 </head>
 
 <body>
@@ -25,6 +33,9 @@
 
     <main>
         <div>
+            
+            <div class="divBemVindo" id="divBemVindo" style="display: none;"></div>
+
             <div class="divSearchSenhasSalvas">
                 <input type="text" id="txtSearch" name="txtSearch">
                 <button class="btnSearchSenhas"></button>
@@ -106,8 +117,12 @@
                 <button id="btnCopiar">Copiar</button>
             </div>
 
-            <div class="divLinkAction">
+            <div class="divLinkAction" id="divLoginLink">
                 <a href="paginas/login.html">Login</a>
+            </div>
+
+            <div class="divLinkAction" id="divDeslogarLink" style="display: none;">
+                <a href="#" id="linkDeslogar">Sair</a>
             </div>
 
             <div class="divLinkAction">

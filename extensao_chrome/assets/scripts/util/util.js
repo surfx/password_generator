@@ -53,3 +53,6 @@ export function showMsg(alvo, mensagem) {
 //     });
 // }
 // ex call: exPromisse("aas").then(data => { console.log(`data: ${data}`); });
+
+
+export function addclick(obj, fn) { if (!obj || !fn) { return; } obj.addEventListener("click", function () { fn(); }); }
