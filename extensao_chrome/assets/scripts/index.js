@@ -4,11 +4,6 @@ import {
 } from './util/util.js';
 
 import {
-    saveDataSenhas, recuperarDataSenhas, recuperarDataSenhasDominio,
-    excluirSenha
-} from './util/dataSenhas.js';
-
-import {
     gerarSenha
 } from './passwordgen/pasword_generator.js';
 
@@ -76,6 +71,7 @@ function templateUsuariosSenhas(i, data) {
 
 function tratarDataHTMLSenhas(data) {
     divSenhasSalvas.innerHTML = '';
+    if (!data) { return; }
     let size = data.length;
     for (let i = 0; i < size; i++) {
         divSenhasSalvas.innerHTML += templateUsuariosSenhas(i, data[i]);
@@ -94,25 +90,20 @@ function tratarDataHTMLSenhas(data) {
             showMsg(spnMensagens, 'Senha copiada');
         });
         let btnExcluirPassword = document.getElementById('btnExcluirPassword' + i);
-        btnExcluirPassword.addEventListener("click", function () {
+        btnExcluirPassword.addEventListener("click", async function () {
             if (!window.confirm("Deseja excluir a senha? [" + data[i].login + "]")) { return; }
-            if (excluirSenha(data[i].dominio, data[i].login)) {
-                showMsg(spnMensagens, 'Usuário ' + data[i].login + ' excluído');
-            } else {
-                showMsg(spnMensagens, 'Erro ao excluir o usuário: ' + data[i].login);
+            let res = await DataAux.excluirSenha(data[i], server);
+            if (!res || !res.ok) {
+                showMsg(spnMensagens, !!res && !!res.msg ? res.msg : 'Erro ao excluir o usuário: ' + data[i].login);
+                return;
             }
-            //loadDataSenhas();
+            showMsg(spnMensagens, 'Usuário ' + data[i].login + ' excluído');
             loadSenhas();
         });
     }
 }
 
-// function loadDataSenhas() {
-//     retrieveData(undefined).then(data => { tratarDataHTMLSenhas(data); });
-// }
-
-if (!!divSenhasSalvas) { 
-    //loadDataSenhas(); 
+if (!!divSenhasSalvas) {
     loadSenhas();
 }
 
@@ -136,11 +127,11 @@ if (!!btnSaveAddSenhas) {
         if (!window.confirm("Deseja salvar a senha?")) { return; }
 
         let res = await saveSenha(userAdd, senhaAdd);
+        //console.log(res);
         if (!res || !res.ok) {
-            showMsg(spnMensagens, !res.msg ? res.msg : "Erro ao salvar a senha");
+            showMsg(spnMensagens, !!res && !!res.msg ? res.msg : "Erro ao salvar a senha");
             return;
         }
-        console.log(res);
 
         txtAddUsuario.value = '';
         txtAddSenha.value = '';
@@ -250,31 +241,27 @@ function verificarUsuarioLogado() {
 
     let linkDeslogar = document.getElementById('linkDeslogar');
     if (!linkDeslogar) { return; }
-    addclick(linkDeslogar, () => {
-        deslogar();
-    });
+    addclick(linkDeslogar, () => { deslogar(); });
 
     let divBemVindo = document.getElementById('divBemVindo');
     if (!divBemVindo) { return; }
     divBemVindo.style = '';
-    divBemVindo.innerHTML = `<div>usuário: ${usuario.nome}</div><div><a href="#">Sair</a></div>`;
+    divBemVindo.innerHTML = `<div>usuário: ${usuario.nome}</div><div><a href="#" id="linkBemVindoSair">Sair</a></div>`;
+
+    let linkBemVindoSair = document.getElementById('linkBemVindoSair');
+    if (!linkBemVindoSair) { return; }
+    addclick(linkBemVindoSair, () => { deslogar(); });
 }
 
 async function saveSenha(login, senha) {
-    let usuario = DataAux.getUsuarioLogado();
-    if (!usuario || !urlRecuperada || !usuario.id_usuario || !login || !senha || !usuario.token || !usuario.token.tokenToBase64()) { return; }
-    return await server.salvarSenha(usuario.id_usuario, urlRecuperada, login, senha, usuario.token.tokenToBase64());
+    return await DataAux.saveSenha(login, senha, urlRecuperada, server);
 }
 
 async function loadSenhas() {
-    let usuario = DataAux.getUsuarioLogado();
-    if (!usuario || !urlRecuperada || !usuario.id_usuario || !usuario.token || !usuario.token.tokenToBase64()) { return; }
-
-    let res = await server.listarSenhas(usuario.id_usuario, urlRecuperada, usuario.token.tokenToBase64());
-    if (!res || !res.ok || !res.data || res.data.length <= 0) { return; }
-
-    //res.data.forEach(senha => {console.log(senha);});
-    tratarDataHTMLSenhas(res.data);
+    divSenhasSalvas.innerHTML = '';
+    let auxSenhas = await DataAux.loadSenhas(urlRecuperada, server);
+    if (!auxSenhas || !auxSenhas.ok || !auxSenhas.data) { return; }
+    tratarDataHTMLSenhas(auxSenhas.data);
 }
 
 document.body.onload = () => {

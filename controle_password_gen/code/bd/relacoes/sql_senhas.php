@@ -207,8 +207,8 @@ class SQLSenhas {
             return $rt;
         }
         if (
-            !isset($login) || strlen($login) <= 0 ||
-            !filter_var($login, FILTER_VALIDATE_EMAIL)
+            !isset($login) || strlen($login) <= 0 
+            // || !filter_var($login, FILTER_VALIDATE_EMAIL)
         ){
             $rt["ok"] = false;
             $rt["msg"] = "Login inválido".(isset($login) ? " ".$login : "");

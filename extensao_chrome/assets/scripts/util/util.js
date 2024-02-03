@@ -54,5 +54,5 @@ export function showMsg(alvo, mensagem) {
 // }
 // ex call: exPromisse("aas").then(data => { console.log(`data: ${data}`); });
 
-
+//export function isEmpty(obj) { return Object.keys(obj).length === 0; }
 export function addclick(obj, fn) { if (!obj || !fn) { return; } obj.addEventListener("click", function () { fn(); }); }

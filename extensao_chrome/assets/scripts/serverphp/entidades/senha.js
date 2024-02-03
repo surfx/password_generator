@@ -36,4 +36,30 @@ class Senha {
         return `id_senha: ${this.#id_senha}, id_usuario: ${this.#id_usuario}, dominio: ${this.#dominio}, login: ${this.#login}, senha: ${this.#senha}`;
     }
 
+    //------------
+    // Serializar
+    //------------
+    toJsonSerialize() {
+        return JSON.stringify(
+            {
+                id_senha: this.#id_senha,
+                id_usuario: this.#id_usuario, 
+                dominio: this.#dominio,
+                login: this.#login, 
+                senha: this.#senha
+            }
+        );
+    };
+
+    static fromJsonSerialize(json) {
+        if (!json) { return undefined; }
+        let js = JSON.parse(json);
+        if (!js) { return undefined; }
+
+        return new Senha(
+            js.id_senha, js.id_usuario, js.dominio,
+            js.login, js.senha
+        );
+    }
+
 }

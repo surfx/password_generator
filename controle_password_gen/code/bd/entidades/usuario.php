@@ -50,7 +50,7 @@ class Usuario {
             "nome" => $this->getNome(),
             "uuid" => $this->getUUID(),
             "login" => $this->getLogin(),
-            "senha" => $this->getSenha(),
+            //"senha" => $this->getSenha(),
             "verificado" => $this->getVerificado()=="1",
             "ativo" => $this->getAtivo()=="1"
         ];
@@ -58,9 +58,10 @@ class Usuario {
 
     // serialize(...)
     public function __toString() {
+        //{$this->getSenha()}
         return "id_usuario: {$this->getIdUsuario()}, nome: {$this->getNome()}, ". 
                 "uuid: {$this->getUUID()}, login: {$this->getLogin()}, " .
-                "senha: {$this->getSenha()}, verificado: {$this->getVerificado()}, ".
+                "senha: null, verificado: {$this->getVerificado()}, ".
                 "ativo: {$this->getAtivo()}";
     }
 

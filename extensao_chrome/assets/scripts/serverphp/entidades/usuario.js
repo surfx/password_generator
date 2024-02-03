@@ -41,9 +41,31 @@ class Usuario {
     get token() { return this.#token; }
     set token(valor) { this.#token = valor; }
 
+    dataValidadeToken() {
+        if (!this.#token || !this.#token.id || this.#token.id <= 0 ||
+            !this.#token.token || !this.#token.validade ||
+            this.#token.validade.length < 19) {
+            return undefined;
+        }
+
+        let validade = (this.#token.validade).trim();
+        let dtV = validade.substring(0, 10);
+        let hrV = validade.substring(11);
+
+        let anoV = parseInt(dtV.substring(0, 4));
+        let mesV = parseInt(dtV.substring(5, 7));
+        let diaV = parseInt(dtV.substring(8, 10));
+
+        let horaV = parseInt(hrV.substring(0, 2));
+        let minV = parseInt(hrV.substring(3, 5));
+        let segV = parseInt(hrV.substring(6, 8));
+
+        return new Date(anoV, mesV - 1, diaV, horaV, minV, segV);
+    }
+
     static from(json) {
         let rt = Object.assign(new Usuario(), json);
-        if (!!json.token){
+        if (!!json.token) {
             rt.#token = Object.assign(new Token(), json.token);
         }
         return rt;
@@ -59,10 +81,10 @@ class Usuario {
     //------------
     toJsonSerialize() {
         return JSON.stringify(
-            { 
+            {
                 id_usuario: this.#id_usuario, nome: this.#nome, uuid: this.#uuid,
                 login: this.#login, senha: this.#senha, verificado: this.#verificado,
-                ativo: this.#ativo, 
+                ativo: this.#ativo,
                 token: this.#token.toJsonSerialize()
             }
         );
