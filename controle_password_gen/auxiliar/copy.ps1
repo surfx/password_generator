@@ -1,3 +1,4 @@
+# copia os arquivos do projeto php para wsl2 ubuntu
 $pasta_origem="D:\meus_documentos\workspace\css\password_generator\controle_password_gen\"
 $pasta_destino="\\wsl.localhost\Ubuntu-22.04\var\www\html\helloworld\"
 
