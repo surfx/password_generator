@@ -1,0 +1,40 @@
+
+/* divCadastrarUsuario */
+
+.divCadastrarUsuario {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    row-gap: 5px;
+    align-items: center;
+}
+
+.divCadastrarUsuario input[type="text"], .divCadastrarUsuario input[type="password"]{
+    width: 97%;
+    outline: none;
+}
+
+/* divButtonAction */
+.divButtonAction {
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.divButtonAction button {
+    color: white;
+    background-color: var(--crimson-color);
+    border: 1pt solid;
+    border-radius: 5px;
+
+    width: 100%;
+    padding: 5px 0;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.divButtonAction button:hover {
+    background-color: white;
+    color: var(--crimson-color);
+}

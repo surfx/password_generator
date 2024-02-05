@@ -103,9 +103,7 @@ function tratarDataHTMLSenhas(data) {
     }
 }
 
-if (!!divSenhasSalvas) {
-    loadSenhas();
-}
+//if (!!divSenhasSalvas) { loadSenhas(); }
 
 
 let btnSaveAddSenhas = document.getElementById('btnSaveAddSenhas');
@@ -232,25 +230,23 @@ function verificarUsuarioLogado() {
     let usuario = DataAux.getUsuarioLogado();
     if (!usuario) { return; }
 
-    let divLoginLink = document.getElementById('divLoginLink');
-    if (!divLoginLink) { return; }
-    divLoginLink.remove();
+    let divLinkActionInline = document.getElementById('divLinkActionInline');
+    if (!!divLinkActionInline) { divLinkActionInline.remove(); }
 
     let divDeslogarLink = document.getElementById('divDeslogarLink');
-    if (!divDeslogarLink) { return; } divDeslogarLink.style = '';
+    if (!!divDeslogarLink) { divDeslogarLink.style = ''; }
 
     let linkDeslogar = document.getElementById('linkDeslogar');
-    if (!linkDeslogar) { return; }
-    addclick(linkDeslogar, () => { deslogar(); });
+    if (!!linkDeslogar) { addclick(linkDeslogar, () => { deslogar(); }); }
 
     let divBemVindo = document.getElementById('divBemVindo');
-    if (!divBemVindo) { return; }
-    divBemVindo.style = '';
-    divBemVindo.innerHTML = `<div>usuário: ${usuario.nome}</div><div><a href="#" id="linkBemVindoSair">Sair</a></div>`;
+    if (!!divBemVindo) {
+        divBemVindo.style = '';
+        divBemVindo.innerHTML = `<div>usuário: ${usuario.nome}</div><div><a href="#" id="linkBemVindoSair">Sair</a></div>`;
+    }
 
     let linkBemVindoSair = document.getElementById('linkBemVindoSair');
-    if (!linkBemVindoSair) { return; }
-    addclick(linkBemVindoSair, () => { deslogar(); });
+    if (!!linkBemVindoSair) { addclick(linkBemVindoSair, () => { deslogar(); }); }
 }
 
 async function saveSenha(login, senha) {

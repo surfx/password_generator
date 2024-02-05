@@ -4,13 +4,16 @@ class SQLSenhas {
 
     private $_base_aux; // BaseDadosAux
     private $_cript; //Criptografia
+    private $_sql_usuarios; //SQLUsuarios
 
     public function __construct(
         $base_aux,
-        $cript
+        $cript,
+        $sql_usuarios
     ) {
         $this->_base_aux = $base_aux;
         $this->_cript = $cript;
+        $this->_sql_usuarios = $sql_usuarios;
     }
 
     // select
@@ -136,6 +139,55 @@ class SQLSenhas {
             $senha->getDominio(),
             $senha->getLogin(),
             $senha->getSenha());
+        return $rt;
+    }
+
+    // update_save_senhas
+    public function update_save_senhas($senhas, $id_usuario){
+        $rt = array("ok" => false, "msg" => "Erro ao salvar as senhas");
+        if (!isset($senhas) || count($senhas) <= 0 || !isset($id_usuario) || !isset($this->_sql_usuarios) || !isset($this->_cript)){ return $rt; }
+
+        $rt["ok"] = true;
+        $rt["msg"] = "Senhas atualizadas/inseridas na base de dados";
+
+        foreach ($senhas as $senha) {
+            if (
+                !isset($senha) ||
+                $senha->getIdUsuario() <= 0 || 
+                $senha->getDominio() == null || strlen(trim($senha->getDominio())) <= 0 || 
+                $senha->getLogin() == null || strlen(trim($senha->getLogin())) <= 0 || 
+                $senha->getSenha() == null || strlen(trim($senha->getSenha())) <= 0 ||
+                $senha->getIdUsuario() != $id_usuario
+            ){ continue; }
+            
+            // verifica se o id do usuário informado existe na base de dados
+            if (!$this->_sql_usuarios->existe_id($senha->getIdUsuario())){
+                continue;
+            }
+
+            $senha_by_lsd = $this->existe_login_senha_dominio(
+                $senha->getIdUsuario(),
+                $senha->getDominio(),
+                $senha->getLogin(),
+                null
+            );
+            if (
+                isset($senha_by_lsd) && 
+                $senha_by_lsd["existe"] &&
+                isset($senha_by_lsd["data"])
+            ) {
+                $sql =  "UPDATE senhas SET ".
+                "senha = '".$this->_cript->criptografar($senha->getSenha())."' ".
+                "WHERE id_usuario = ".$senha->getIdUsuario()." ".
+                "AND id_senha = ".$senha_by_lsd["data"]->getIdSenha()." ".
+                "AND dominio = '".$senha->getDominio()."' ";
+                //echo $sql."<br><br>\r\n\n";
+                $this->_base_aux->execute_sql($sql);
+                continue;
+            }
+            $this->insert_senha($senha);
+        }
+
         return $rt;
     }
 

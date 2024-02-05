@@ -94,8 +94,8 @@ class DataAux {
     static async excluirSenha(senha, server) {
         if (!server || !senha || !senha.dominio || !senha.login || !senha.dominio) { return undefined; }
         let usuario = this.getUsuarioLogado();
-        if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 || 
-            !usuario.token || !usuario.token.tokenToBase64() || 
+        if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 ||
+            !usuario.token || !usuario.token.tokenToBase64() ||
             !senha.id_senha || senha.id_senha <= 0) {
             //exclui a senha localmente
             // cria o Promisse para manter a assinatura do método
@@ -108,6 +108,24 @@ class DataAux {
         let res = await server.deletarSenha(senha.id_senha, usuario.id_usuario, senha.dominio, usuario.token.tokenToBase64());
         if (!res || !res.ok || !res.data || res.data.length <= 0) { return undefined; }
         //res.data.forEach(senha => {console.log(senha);});
+        return res;
+    }
+
+    static async updateInsertSenhasLocais(server) {
+        if (!server) { return undefined; }
+        let usuario = this.getUsuarioLogado();
+        if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 ||
+            !usuario.token || !usuario.token.tokenToBase64()) {
+            return undefined;
+        }
+
+        // senhas da memória do browser
+        let senhas = this.#recuperarSenhasLocal();
+        if (!senhas || senhas.length <= 0) { return undefined; }
+
+        let res = await server.updateInsertSenhas(
+            senhas, usuario.id_usuario, usuario.token.tokenToBase64()
+        );
         return res;
     }
 
@@ -149,7 +167,7 @@ class DataAux {
         }
 
         if (!data || data.length <= 0) {
-            this.#clearSenhasLocal();
+            this.clearSenhasLocal();
             return false;
         }
 
@@ -189,7 +207,7 @@ class DataAux {
         try {
             rt = JSON.parse(atob(rt));
         } catch (error) {
-            this.#clearSenhasLocal();
+            this.clearSenhasLocal();
             return undefined;
         }
         if (!rt) { return undefined; }
@@ -219,7 +237,7 @@ class DataAux {
         return true;
     }
 
-    static #clearSenhasLocal() {
+    static clearSenhasLocal() {
         localStorage.removeItem("dataSenhas");
     }
 

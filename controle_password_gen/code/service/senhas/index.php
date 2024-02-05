@@ -21,7 +21,7 @@
     $cript = new Criptografia();
     $sql_usuarios = new SQLUsuarios($bd, $cript);
     $sql_token = new SQLToken($bd);
-    $sql_senhas = new SQLSenhas($bd, $cript);
+    $sql_senhas = new SQLSenhas($bd, $cript, $sql_usuarios);
 
     //-----------------------------------
     $method=$http_util->get_request_method();
@@ -42,7 +42,7 @@
     function tratar_post($http_util, $sql_usuarios, $sql_token, $sql_senhas){
         $tipo=$http_util->get_querystring_value("tipo");
         $tipo = isset($tipo) ? strtolower(trim($tipo)) : null;
-        $tipos_validos = ['listar', 'salvar', 'editar', 'excluir' ];
+        $tipos_validos = ['listar', 'salvar', 'editar', 'excluir', 'update_insert' ];
 
         if (!isset($tipo) || !in_array($tipo, $tipos_validos)){
             $msg = !isset($tipo) ? "Informe o tipo" : "Tipo inválido (".(isset($tipo)?$tipo:"null").")";
@@ -167,9 +167,58 @@
             $http_util->retorno($rt, true, 201);return;
         }
 
+        // permite atualizar/inserir várias senhas para um determinado usuário
+        // caso: salvar senhas no navegador do usuário
+        if ($tipo == "update_insert"){
+            $id_usuario = $http_util->get_header_value("id_usuario");
+            $body = $http_util->get_body(true);
+
+            if (!$http_util->tem_permissao($sql_token, $id_usuario)){return;}
+            if(!isset($body) || count($body) <= 0){ $http_util->retorno_erro("Erro. Informe as senhas", 404); return; }
+
+            $array[] = []; $array = array_shift($array);
+            foreach ($body as $senha) {
+                if (!isset($senha)){continue;}
+                if (
+                    !isset($senha['id_usuario']) ||
+                    strlen(trim($senha['id_usuario'])) <= 0
+                ){ $senha['id_usuario'] = $id_usuario; }
+
+                $aux = toSenha($senha);
+                if (!isset($aux)){ continue; }
+                array_push($array, $aux);
+            }
+
+            if(!isset($array) || count($array) <= 0){ $http_util->retorno_erro("Erro. Informe as senhas", 404); return; }
+
+            $rt = $sql_senhas->update_save_senhas($array, $id_usuario);
+            if (!isset($rt) || !$rt["ok"]){ $http_util->retorno($rt, true, 404); return; }
+            //foreach ($array as $senha) { echo $senha->__toString()."\r\n"; }
+            //for($i = 0; $i < count($array); $i++){ $array[$i] = $array[$i]->__toJson(); }
+            //$http_util->retorno($array, true, 201);return;
+
+            $http_util->retorno($rt, true, 201);return;
+        }
+        
+
     }
 
-    
+    function toSenha($json){
+        if (!isset($json)){return null;}
+        $rt = new Senha(
+            isset($json['id_senha']) ? $json['id_senha'] : 0,
+            isset($json['id_usuario']) ? $json['id_usuario'] : 0,
+            isset($json['dominio']) ? $json['dominio'] : '',
+            isset($json['login']) ? $json['login'] : '',
+            isset($json['senha']) ? $json['senha'] : ''
+        );
+        // if ($rt->getIdUsuario() <= 0 || 
+        //     $rt->getDominio() == null || strlen(trim($rt->getDominio())) <= 0 || 
+        //     $rt->getLogin() == null || strlen(trim($rt->getLogin())) <= 0 || 
+        //     $rt->getSenha() == null || strlen(trim($rt->getSenha())) <= 0
+        // ) { return null; }
+        return $rt;
+    }
 
     $http_util->retorno("", false, 401);
 ?>

@@ -371,3 +371,23 @@ main .divSearchSenhasSalvas {
 .divLinkAction a:hover {
     border-bottom: 1pt dotted;
 }
+
+/* divLinkActionInline */
+.divLinkActionInline {
+    margin-top: 15px;
+    display: flex;
+    justify-content: left;
+}
+
+.divLinkActionInline a {
+    margin-right: 20px;
+}
+
+.divLinkActionInline a {
+    text-decoration: none;
+    color: var(--crimson-color);
+}
+
+.divLinkActionInline a:hover {
+    border-bottom: 1pt dotted;
+}

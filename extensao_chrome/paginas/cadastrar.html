@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-
 <head>
-    <title>Password Generator</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar</title>
 
     <link rel="icon" type="image/x-icon" href="../key_icon.png">
     <link rel="stylesheet" href="../assets/css/css_reset.css">
     <link rel="stylesheet" href="../assets/css/index.css">
-    <link rel="stylesheet" href="../assets/css/paginas/login.css">
+    <link rel="stylesheet" href="../assets/css/paginas/cadastrar.css">
 
     <script src="../assets/scripts/serverphp/serverPHP.js"></script>
     <script src="../assets/scripts/data_local/dataLocal.js"></script>
@@ -17,10 +17,10 @@
     <script src="../assets/scripts/serverphp/entidades/token.js"></script>
     <script src="../assets/scripts/serverphp/entidades/usuario.js"></script>
     <script src="../assets/scripts/serverphp/entidades/senha.js"></script>
+
 </head>
-
 <body>
-
+    
     <header>
         <svg width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -32,36 +32,17 @@
     <main>
         <div>
 
-            <div class="divDadosUsuario" id="divDadosUsuario" style="display: none;">
-                <!-- <div>id_usuario</div>
-                <div>7</div>
-                <div>nome</div>
-                <div>Usuário X</div>
-                <div>login</div>
-                <div>new9@gmail.com</div>
-                <div>senha</div>
-                <div>***</div>
-                <div>verificado</div>
-                <div>false</div> -->
-            </div>
-
-            <div class="divLogin" id="divLogin">
+            <div class="divCadastrarUsuario" id="divCadastrarUsuario">
+                <div><label for="txtNome">Nome</label></div>
+                <div><input type="text" id="txtNome" name="txtNome"></div>
                 <div><label for="txtUsuario">Usuário</label></div>
-                <div><input type="text" id="txtUsuario" name="txtUsuario"></div>
+                <div><input type="text" id="txtUsuario" name="txtUsuario" autocomplete="off"></div>
                 <div><label for="txtSenha">Senha</label></div>
-                <div><input type="password" id="txtSenha" name="txtSenha"></div>
+                <div><input type="password" id="txtSenha" name="txtSenha" autocomplete="off"></div>
             </div>
 
-            <div class="divButtonAction" id="divButtonLogin">
-                <button id="btnLogin">Login</button>
-            </div>
-
-            <div class="divButtonAction" id="divButtonSair" style="display: none;">
-                <button id="btnSair">Sair</button>
-            </div>
-
-            <div class="divButtonRecuperarSenha">
-                <button type="button" id="btnRecuperarSenha" disabled="disabled">Recuperar Senha</button>
+            <div class="divButtonAction" id="divButtonCadastrar">
+                <button id="btnCadastrar">Cadastrar</button>
             </div>
 
             <div class="divLinkAction">
@@ -77,7 +58,7 @@
 
     </main>
 
-    <script type="module" src="../assets/scripts/paginas/login.js"></script>
-</body>
+    <script type="module" src="../assets/scripts/paginas/cadastrar.js"></script>
 
+</body>
 </html>

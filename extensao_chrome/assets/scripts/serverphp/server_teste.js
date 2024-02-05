@@ -18,6 +18,7 @@ let link13 = document.getElementById('link13');
 let link14 = document.getElementById('link14'); // roteiro 1
 let link15 = document.getElementById('link15'); // alterar senha admin
 let link16 = document.getElementById('link16'); // alterar senha
+let link17 = document.getElementById('link17'); // updateInsertSenhas
 
 const server = new ServerPHP();
 //const dtlocal = new DataLocal();
@@ -232,5 +233,38 @@ addclick(link16, async () => { //alterar senha
         res.data.id_senha, usuario.id_usuario, dominio, usuario.token.tokenToBase64()
     );
     console.log("excluir senha: ", res);
+
+});
+
+addclick(link17, async () => { //updateInsertSenhas
+    let usuario = await DataAux.loadUser(login, senha);
+    //console.log(usuario);
+    if (!usuario) { return; }
+
+    let res = await server.tokenValido(usuario.token.tokenToBase64());
+    if (!res || !res.valido || !usuario.token) {
+        res = await server.getToken(login, senha);
+        usuario.token = !!res && !!res.ok ? res.data : undefined;
+    }
+    if (!usuario.token) { return; } // erro ao recuperar o token
+
+    res = await server.tokenValido(usuario.token.tokenToBase64());
+    if (!res || !res.valido) { return; } // token inválido
+
+    // senhas da memória do browser
+
+    //console.log(recuperarSenhasLocal());
+
+    res = await DataAux.updateInsertSenhasLocais(server);
+
+    // let senhas = [];
+    // senhas.push(new Senha(0, usuario.id_usuario, 'youtube', 'meulogin@gmail.com', '11545'));
+    // senhas.push(new Senha(0, usuario.id_usuario, 'youtube', 'meulogin2@gmail.com', '11545'));
+    // senhas.push(new Senha(0, usuario.id_usuario, 'youtube', 'meulogin3@gmail.com', '11545'));
+
+    // res = await server.updateInsertSenhas(
+    //     senhas, usuario.id_usuario, usuario.token.tokenToBase64()
+    // );
+    console.log("updateInsertSenhas: ", res);
 
 });

@@ -9,7 +9,7 @@ class ServerPHP {
     #toerr_res(res) {
         if (!res || res === undefined || res === 'undefined') { return { "ok": false, "msg": "Erro - null" }; }
         if (!res.ok) { return Erro.from(res); }
-        if (!res.data) { return { "ok": true, "data": undefined }; }
+        if (!res.data) { return { "ok": true, "data": undefined, "msg": res.msg }; }
         return undefined;
     }
 
@@ -249,7 +249,7 @@ class ServerPHP {
 
     //deletar
     async deletarSenha(id_senha, id_usuario, dominio, token) {
-        if (!token || !id_senha || id_senha <= 0 || !token || !id_usuario || !dominio) {
+        if (!token || !id_senha || id_senha <= 0 || !id_usuario || !dominio) {
             return this.#toerr("Informe os dados para excluir a senha");
         }
         let res = await fetch(`${this.#url}senhas/?tipo=excluir`, {
@@ -271,6 +271,35 @@ class ServerPHP {
         return res;
     }
 
+
+    async updateInsertSenhas(senhas, id_usuario, token) {
+        if (!token || !senhas || senhas.length <= 0 || !id_usuario || id_usuario <= 0) { return this.#toerr("Informe os dados para inserir as senhas"); }
+
+        let body = '[';
+        for (let i = 0; i < senhas.length; i++) {
+            if (!senhas[i]) { continue; }
+            if (!senhas[i].id_usuario || senhas[i].id_usuario.length <= 0) { senhas[i].id_usuario = id_usuario; }
+            body += senhas[i].toJsonSerialize() + ',';
+        }
+        body = body.substring(0, body.length - 1);
+        body += ']';
+
+        //console.log(body);
+
+        let res = await fetch(`${this.#url}senhas/?tipo=update_insert`, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token,
+                "id_usuario": id_usuario
+            },
+            body: body
+        });
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        return res;
+    }
 
 
     //-- teste

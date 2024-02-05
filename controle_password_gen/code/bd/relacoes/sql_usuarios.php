@@ -258,6 +258,12 @@ class SQLUsuarios {
         return $rt;
     }
 
+    public function existe_id($id){
+        if (!isset($id) || !isset($this->_base_aux)){return false;}
+        $usuario = $this->get_user_byid($id);
+        return isset($usuario);
+    }
+
     private function validar_usuario($usuario, $verificar_id = false, $verificar_uuid = false){
         $rt = array("ok" => false, "msg" => "", "data" => $usuario);
         if (!isset($usuario)){return $rt;}
@@ -281,8 +287,8 @@ class SQLUsuarios {
             return $rt;
         }
         if (
-            !isset($login) || strlen($login) <= 0
-            // || !filter_var($login, FILTER_VALIDATE_EMAIL)
+            !isset($login) || strlen($login) <= 0 || 
+            !filter_var($login, FILTER_VALIDATE_EMAIL)
             )
         {
             $rt["ok"] = false;

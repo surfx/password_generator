@@ -28,6 +28,10 @@ SELECT * from senhas WHERE id_senha = 1 AND id_usuario = 2 AND dominio = 'youtub
 DELETE FROM senhas WHERE id_senha = 2 AND id_usuario = 2 AND dominio = 'youtube';
 --update usuarios set ativo = 1;
 
-
+SELECT id_senha,id_usuario,dominio,login,senha FROM senhas
+WHERE id_usuario = 16
+AND dominio = 'youtube'
+AND login = 'login_yt2@gmail.com'
+;
 
 
