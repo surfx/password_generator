@@ -14,8 +14,9 @@ class ServerPHP {
     }
 
     async doLogin(login, senha) {
+        await this.excluirTokensInvalidos();
         if (!login || !senha) { return this.#toerr("Informe o login e a senha"); }
-        const res = await fetch(`${this.#url}userservice/?tipo=login`, {
+        let res = await fetch(`${this.#url}userservice/?tipo=login`, {
             method: "POST",
             body: JSON.stringify({
                 login: login,
@@ -25,18 +26,18 @@ class ServerPHP {
                 "Content-type": "application/json; charset=UTF-8"
             }
         });
-        const res_1 = await res.json();
-        let aux = this.#toerr_res(res_1);
-        if (!!aux) { return aux; }
-        res_1.data = !!res_1.data ? Usuario.from(res_1.data) : undefined;
-        return res_1;
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        res.data = !!res.data ? Usuario.from(res.data) : undefined;
+        return res;
     }
 
     //-- token
 
     async getToken(login, senha) {
         if (!login || !senha) { return this.#toerr("Informe o login e a senha"); }
-        let res = await fetch(`${this.#url}authenticacao/`, {
+        let res = await fetch(`${this.#url}authenticacao/?tipo=token`, {
             method: "POST",
             body: JSON.stringify({
                 login: login,
@@ -50,6 +51,20 @@ class ServerPHP {
         if (!res) { return this.#toerr_res(res); }
         let aux = this.#toerr_res(res); if (!!aux) { return aux; }
         res.data = !!res.data ? Token.from(res.data) : undefined;
+        return res;
+    }
+
+    async excluirTokensInvalidos() {
+        let res = await fetch(`${this.#url}authenticacao/?tipo=tokensinvalidos`, {
+            method: "POST",
+            body: undefined,
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        });
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
         return res;
     }
 
@@ -170,6 +185,30 @@ class ServerPHP {
         return res;
     }
 
+    // inativar usuário
+    async inativarUsuario(id_usuario, uuid, login, token) {
+        if (
+            !token || !id_usuario || !uuid || !login
+        ) { return this.#toerr("Informe os dados do usuário"); }
+        let res = await fetch(`${this.#url}userservice/?tipo=inativar`, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token
+            },
+            body: JSON.stringify({
+                id_usuario: id_usuario,
+                uuid: uuid,
+                login: login
+            })
+        });
+        res = !res ? undefined : await res.json();
+        if (!res) { return this.#toerr_res(res); }
+        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        res.data = !!res.data ? Usuario.from(res.data) : undefined;
+        return res;
+    }
+
     //-- senha
     async listarSenhas(id_usuario, dominio, token) {
         if (!token || !id_usuario || id_usuario <= 0 || !dominio) {
@@ -271,7 +310,7 @@ class ServerPHP {
         return res;
     }
 
-
+    //updateInsertSenhas
     async updateInsertSenhas(senhas, id_usuario, token) {
         if (!token || !senhas || senhas.length <= 0 || !id_usuario || id_usuario <= 0) { return this.#toerr("Informe os dados para inserir as senhas"); }
 
@@ -302,7 +341,7 @@ class ServerPHP {
     }
 
 
-    //-- teste
+    //-- testes
     async fetchDataUK() {
         const res = await fetch("https://api.coronavirus.data.gov.uk/v1/data", {
             method: "GET"

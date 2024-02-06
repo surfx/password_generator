@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar</title>
+    <title>Alterar Dados</title>
 
     <link rel="icon" type="image/x-icon" href="../key_icon.png">
     <link rel="stylesheet" href="../assets/css/css_reset.css">
@@ -33,10 +33,10 @@
         <div>
 
             <div class="divTituloForm">
-                <h1>Cadastrar</h1>
+                <h1>Alterar</h1>
             </div>
 
-            <div class="divCadastrarUsuario" id="divCadastrarUsuario">
+            <div class="divCadastrarUsuario" id="divEditarUsuario">
                 <div><label for="txtNome">Nome</label></div>
                 <div><input type="text" id="txtNome" name="txtNome" autocomplete="off"></div>
                 <div><label for="txtUsuario">Usuário</label></div>
@@ -45,8 +45,11 @@
                 <div><input type="password" id="txtSenha" name="txtSenha" autocomplete="off"></div>
             </div>
 
-            <div class="divButtonAction" id="divButtonCadastrar">
-                <button id="btnCadastrar">Cadastrar</button>
+            <div class="divButtonAction">
+                <button id="btnEditarUsuario">Editar</button>
+                <!-- comentado, por enquanto sem envio de email
+                não há como reativar o usuário -->
+                <!-- <button id="btnInativarUsuario">Inativar</button> -->
             </div>
 
             <div class="divLinkActionsCenter">
@@ -60,10 +63,9 @@
 
         </div>
 
-
     </main>
 
-    <script type="module" src="../assets/scripts/paginas/cadastrar.js"></script>
+    <script type="module" src="../assets/scripts/paginas/alterar_dados.js"></script>
 
 </body>
 </html>

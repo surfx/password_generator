@@ -258,6 +258,34 @@ class SQLUsuarios {
         return $rt;
     }
 
+    //delete
+    public function delete_user($usuario){
+        $rt = array("ok" => false, "msg" => "", "data" => $usuario);
+        if (!isset($usuario) || !isset($this->_base_aux) || !isset($this->_cript)){
+            $rt["msg"] = "Usuário inválido";
+            return $rt;
+        }
+
+        $rt = $this->validar_usuario($usuario, true, true);
+        if (!$rt["ok"]){return $rt;}
+        
+        $user_bylogin = $this->get_user_bylogin($usuario->getLogin(), $usuario->getIdUsuario());
+        if (!isset($user_bylogin)){
+            $rt["ok"] = false;
+            $rt["msg"] = "Usuário inválido";
+            $rt["data"] = $usuario;
+            return $rt;
+        }
+
+        $sql = "DELETE usuarios WHERE id_usuario = ".$usuario->getIdUsuario();
+        #echo $sql."<br><br>";
+
+        $rt["ok"] = $this->_base_aux->execute_sql($sql);
+        $rt["msg"] = "Usuário excluído";
+        $rt["data"] = $usuario;
+        return $rt;
+    }
+
     public function existe_id($id){
         if (!isset($id) || !isset($this->_base_aux)){return false;}
         $usuario = $this->get_user_byid($id);
@@ -400,14 +428,14 @@ class SQLUsuarios {
         $id_usuario = $row["id_usuario"];
         $id_usuario = isset($id_usuario) ? intval($id_usuario) : 0;
 
-        //$this->_cript->decriptografar($row["senha"]),
+        $senha = $this->_cript->decriptografar($row["senha"]);
 
         return new Usuario(
             $id_usuario,
             $row["nome"],
             $row["uuid"],
             $row["login"],
-            $row["senha"],
+            $senha,
             $row["verificado"],
             $row["ativo"]
         );

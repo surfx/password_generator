@@ -25,7 +25,7 @@ addclick(btnLogin, async () => {
     }
     //console.log(res);
     if (!res || !res.ok) { console.log(res.toString()); return; }
-    console.log(res.data.toString());
+    //console.log(res.data.toString());
 
     showMsg(spnMensagens, "Sucesso");
     DataAux.saveUser(res.data);
@@ -33,7 +33,7 @@ addclick(btnLogin, async () => {
     verificarUsuarioLogado();
 
     // redireciona para a tela anterior
-    location.href = '../index.html';
+    //location.href = '../index.html';
 
 });
 
@@ -50,10 +50,11 @@ function verificarUsuarioLogado() {
     let divButtonSair = document.getElementById('divButtonSair');
     if (!divButtonSair) { return; } divButtonSair.style = '';
 
+    /*<div>id_usuario</div>
+    <div>${usuario.id_usuario}</div>*/
+
     let html =
-        `<div>id_usuario</div>
-        <div>${usuario.id_usuario}</div>
-        <div>nome</div>
+        `<div>nome</div>
         <div>${usuario.nome}</div>
         <div>login</div>
         <div>${usuario.login}</div>

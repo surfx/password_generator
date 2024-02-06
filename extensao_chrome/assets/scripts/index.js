@@ -92,7 +92,7 @@ function tratarDataHTMLSenhas(data) {
         let btnExcluirPassword = document.getElementById('btnExcluirPassword' + i);
         btnExcluirPassword.addEventListener("click", async function () {
             if (!window.confirm("Deseja excluir a senha? [" + data[i].login + "]")) { return; }
-            let res = await DataAux.excluirSenha(data[i], server);
+            let res = await DataAux.excluirSenha(data[i]);
             if (!res || !res.ok) {
                 showMsg(spnMensagens, !!res && !!res.msg ? res.msg : 'Erro ao excluir o usuário: ' + data[i].login);
                 return;
@@ -230,8 +230,8 @@ function verificarUsuarioLogado() {
     let usuario = DataAux.getUsuarioLogado();
     if (!usuario) { return; }
 
-    let divLinkActionInline = document.getElementById('divLinkActionInline');
-    if (!!divLinkActionInline) { divLinkActionInline.remove(); }
+    let divLinkActionsCenter = document.getElementById('divLinkActionsCenter');
+    if (!!divLinkActionsCenter) { divLinkActionsCenter.remove(); }
 
     let divDeslogarLink = document.getElementById('divDeslogarLink');
     if (!!divDeslogarLink) { divDeslogarLink.style = ''; }
@@ -250,12 +250,12 @@ function verificarUsuarioLogado() {
 }
 
 async function saveSenha(login, senha) {
-    return await DataAux.saveSenha(login, senha, urlRecuperada, server);
+    return await DataAux.saveSenha(login, senha, urlRecuperada);
 }
 
 async function loadSenhas() {
     divSenhasSalvas.innerHTML = '';
-    let auxSenhas = await DataAux.loadSenhas(urlRecuperada, server);
+    let auxSenhas = await DataAux.loadSenhas(urlRecuperada);
     if (!auxSenhas || !auxSenhas.ok || !auxSenhas.data) { return; }
     tratarDataHTMLSenhas(auxSenhas.data);
 }

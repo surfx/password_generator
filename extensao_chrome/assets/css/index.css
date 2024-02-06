@@ -372,22 +372,34 @@ main .divSearchSenhasSalvas {
     border-bottom: 1pt dotted;
 }
 
-/* divLinkActionInline */
-.divLinkActionInline {
+/* divLinkActionsCenter */
+.divLinkActionsCenter {
     margin-top: 15px;
     display: flex;
     justify-content: left;
 }
-
-.divLinkActionInline a {
-    margin-right: 20px;
+.divLinkActionsCenter div {
+    margin-right: 15px;
 }
 
-.divLinkActionInline a {
+.divLinkActionsCenter div a {
     text-decoration: none;
     color: var(--crimson-color);
 }
 
-.divLinkActionInline a:hover {
+.divLinkActionsCenter div a:hover {
     border-bottom: 1pt dotted;
+}
+
+/* divTituloForm */
+.divTituloForm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
+    border-bottom: 1pt solid crimson;
+    border-style: dashed;
+}
+.divTituloForm h1 {
+    font-size: 20px;
 }

@@ -75,6 +75,13 @@ class SQLToken {
         return $this->_base_aux->execute_sql($sql);
     }
 
+    // tokens cuja validade expirou
+    public function excluir_tokens_invalidos(){
+        $sql = "DELETE FROM tokens WHERE validade < CURRENT_TIMESTAMP";
+        //echo $sql."<br><br>";
+        return $this->_base_aux->execute_sql($sql);
+    }
+
     // $token aqui é um objeto
     private function validar_token($token){
         $rt = array("ok" => false, "msg" => "", "token" => $token);

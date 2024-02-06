@@ -36,7 +36,7 @@
 
 <?php
     function tratar_get($http_util, $sql_usuarios, $sql_token, $sql_senhas){
-        $http_util->retorno("", false, 401);
+        $http_util->retorno_erro("Erro", 401);
     }
 
     function tratar_post($http_util, $sql_usuarios, $sql_token, $sql_senhas){
@@ -46,7 +46,7 @@
 
         if (!isset($tipo) || !in_array($tipo, $tipos_validos)){
             $msg = !isset($tipo) ? "Informe o tipo" : "Tipo inválido (".(isset($tipo)?$tipo:"null").")";
-            $http_util->retorno($msg, false, 404);
+            $http_util->retorno_erro($msg, 404);
             return;
         }
 

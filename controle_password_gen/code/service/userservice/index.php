@@ -33,13 +33,14 @@
 
 <?php
     function tratar_get($http_util, $sql_usuarios, $sql_token){
-        $tipo=$http_util->get_querystring_value("tipo");
+        if (!isset($http_util) || !isset($sql_usuarios) || !isset($sql_token)){ $http_util->retorno_erro("[1] Erro método não permitido", 404); return; }
+        $tipo = $http_util->get_querystring_value("tipo");
         $tipo = isset($tipo) ? strtolower(trim($tipo)) : null;
         $tipos_validos = ['tokenvalido', "verificado"];
 
         if (!isset($tipo) || !in_array($tipo, $tipos_validos)){
             $msg = !isset($tipo) ? "Informe o tipo" : "Tipo inválido (".(isset($tipo)?$tipo:"null").")";
-            $http_util->retorno($msg, false, 404);
+            $http_util->retorno_erro($msg, 404);
             return;
         }
 
@@ -66,7 +67,7 @@
     function tratar_post($http_util, $sql_usuarios, $sql_token){
         $tipo=$http_util->get_querystring_value("tipo");
         $tipo = isset($tipo) ? strtolower(trim($tipo)) : null;
-        $tipos_validos = ['listuser', 'login', 'insert', 'update', 'update_part', 'excluir'];
+        $tipos_validos = ['listuser', 'login', 'insert', 'update', 'update_part', 'inativar'];
 
         if (!isset($tipo) || !in_array($tipo, $tipos_validos)){
             $msg = !isset($tipo) ? "Informe o tipo" : "Tipo inválido (".(isset($tipo)?$tipo:"null").")";
@@ -228,19 +229,19 @@
             $http_util->retorno($rt, true, 201);return;
         }
 
-        if ($tipo == 'excluir'){
+        if ($tipo == 'inativar'){
+            $id_usuario = $http_util->get_body_value("id_usuario");
             $uuid = $http_util->get_body_value("uuid");
-            $id = $http_util->get_body_value("id");
             $login = $http_util->get_body_value("login");
-            if (!$http_util->tem_permissao($sql_token, $id)){return;}
+            if (!$http_util->tem_permissao($sql_token, $id_usuario)){return;}
 
-            if (!isset($uuid) || !isset($id) || !isset($login)){ $http_util->retorno_erro("Erro", 404); return; }
+            if (!isset($uuid) || !isset($id_usuario) || !isset($login)){ $http_util->retorno_erro("Erro", 404); return; }
 
             // echo "uuid: {$uuid}<br />";
-            // echo "id: {$id}<br />";
+            // echo "id_usuario: {$id_usuario}<br />";
             // echo "login: {$login}<br />";
 
-            $user = $sql_usuarios->get_user_byparams($uuid, $login, $id);
+            $user = $sql_usuarios->get_user_byparams($uuid, $login, $id_usuario);
             if (!isset($user)){ $http_util->retorno_erro("Erro", 404); return; }
             
             #echo "user: {$user}\r\n<br />";
@@ -252,7 +253,7 @@
             }
 
             // excluir tokens deste usuário
-            $sql_token->excluir_tokens_byid($id);
+            $sql_token->excluir_tokens_byid($id_usuario);
 
             $http_util->retorno($rt, true, 201);return;
         }

@@ -85,7 +85,7 @@ class Usuario {
                 id_usuario: this.#id_usuario, nome: this.#nome, uuid: this.#uuid,
                 login: this.#login, senha: this.#senha, verificado: this.#verificado,
                 ativo: this.#ativo,
-                token: this.#token.toJsonSerialize()
+                token: !!this.#token ? this.#token.toJsonSerialize() : undefined
             }
         );
     };

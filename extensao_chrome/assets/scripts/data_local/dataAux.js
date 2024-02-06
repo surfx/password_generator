@@ -21,7 +21,7 @@ class DataAux {
         let res = await this.#server.doLogin(login, senha);
         if (!res || !res.ok) {
             this.#dtlocal.clear(key_user);
-            console.log(res.toString());
+            //console.log(res.toString());
             return undefined;
         }
 
@@ -52,11 +52,27 @@ class DataAux {
         this.#dtlocal.clear(key_user);
     }
 
+    static inativarUsuario(key_user = "usuario_logado"){
+        let usuario = this.getUsuarioLogado();
+        //console.log(usuario);
+        if (!usuario){
+            deslogar(key_user);
+            return { ok: false, msg: "Erro ao deslogar" };
+        }
+
+        return this.#server.inativarUsuario(
+            usuario.id_usuario, 
+            usuario.uuid, 
+            usuario.login, 
+            usuario.token.tokenToBase64()
+        );
+    }
+
     //------------------------------
     // senhas
     //------------------------------
-    static async saveSenha(login, senha, dominio, server) {
-        if (!server) { return undefined; }
+    static async saveSenha(login, senha, dominio) {
+        if (!this.#server) { return undefined; }
         let usuario = this.getUsuarioLogado();
         if (!usuario || !dominio || !usuario.id_usuario || !login || !senha || !usuario.token || !usuario.token.tokenToBase64()) {
             // salvar a senha localmente
@@ -66,11 +82,11 @@ class DataAux {
                 resolve({ ok: rt, msg: undefined });
             });
         }
-        return await server.salvarSenha(usuario.id_usuario, dominio, login, senha, usuario.token.tokenToBase64());
+        return await this.#server.salvarSenha(usuario.id_usuario, dominio, login, senha, usuario.token.tokenToBase64());
     }
 
-    static async loadSenhas(dominio, server) {
-        if (!server) { return undefined; }
+    static async loadSenhas(dominio) {
+        if (!this.#server) { return undefined; }
         let usuario = this.getUsuarioLogado();
 
         if (!usuario || !dominio || !usuario.id_usuario || !usuario.token || !usuario.token.tokenToBase64()) {
@@ -84,15 +100,15 @@ class DataAux {
 
         if (!usuario || !dominio || !usuario.id_usuario || !usuario.token || !usuario.token.tokenToBase64()) { return undefined; }
 
-        let res = await server.listarSenhas(usuario.id_usuario, dominio, usuario.token.tokenToBase64());
+        let res = await this.#server.listarSenhas(usuario.id_usuario, dominio, usuario.token.tokenToBase64());
         if (!res || !res.ok || !res.data || res.data.length <= 0) { return undefined; }
 
         //res.data.forEach(senha => {console.log(senha);});
         return res;
     }
 
-    static async excluirSenha(senha, server) {
-        if (!server || !senha || !senha.dominio || !senha.login || !senha.dominio) { return undefined; }
+    static async excluirSenha(senha) {
+        if (!this.#server || !senha || !senha.dominio || !senha.login || !senha.dominio) { return undefined; }
         let usuario = this.getUsuarioLogado();
         if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 ||
             !usuario.token || !usuario.token.tokenToBase64() ||
@@ -105,14 +121,14 @@ class DataAux {
             });
         }
 
-        let res = await server.deletarSenha(senha.id_senha, usuario.id_usuario, senha.dominio, usuario.token.tokenToBase64());
+        let res = await this.#server.deletarSenha(senha.id_senha, usuario.id_usuario, senha.dominio, usuario.token.tokenToBase64());
         if (!res || !res.ok || !res.data || res.data.length <= 0) { return undefined; }
         //res.data.forEach(senha => {console.log(senha);});
         return res;
     }
 
-    static async updateInsertSenhasLocais(server) {
-        if (!server) { return undefined; }
+    static async updateInsertSenhasLocais() {
+        if (!this.#server) { return undefined; }
         let usuario = this.getUsuarioLogado();
         if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 ||
             !usuario.token || !usuario.token.tokenToBase64()) {
@@ -123,7 +139,7 @@ class DataAux {
         let senhas = this.#recuperarSenhasLocal();
         if (!senhas || senhas.length <= 0) { return undefined; }
 
-        let res = await server.updateInsertSenhas(
+        let res = await this.#server.updateInsertSenhas(
             senhas, usuario.id_usuario, usuario.token.tokenToBase64()
         );
         return res;

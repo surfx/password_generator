@@ -34,4 +34,9 @@ AND dominio = 'youtube'
 AND login = 'login_yt2@gmail.com'
 ;
 
+--DELETE FROM tokens WHERE validade < CURRENT_TIMESTAMP;
 
+SELECT id, token, validade FROM tokens WHERE validade < CURRENT_TIMESTAMP ;
+SELECT id, token, validade FROM tokens WHERE validade >= CURRENT_TIMESTAMP ;
+
+--update tokens set validade = '2023-02-06T05:09:32';
