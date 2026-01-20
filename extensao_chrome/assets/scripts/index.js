@@ -55,6 +55,7 @@ let urlRecuperada = '';
 getUrl(false).then(url => {
     urlRecuperada = url;
     !!divDominio && (divDominio.innerHTML = `site: ${urlRecuperada}`);
+    loadSenhas();
 });
 
 /* Removido retrieveData e recuperarDataSenhasDominio que causavam erro */
@@ -78,6 +79,15 @@ function templateUsuariosSenhas(i, data) {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </button>
+        </div>
+        <div>
+            <button class="btnLoginAuto" id="btnLoginAuto${i}" title="Login Automático">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                    <polyline points="10 17 15 12 10 7"></polyline>
+                    <line x1="15" y1="12" x2="3" y2="12"></line>
                 </svg>
             </button>
         </div>
@@ -112,6 +122,14 @@ function tratarDataHTMLSenhas(data) {
             copyToClipboard(data[i].senha);
             showMsg(spnMensagens, 'Senha copiada');
         });
+        
+        let btnLoginAuto = document.getElementById('btnLoginAuto' + i);
+        if (btnLoginAuto) {
+            btnLoginAuto.addEventListener("click", function() {
+                enviarLoginParaAutomacao(data[i]);
+            });
+        }
+
         let btnExcluirPassword = document.getElementById('btnExcluirPassword' + i);
         btnExcluirPassword.addEventListener("click", async function () {
             if (!window.confirm("Deseja excluir a senha? [" + data[i].login + "]")) { return; }
@@ -122,6 +140,29 @@ function tratarDataHTMLSenhas(data) {
             }
             showMsg(spnMensagens, 'Usuário ' + data[i].login + ' excluído');
             loadSenhas();
+        });
+    }
+}
+
+function enviarLoginParaAutomacao(senhaObj) {
+    // Converte para POJO se necessário
+    let credencial = senhaObj;
+    if (senhaObj.constructor.name === 'Senha' || typeof senhaObj.toJsonSerialize === 'function') {
+        credencial = {
+            id_senha: senhaObj.id_senha,
+            id_usuario: senhaObj.id_usuario,
+            dominio: senhaObj.dominio,
+            login: senhaObj.login,
+            senha: senhaObj.senha
+        };
+    }
+    
+    // Salva no storage para disparar o evento no content script
+    if (typeof chrome !== 'undefined' && chrome && chrome.storage && chrome.storage.local) {
+        // Timestamp force change detection
+        credencial._timestamp = new Date().getTime();
+        chrome.storage.local.set({ "login_automatico": credencial }, () => {
+             showMsg(spnMensagens, 'Login enviado...');
         });
     }
 }
@@ -249,9 +290,16 @@ document.getElementById('btnCopiar').onclick = copiarParaAreaTransferencia;
 
 function deslogar() { DataAux.deslogar(); location.reload(); }
 
-function verificarUsuarioLogado() {
+async function verificarUsuarioLogado() {
     let usuario = DataAux.getUsuarioLogado();
     if (!usuario) { return; }
+
+    // Verifica token no servidor
+    let tokenValido = await DataAux.verificarTokenOnline();
+    if (!tokenValido) {
+        deslogar();
+        return;
+    }
 
     let divLinkActionsCenter = document.getElementById('divLinkActionsCenter');
     if (!!divLinkActionsCenter) { divLinkActionsCenter.remove(); }
@@ -295,6 +343,5 @@ async function loadSenhas() {
 
 document.body.onload = () => {
     verificarUsuarioLogado();
-    loadSenhas();
 };
 

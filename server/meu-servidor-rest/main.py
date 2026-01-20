@@ -267,15 +267,16 @@ async def senhas_service(
     if tipo == "listar":
         if isinstance(body, list): return response_error("Body inválido")
         req_uid = body.get("id_usuario")
-        dominio = body.get("dominio", "").lower()
+        dominio_req = body.get("dominio", "").lower()
         
         result = []
         for pwd in db["passwords"]:
             # Comparação segura de inteiros
             p_uid = pwd.get("id_usuario")
             if p_uid and int(p_uid) == int(req_uid):
-                p_dom = pwd.get("dominio", "")
-                if not dominio or (p_dom and dominio in p_dom.lower()):
+                p_dom = pwd.get("dominio", "").lower()
+                # Comparação exata (estrita) conforme solicitado
+                if not dominio_req or p_dom == dominio_req:
                     result.append(pwd)
         return response_ok(result)
 

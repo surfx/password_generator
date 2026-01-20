@@ -1,7 +1,7 @@
 export const getUrl = (urlCompleta) => {
     return new Promise((resolve, reject) => {
 
-        if (!chrome || !chrome.tabs || !chrome.tabs.query) {
+        if (typeof chrome === 'undefined' || !chrome || !chrome.tabs || !chrome.tabs.query) {
             resolve('TESTE');
             return;
         }
@@ -9,9 +9,18 @@ export const getUrl = (urlCompleta) => {
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
             let url = tabs[0].url;
             if (!urlCompleta) {
-                url = url.replace('https://', '').replace('http://', '').replace('www.', '');
-                if (url.indexOf('.') >= 0) {
-                    url = url.substring(0, url.indexOf("."));
+                try {
+                    const urlObj = new URL(url);
+                    url = urlObj.hostname;
+                    if (url.startsWith('www.')) {
+                        url = url.substring(4);
+                    }
+                } catch (e) {
+                    // Fallback
+                    url = url.replace('https://', '').replace('http://', '').replace('www.', '');
+                    if (url.indexOf('/') >= 0) {
+                        url = url.substring(0, url.indexOf("/"));
+                    }
                 }
             }
             resolve(url);

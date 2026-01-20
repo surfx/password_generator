@@ -13,13 +13,22 @@ let btnEditarUsuario = document.getElementById('btnEditarUsuario');
 let spnMensagens = document.getElementById('spnMensagens');
 let btnInativarUsuario = document.getElementById('btnInativarUsuario');
 
-document.body.onload = () => {
+document.body.onload = async () => {
     if (!!txtNome) { txtNome.focus(); }
 
     let usuario = DataAux.getUsuarioLogado();
     if (!usuario || !usuario.id_usuario) {
         location.href = '../index.html';
+        return;
     }
+
+    // Valida token online
+    let tokenValido = await DataAux.verificarTokenOnline();
+    if (!tokenValido) {
+        location.href = '../index.html';
+        return;
+    }
+
     txtNome.value = usuario.nome;
     txtUsuario.value = usuario.login;
     txtSenha.value = usuario.senha;

@@ -167,7 +167,7 @@ button {
 
 .password-item {
     display: grid;
-    grid-template-columns: 1fr auto 1fr auto auto;
+    grid-template-columns: 1fr auto 1fr auto auto auto;
     align-items: center;
     padding: 10px 15px;
     gap: 10px;
@@ -195,6 +195,9 @@ button {
 .divSenhasSalvas button:hover {
     background: var(--primary-color);
     color: white;
+}
+.btnLoginAuto:hover {
+    background: var(--secondary-color) !important;
 }
 .btnExcluir:hover {
     background: var(--danger-color) !important;
@@ -287,6 +290,7 @@ button {
     box-shadow: var(--shadow);
     border-radius: 8px;
     overflow: hidden;
+    background-color: var(--bg-surface);
 }
 .frmDivPasswordText input {
     border: 1px solid var(--border-color);
@@ -295,8 +299,13 @@ button {
     font-family: 'Courier New', monospace;
     font-size: 16px;
     font-weight: 700;
-    color: var(--primary-dark);
     text-align: center;
+    
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    caret-color: var(--primary-color);
 }
 .frmDivPasswordText button {
     width: 44px;
@@ -405,19 +414,23 @@ button {
 @media (max-width: 400px) {
     .divChks { grid-template-columns: 1fr; }
     .form-row { flex-direction: column; }
-    .password-item { 
-        grid-template-columns: 1fr auto; 
-        grid-template-rows: auto auto;
+    
+    /* Mantém tudo em uma linha mesmo em telas pequenas */
+    .password-item {
+        grid-template-columns: 1fr auto 1fr auto auto auto;
+        grid-template-rows: auto;
         gap: 5px;
+        padding: 8px 5px; /* Reduz padding lateral */
     }
-    /* Reorganiza a lista em telas muito pequenas */
-    .password-item .user-text { grid-column: 1 / span 1; }
-    .password-item .pass-text { grid-column: 1 / span 1; }
-    /* Botões */
-    .password-item div:nth-child(2),
-    .password-item div:nth-child(4),
-    .password-item div:nth-child(5) {
-        grid-column: 2;
+
+    /* Ajuste fino para os botões ficarem menores se necessário ou margens reduzidas */
+    .password-item button {
+        width: 24px;
+        height: 24px;
     }
-    .password-item div:nth-child(4) { grid-row: 2; }
+    
+    .password-item .user-text, .password-item .pass-text {
+        font-size: 11px; /* Fonte levemente menor */
+        max-width: 60px; /* Garante que o ellipsis funcione */
+    }
 }

@@ -49,6 +49,19 @@ class DataAux {
         return usuario;
     }
 
+    static async verificarTokenOnline(key_user = "usuario_logado") {
+        let usuario = this.getUsuarioLogado(key_user);
+        if (!usuario) return false;
+
+        let res = await this.#server.tokenValido(usuario.token.tokenToBase64());
+        
+        if (!res || !res.ok) {
+            this.deslogar(key_user);
+            return false;
+        }
+        return true;
+    }
+
     static deslogar(key_user = "usuario_logado") {
         this.#dtlocal.clear(key_user);
     }
@@ -99,13 +112,53 @@ class DataAux {
             });
         }
 
-        if (!usuario || !dominio || !usuario.id_usuario || !usuario.token || !usuario.token.tokenToBase64()) { return undefined; }
-
         let res = await this.#server.listarSenhas(usuario.id_usuario, dominio, usuario.token.tokenToBase64());
         if (!res || !res.ok || !res.data || res.data.length <= 0) { return undefined; }
 
+        // Sincroniza com o storage compartilhado para automação
+        this.#syncToChromeStorage(res.data);
+
         //res.data.forEach(senha => {console.log(senha);});
         return res;
+    }
+
+    static async #syncToChromeStorage(novasSenhas) {
+        if (typeof chrome === 'undefined' || !chrome || !chrome.storage || !chrome.storage.local) return;
+        
+        try {
+            const data = await chrome.storage.local.get("senhas_sync");
+            let atuais = data.senhas_sync || [];
+            
+            novasSenhas.forEach(nova => {
+                // Converte instância de Senha para objeto plano (POJO)
+                // Campos privados (#) não são serializados automaticamente pelo Chrome
+                let objSalvar = nova;
+                if (nova.constructor.name === 'Senha' || typeof nova.toJsonSerialize === 'function') {
+                    objSalvar = {
+                        id_senha: nova.id_senha,
+                        id_usuario: nova.id_usuario,
+                        dominio: nova.dominio,
+                        login: nova.login,
+                        senha: nova.senha
+                    };
+                }
+                
+                const index = atuais.findIndex(a => 
+                    (a.id_senha && objSalvar.id_senha && a.id_senha === objSalvar.id_senha) ||
+                    (a.dominio === objSalvar.dominio && a.login === objSalvar.login)
+                );
+                
+                if (index >= 0) {
+                    atuais[index] = objSalvar;
+                } else {
+                    atuais.push(objSalvar);
+                }
+            });
+            
+            await chrome.storage.local.set({ "senhas_sync": atuais });
+        } catch (e) {
+            console.error("Erro ao sincronizar storage", e);
+        }
     }
 
     static async excluirSenha(senha) {
@@ -124,7 +177,24 @@ class DataAux {
 
         let res = await this.#server.deletarSenha(senha.id_senha, usuario.id_usuario, senha.dominio, usuario.token.tokenToBase64());
         if (!res || !res.ok) { return undefined; }
+        
+        // Remove do storage sync também
+        this.#removeFromChromeStorage(senha);
+        
         return res;
+    }
+    
+    static async #removeFromChromeStorage(senhaRemover) {
+        if (typeof chrome === 'undefined' || !chrome || !chrome.storage || !chrome.storage.local) return;
+        try {
+            const data = await chrome.storage.local.get("senhas_sync");
+            let atuais = data.senhas_sync || [];
+            const novoArray = atuais.filter(s => 
+                !((s.id_senha && senhaRemover.id_senha && s.id_senha === senhaRemover.id_senha) ||
+                  (s.dominio === senhaRemover.dominio && s.login === senhaRemover.login))
+            );
+            await chrome.storage.local.set({ "senhas_sync": novoArray });
+        } catch(e) { console.error(e); }
     }
 
     static async updateInsertSenhasLocais() {
@@ -279,6 +349,9 @@ class DataAux {
         });
         if (!aux || aux.length <= 0) { return; }
         localStorage["dataSenhas"] = btoa(JSON.stringify(aux));
+        
+        // Sincroniza também as locais
+        this.#syncToChromeStorage(aux);
     }
 
     static #isEmpty(obj) { return !obj || Object.keys(obj).length === 0; }
