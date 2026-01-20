@@ -64,11 +64,19 @@ class Usuario {
     }
 
     static from(json) {
-        let rt = Object.assign(new Usuario(), json);
-        if (!!json.token) {
-            rt.#token = Object.assign(new Token(), json.token);
-        }
-        return rt;
+        if (!json) return undefined;
+        let token = !!json.token ? Token.from(json.token) : undefined;
+        
+        return new Usuario(
+            json.id_usuario,
+            json.nome,
+            json.uuid,
+            json.login,
+            json.senha,
+            json.verificado,
+            json.ativo,
+            token
+        );
     }
 
     toString() {

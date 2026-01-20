@@ -20,7 +20,8 @@ let link15 = document.getElementById('link15'); // alterar senha admin
 let link16 = document.getElementById('link16'); // alterar senha
 let link17 = document.getElementById('link17'); // updateInsertSenhas
 
-const server = new ServerPHP();
+const server = new ServerPython();
+// const server = new ServerPHP();
 //const dtlocal = new DataLocal();
 
 let login = "new9@gmail.com";

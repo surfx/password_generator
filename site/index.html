@@ -7,91 +7,88 @@
     <title>Password Generator</title>
 
     <link rel="stylesheet" href="assets/css_reset.css">
-    <link rel="stylesheet" href="assets/slider/slider.css">
     <link rel="stylesheet" href="assets/estilos.css">
 </head>
 
 <body>
 
     <header>
-        <div>
-            <h1>
-                <i class="fi fi-rr-lock"></i>
-                Password Generator
-            </h1>
+        <div class="header-content">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
+            </svg>
+            <h1>Password Generator</h1>
         </div>
     </header>
+
     <main>
 
-        <form action="javascript:void(0);">
-
-            <div class="frmDivPasswordText">
-                <input type="text" name="txtPassword" id="txtPassword">
-                <button id="btnCopy">
-                    <svg height="15" viewBox="0 0 24 24" width="15" xmlns="http://www.w3.org/2000/svg"
-                        data-name="Layer 1">
-                        <path
-                            d="m18 5.086-5.086-5.086h-7.914a3 3 0 0 0 -3 3v17h16zm-14 12.914v-15a1 1 0 0 1 1-1h7v4h4v12zm18-9v15h-15v-2h13v-15z" />
-                    </svg>
-                </button>
-                <button id="btnRefresh">
-                    <i class="fi fi-rr-refresh"></i>
-                </button>
-            </div>
-
-            <div class="frmDivChks">
-                <ul>
-                    <li>
-
-                        <div class="mySliderContainer">
-                            <div class="slidecontainer">
-                                <input type="range" min="1" max="100" value="15" class="slider" id="mySlider">
-                            </div>
-                            <span id="spnValorSlider"></span>
-                        </div>
-
-                    </li>
-                    <li>
-                        <input type="checkbox" name="chkCaracteresEspeciais" id="chkCaracteresEspeciais" checked="true">
-                        <label for="chkCaracteresEspeciais">Caracteres Especiais</label>
-                    </li>
-                    <li>
-                        <input type="checkbox" name="chkNumeros" id="chkNumeros" checked="true">
-                        <label for="chkNumeros">Números</label>
-                    </li>
-                    <li>
-                        <input type="checkbox" name="chkMaiusculas" id="chkMaiusculas" checked="true">
-                        <label for="chkMaiusculas">Maiúsculas</label>
-                    </li>
-                    <li>
-                        <input type="checkbox" name="chkMinusculas" id="chkMinusculas" checked="true">
-                        <label for="chkMinusculas">Minúsculas</label>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="divButtonCopiar">
-                <button id="btnCopiar">Copiar</button>
-            </div>
-
-            <div class="divSpnMessage">
-                <span id="spnMensagem"></span>
-            </div>
-        </form>
-
-       
-    </main>
-
-    <div class="divInfoProjeto">
-        <div>
-            <img src="assets/imagens/key_icon.png" width="15px">
-            <a href="https://github.com/surfx/password_generator/blob/main/assets/extensao_chrome.7z" target="_blank">Download Extensão</a>
+        <div class="divDominio">
+            <svg width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
+            </svg>
+            <h1>Gerador</h1>
         </div>
-    </div>
 
+        <div class="frmDivPasswordText">
+            <input type="text" name="txtPassword" id="txtPassword" autocomplete="off">
+            <button id="btnCopy" title="Copiar">
+                <svg height="18px" width="18px" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </button>
+            <button id="btnRefresh" title="Regerar">
+                <svg width="18px" height="18px" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1 2.12-9.36L23 10"></path>
+                </svg>
+            </button>
+        </div>
 
+        <div class="mySliderContainer">
+            <div class="slidecontainer">
+                <input type="range" min="1" max="50" value="15" class="slider" id="mySlider">
+            </div>
+            <span id="spnValorSlider"></span>
+        </div>
 
-    <!-- <a href="javascript:void(0);" onclick="javascript:gerarSenha()">gerarSenha()</a> -->
+        <div class="divChks">
+            <div class="chk-item">
+                <input type="checkbox" name="chkCaracteresEspeciais" id="chkCaracteresEspeciais" checked="true">
+                <label for="chkCaracteresEspeciais">Especiais (@#$)</label>
+            </div>
+            <div class="chk-item">
+                <input type="checkbox" name="chkNumeros" id="chkNumeros" checked="true">
+                <label for="chkNumeros">Números (123)</label>
+            </div>
+            <div class="chk-item">
+                <input type="checkbox" name="chkMaiusculas" id="chkMaiusculas" checked="true">
+                <label for="chkMaiusculas">Maiúsculas (ABC)</label>
+            </div>
+            <div class="chk-item">
+                <input type="checkbox" name="chkMinusculas" id="chkMinusculas" checked="true">
+                <label for="chkMinusculas">Minúsculas (abc)</label>
+            </div>
+        </div>
+
+        <div class="divButtonCopiar">
+            <button id="btnCopiar">COPIAR SENHA GERADA</button>
+        </div>
+
+        <div class="divMensagens">
+            <span id="spnMensagem"></span>
+        </div>
+
+        <div class="divInfoProjeto">
+            <div>
+                <img src="assets/imagens/key_icon.png" width="16px">
+                <a href="https://github.com/surfx/password_generator/blob/main/assets/extensao_chrome.7z" target="_blank">Download Extensão</a>
+            </div>
+        </div>
+
+    </main>
 
     <script src="assets/control.js"></script>
 </body>

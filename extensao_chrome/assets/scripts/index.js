@@ -8,8 +8,10 @@ import {
 } from './passwordgen/pasword_generator.js';
 
 
-const server = new ServerPHP();
+// const server = new ServerPHP();
+// const server = new ServerPython();
 
+let allPasswords = []; // Armazena todas as senhas carregadas para filtro local
 
 let txtSearch = document.getElementById("txtSearch");
 let divDominio = document.getElementById('divDominio');
@@ -19,14 +21,21 @@ let spnMensagens = document.getElementById('spnMensagens');
 
 if (!!txtSearch) {
     txtSearch.focus();
-    addclick(txtSearch, () => {
-        let filtro = txtSearch.value;
-        if (!filtro || filtro.length <= 0) {
-            //loadDataSenhas();
-            loadSenhas();
-            return;
+    txtSearch.addEventListener("input", () => {
+        let filtro = txtSearch.value.toLowerCase();
+        let items = divSenhasSalvas.getElementsByClassName('password-item');
+        
+        for (let item of items) {
+            let userDiv = item.querySelector('.user-text');
+            if (userDiv) {
+                let login = userDiv.textContent.toLowerCase();
+                if (login.includes(filtro)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            }
         }
-        retrieveData(filtro).then(data => { tratarDataHTMLSenhas(data); });
     });
 }
 
@@ -34,7 +43,10 @@ let btnClearSearchSenhas = document.getElementById('btnClearSearchSenhas');
 if (!!btnClearSearchSenhas) {
     btnClearSearchSenhas.addEventListener("click", function () {
         txtSearch.value = '';
-        retrieveData('').then(data => { tratarDataHTMLSenhas(data); });
+        let items = divSenhasSalvas.getElementsByClassName('password-item');
+        for (let item of items) {
+            item.style.display = '';
+        }
         txtSearch.focus();
     });
 }
@@ -45,27 +57,38 @@ getUrl(false).then(url => {
     !!divDominio && (divDominio.innerHTML = `site: ${urlRecuperada}`);
 });
 
-export const retrieveData = (filtroUsuario) => {
-    return new Promise((resolve, reject) => {
-        getUrl(false).then(url => {
-            resolve(recuperarDataSenhasDominio(url, filtroUsuario));
-        });
-    });
-}
+/* Removido retrieveData e recuperarDataSenhasDominio que causavam erro */
 
 
 function templateUsuariosSenhas(i, data) {
     if (!data) { return ''; }
-    return `<div>${data.login}</div>
-    <div>
-        <button class="btnCopy" id="btnCopyUser${i}"></button>
-    </div>
-    <div>*****...</div>
-    <div>
-        <button class="btnCopy" id="btnCopyPassword${i}"></button>
-    </div>
-    <div>
-        <button class="btnExcluir" id="btnExcluirPassword${i}"></button>
+    return `<div class="password-item">
+        <div class="user-text" title="${data.login}">${data.login}</div>
+        <div>
+            <button class="btnCopy" id="btnCopyUser${i}" title="Copiar Usuário">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="pass-text">••••••••</div>
+        <div>
+            <button class="btnCopy" id="btnCopyPassword${i}" title="Copiar Senha">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </button>
+        </div>
+        <div>
+            <button class="btnExcluir" id="btnExcluirPassword${i}" title="Excluir">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
+        </div>
     </div>`;
 }
 
@@ -242,7 +265,13 @@ function verificarUsuarioLogado() {
     let divBemVindo = document.getElementById('divBemVindo');
     if (!!divBemVindo) {
         divBemVindo.style = '';
-        divBemVindo.innerHTML = `<div>usuário: ${usuario.nome}</div><div><a href="#" id="linkBemVindoSair">Sair</a></div>`;
+        divBemVindo.innerHTML = `<div>
+            <svg width="12px" height="12px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#dc143c">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            ${usuario.nome}
+        </div>
+        <div><a href="#" id="linkBemVindoSair">Sair</a></div>`;
     }
 
     let linkBemVindoSair = document.getElementById('linkBemVindoSair');
@@ -256,8 +285,12 @@ async function saveSenha(login, senha) {
 async function loadSenhas() {
     divSenhasSalvas.innerHTML = '';
     let auxSenhas = await DataAux.loadSenhas(urlRecuperada);
-    if (!auxSenhas || !auxSenhas.ok || !auxSenhas.data) { return; }
-    tratarDataHTMLSenhas(auxSenhas.data);
+    if (!auxSenhas || !auxSenhas.ok || !auxSenhas.data) { 
+        allPasswords = [];
+        return; 
+    }
+    allPasswords = auxSenhas.data;
+    tratarDataHTMLSenhas(allPasswords);
 }
 
 document.body.onload = () => {

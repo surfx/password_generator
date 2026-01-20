@@ -1,73 +1,114 @@
-
-/* divLogin */
-
+/* Layout do Formulário de Login */
 .divLogin {
-    display: grid;
-    grid-template-columns: 80px 1fr;
-    row-gap: 5px;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: var(--bg-surface);
+    padding: 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 20px;
 }
 
-.divLogin input[type="text"], .divLogin input[type="password"]{
-    width: 97%;
+.divLogin div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.divLogin label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.divLogin input[type="text"], 
+.divLogin input[type="password"] {
+    width: 100%;
+    box-sizing: border-box; /* Garante que padding não estoure a largura */
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.divLogin input[type="text"]:focus, 
+.divLogin input[type="password"]:focus {
+    border-color: var(--primary-color);
     outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); /* Anel de foco suave */
 }
 
-/* divButtonAction */
+/* Botões de Ação (Login, Sair) */
 .divButtonAction {
     width: 100%;
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-top: 10px;
 }
 
 .divButtonAction button {
-    color: white;
-    background-color: var(--crimson-color);
-    border: 1pt solid;
-    border-radius: 5px;
-
     width: 100%;
-    padding: 5px 0;
-    font-size: 15px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: var(--radius);
     cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 .divButtonAction button:hover {
-    background-color: white;
-    color: var(--crimson-color);
+    background-color: var(--primary-hover);
 }
 
-/* divButtonRecuperarSenha */
+.divButtonAction button:active {
+    transform: translateY(1px);
+}
+
+/* Botão Recuperar Senha (Desabilitado) */
 .divButtonRecuperarSenha {
     width: 100%;
-    margin-top: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-top: 10px;
 }
 
 .divButtonRecuperarSenha button {
-    background-color: white;
-    color: var(--disabled-color);
-    border: 1pt solid;
-    border-radius: 5px;
-
     width: 100%;
-    padding: 5px 0;
-    font-size: 15px;
+    padding: 10px;
+    font-size: 14px;
+    color: var(--text-muted);
+    background-color: transparent;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius);
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
-/* divDadosUsuario */
+/* Dados do Usuário Logado (Visualização) */
 .divDadosUsuario {
     display: grid;
-    grid-template-columns: 120px 1fr;
-    row-gap: 5px;
+    grid-template-columns: 100px 1fr;
+    gap: 10px;
     align-items: center;
-    margin: 20px 0;
+    background-color: #EEF2FF;
+    padding: 15px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    font-size: 14px;
 }
 
-.divDadosUsuario div {
-    padding-bottom: 5px;
+.divDadosUsuario div:nth-child(odd) {
+    font-weight: 600;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+.divDadosUsuario div:nth-child(even) {
+    color: var(--text-main);
+    word-break: break-all;
 }

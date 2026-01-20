@@ -1,6 +1,7 @@
 class DataAux {
 
-    static #server = new ServerPHP();
+    //static #server = new ServerPHP();
+    static #server = (typeof ServerPython !== 'undefined') ? new ServerPython() : new ServerPHP();
     static #dtlocal = new DataLocal();
 
     //------------------------------
@@ -56,7 +57,7 @@ class DataAux {
         let usuario = this.getUsuarioLogado();
         //console.log(usuario);
         if (!usuario){
-            deslogar(key_user);
+            this.deslogar(key_user);
             return { ok: false, msg: "Erro ao deslogar" };
         }
 
@@ -122,8 +123,7 @@ class DataAux {
         }
 
         let res = await this.#server.deletarSenha(senha.id_senha, usuario.id_usuario, senha.dominio, usuario.token.tokenToBase64());
-        if (!res || !res.ok || !res.data || res.data.length <= 0) { return undefined; }
-        //res.data.forEach(senha => {console.log(senha);});
+        if (!res || !res.ok) { return undefined; }
         return res;
     }
 

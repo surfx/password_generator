@@ -1,41 +1,70 @@
-
-/* divCadastrarUsuario */
-
+/* Layout do Formulário de Cadastro */
 .divCadastrarUsuario {
-    display: grid;
-    grid-template-columns: 80px 1fr;
-    row-gap: 5px;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: var(--bg-surface);
+    padding: 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 20px;
 }
 
-.divCadastrarUsuario input[type="text"], .divCadastrarUsuario input[type="password"]{
-    width: 97%;
+.divCadastrarUsuario div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.divCadastrarUsuario label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.divCadastrarUsuario input[type="text"], 
+.divCadastrarUsuario input[type="password"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.divCadastrarUsuario input[type="text"]:focus, 
+.divCadastrarUsuario input[type="password"]:focus {
+    border-color: var(--primary-color);
     outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
-/* divButtonAction */
+/* Botões de Ação */
 .divButtonAction {
     width: 100%;
-    margin-top: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-top: 10px;
 }
 
 .divButtonAction button {
-    color: white;
-    background-color: var(--crimson-color);
-    border: 1pt solid;
-    border-radius: 5px;
-
     width: 100%;
-    padding: 5px 0;
-    font-size: 15px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: var(--radius);
     cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: background-color 0.2s, transform 0.1s;
 }
 
 .divButtonAction button:hover {
-    background-color: white;
-    color: var(--crimson-color);
+    background-color: var(--primary-hover);
 }
 
+.divButtonAction button:active {
+    transform: translateY(1px);
+}

@@ -3,7 +3,9 @@ import {
     addclick
 } from '../util/util.js';
 
-const server = new ServerPHP();
+// const server = new ServerPython();
+const server = new ServerPython();
+
 
 let txtUsuario = document.getElementById('txtUsuario');
 let txtSenha = document.getElementById('txtSenha');
@@ -13,28 +15,31 @@ let spnMensagens = document.getElementById('spnMensagens');
 if (!!txtUsuario) { txtUsuario.focus(); }
 
 addclick(btnLogin, async () => {
-    let user = txtUsuario.value;
-    let senha = txtSenha.value;
-    if (!user) { showMsg(spnMensagens, "Informe o usuário"); txtUsuario.focus(); return; }
-    if (!senha) { showMsg(spnMensagens, "Informe a senha"); txtSenha.focus(); return; }
+    try {
+        let user = txtUsuario.value;
+        let senha = txtSenha.value;
+        if (!user) { showMsg(spnMensagens, "Informe o usuário"); txtUsuario.focus(); return; }
+        if (!senha) { showMsg(spnMensagens, "Informe a senha"); txtSenha.focus(); return; }
 
-    let res = await server.doLogin(user, senha);
-    if (!res || !res.ok) {
-        showMsg(spnMensagens, "Erro no login");
-        return;
+        let res = await server.doLogin(user, senha);
+        if (!res || !res.ok) {
+            showMsg(spnMensagens, "Erro no login");
+            return;
+        }
+        //console.log(res);
+        if (!res || !res.ok) { console.log(res.toString()); return; }
+            //console.log(res.data.toString());
+        
+            showMsg(spnMensagens, "Sucesso");
+            DataAux.saveUser(res.data);
+            salvarSenhasLocais();
+            verificarUsuarioLogado();
+        // redireciona para a tela anterior
+        location.href = '../index.html';
+    } catch (error) {
+        console.error(error);
+        showMsg(spnMensagens, "Erro: " + error.message);
     }
-    //console.log(res);
-    if (!res || !res.ok) { console.log(res.toString()); return; }
-    //console.log(res.data.toString());
-
-    showMsg(spnMensagens, "Sucesso");
-    DataAux.saveUser(res.data);
-    salvarSenhasLocais();
-    verificarUsuarioLogado();
-
-    // redireciona para a tela anterior
-    //location.href = '../index.html';
-
 });
 
 function verificarUsuarioLogado() {

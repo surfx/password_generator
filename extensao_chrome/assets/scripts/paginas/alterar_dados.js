@@ -3,7 +3,8 @@ import {
     addclick
 } from '../util/util.js';
 
-const server = new ServerPHP();
+// const server = new ServerPHP();
+const server = new ServerPython();
 
 let txtNome = document.getElementById('txtNome');
 let txtUsuario = document.getElementById('txtUsuario');

@@ -20,7 +20,11 @@ class Token {
     set validade(valor) { this.#validade = valor; }
 
     static from(json) {
-        return Object.assign(new Token(), json);
+        if (!json) return undefined;
+        // Object.assign não funciona com campos privados (#). Usar construtor.
+        // O servidor pode retornar 'id' ou 'id_token'
+        let id = json.id || json.id_token;
+        return new Token(id, json.token, json.validade);
     }
 
     toString() {

@@ -29,7 +29,14 @@ class Senha {
     set senha(valor) { this.#senha = valor; }
 
     static from(json) {
-        return Object.assign(new Senha(), json);
+        if (!json) return undefined;
+        return new Senha(
+            json.id_senha, 
+            json.id_usuario, 
+            json.dominio, 
+            json.login, 
+            json.senha
+        );
     }
 
     toString() {

@@ -4,19 +4,21 @@
 <head>
     <title>Password Generator</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="icon" type="image/x-icon" href="key_icon.png">
     <link rel="stylesheet" href="assets/css/css_reset.css">
     <link rel="stylesheet" href="assets/css/index.css">
     <link rel="stylesheet" href="assets/css/slider/slider.css">
 
-    <script src="assets/scripts/serverphp/serverPHP.js"></script>
+    <!-- <script src="assets/scripts/server/serverPHP.js"></script> -->
+    <script src="assets/scripts/server/serverPython.js"></script>
     <script src="assets/scripts/data_local/dataLocal.js"></script>
     <script src="assets/scripts/data_local/dataAux.js"></script>
-    <script src="assets/scripts/serverphp/entidades/erro.js"></script>
-    <script src="assets/scripts/serverphp/entidades/token.js"></script>
-    <script src="assets/scripts/serverphp/entidades/usuario.js"></script>
-    <script src="assets/scripts/serverphp/entidades/senha.js"></script>
+    <script src="assets/scripts/server/entidades/erro.js"></script>
+    <script src="assets/scripts/server/entidades/token.js"></script>
+    <script src="assets/scripts/server/entidades/usuario.js"></script>
+    <script src="assets/scripts/server/entidades/senha.js"></script>
 
 </head>
 
@@ -24,127 +26,134 @@
 
 
     <header>
-        <svg width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path
-                d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
-        </svg>
-        <h1>Password Generator</h1>
+        <div class="header-content">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
+            </svg>
+            <h1>Password Generator</h1>
+        </div>
     </header>
 
     <main>
-        <div>
-            
-            <div class="divBemVindo" id="divBemVindo" style="display: none;"></div>
+        
+        <div class="divBemVindo" id="divBemVindo" style="display: none;"></div>
 
-            <div class="divSearchSenhasSalvas">
-                <input type="text" id="txtSearch" name="txtSearch">
-                <button class="btnSearchSenhas"></button>
-                <button class="btnClearSearchSenhas" id="btnClearSearchSenhas"></button>
-            </div>
-            <div id="divDominio" class="divDominioTitle"></div>
-            <div class="divSenhasSalvas" id="divSenhasSalvas">
-                <!-- <div>Usuário</div>
-                <div>
-                    <button class="btnCopy"></button>
-                </div>
-                <div>*****...</div>
-                <div>
-                    <button class="btnCopy"></button>
-                </div>
-                <div>
-                    <button class="btnExcluir"></button>
-                </div> -->
-            </div>
-
-            <div class="divFormAddSenhas">
-                <div><label for="txtAddUsuario">Usuário</label></div>
-                <div><label for="txtAddSenha">Senha</label></div>
-                <div><input type="text" id="txtAddUsuario" name="txtAddUsuario"></div>
-                <div><input type="text" id="txtAddSenha" name="txtAddSenha"></div>
-                <div><button id="btnRefreshSenha" name="btnRefreshSenha" class="btnRefreshSenha"></button></div>
-                <div><button id="btnSaveAddSenhas" name="btnSaveAddSenhas" class="btnSaveAddSenhas"></button></div>
-            </div>
-
-            <div class="divDominio">
-                <svg width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
-                </svg>
-                <h1>Tool Password Generator</h1>
-            </div>
-
-            <div class="frmDivPasswordText">
-                <input type="text" name="txtPassswordGen" id="txtPassswordGen" autocomplete="off">
-                <button id="btnCopyPassswordGen">
-                    <svg height="15px" width="15px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-                        data-name="Layer 1">
-                        <path
-                            d="m18 5.086-5.086-5.086h-7.914a3 3 0 0 0 -3 3v17h16zm-14 12.914v-15a1 1 0 0 1 1-1h7v4h4v12zm18-9v15h-15v-2h13v-15z" />
-                    </svg>
-                </button>
-                <button id="btnRefreshPassswordGen">
-                    <svg width="15px" height="15px" viewBox="0 0 15 15" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M7.5 14.5C3.63401 14.5 0.5 11.366 0.5 7.5C0.5 5.26904 1.54367 3.28183 3.1694 2M7.5 0.5C11.366 0.5 14.5 3.63401 14.5 7.5C14.5 9.73096 13.4563 11.7182 11.8306 13M11.5 10V13.5H15M0 1.5H3.5V5"
-                            stroke="#000000" />
-                    </svg>
-                </button>
-            </div>
-
-            <div class="mySliderContainer">
-                <div class="slidecontainer">
-                    <input type="range" min="1" max="100" value="15" class="slider" id="mySlider">
-                </div>
-                <span id="spnValorSlider"></span>
-            </div>
-
-            <div class="divChks">
-                <input type="checkbox" name="chkCaracteresEspeciais" id="chkCaracteresEspeciais" checked="true">
-                <label for="chkCaracteresEspeciais">Especiais</label>
-
-                <input type="checkbox" name="chkNumeros" id="chkNumeros" checked="true">
-                <label for="chkNumeros">Números</label>
-
-                <input type="checkbox" name="chkMaiusculas" id="chkMaiusculas" checked="true">
-                <label for="chkMaiusculas">Maiúsculas</label>
-
-                <input type="checkbox" name="chkMinusculas" id="chkMinusculas" checked="true">
-                <label for="chkMinusculas">Minúsculas</label>
-            </div>
-
-            <div class="divButtonCopiar">
-                <button id="btnCopiar">Copiar</button>
-            </div>
-
-            <div class="divLinkActionsCenter" id="divLinkActionsCenter">
-                <div><a href="paginas/login.html">Login</a></div>
-                <div><a href="paginas/cadastrar.html">Cadastrar</a></div>
-            </div>
-
-            <div class="divLinkActionsCenter" id="divDeslogarLink" style="display: none;">
-                <div><a href="#" id="linkDeslogar">Sair</a></div>
-                <div><a href="paginas/alterar_dados.html">Alterar Dados</a></div>
-            </div>
-
-            <!-- <div class="divLinkAction"><a href="testes.html">testes</a></div> -->
-
-            <div class="divMensagens">
-                <span id="spnMensagens"></span>
-            </div>
-            
+        <!-- Barra de Busca -->
+        <div class="divSearchSenhasSalvas">
+            <input type="text" id="txtSearch" name="txtSearch" placeholder="Pesquisar senha...">
+            <button class="btnSearchSenhas" title="Buscar"></button>
+            <button class="btnClearSearchSenhas" id="btnClearSearchSenhas" title="Limpar"></button>
         </div>
 
+        <!-- Lista de Senhas -->
+        <div id="divDominio" class="divDominioTitle"></div>
+        <div class="divSenhasSalvas" id="divSenhasSalvas">
+            <!-- Conteúdo gerado via JS -->
+        </div>
+
+        <!-- Adicionar Nova Senha (Redesenhado) -->
+        <div class="divFormAddSenhas">
+            <div class="form-header">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"></path>
+                </svg>
+                Nova Senha
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="txtAddUsuario">Usuário</label>
+                    <input type="text" id="txtAddUsuario" name="txtAddUsuario" placeholder="Ex: email@teste.com">
+                </div>
+                <div class="form-group">
+                    <label for="txtAddSenha">Senha</label>
+                    <input type="text" id="txtAddSenha" name="txtAddSenha" placeholder="Ex: s3nh4F0rt3">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button id="btnRefreshSenha" name="btnRefreshSenha" class="btnRefreshSenha" title="Gerar Senha Aleatória">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2">
+                       <path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1 2.12-9.36L23 10"></path>
+                    </svg>
+                </button>
+                <button id="btnSaveAddSenhas" name="btnSaveAddSenhas" class="btnSaveAddSenhas" title="Salvar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="divDominio">
+            <svg width="16px" height="16px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M12 4c1.648 0 3 1.352 3 3v3H9V7c0-1.648 1.352-3 3-3zm5 6V7c0-2.752-2.248-5-5-5S7 4.248 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1zM6 12h12v8H6v-8z" />
+            </svg>
+            <h1>Gerador</h1>
+        </div>
+
+        <div class="frmDivPasswordText">
+            <input type="text" name="txtPassswordGen" id="txtPassswordGen" autocomplete="off">
+            <button id="btnCopyPassswordGen" title="Copiar">
+                <svg height="18px" width="18px" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+            </button>
+            <button id="btnRefreshPassswordGen" title="Regerar">
+                <svg width="18px" height="18px" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1 2.12-9.36L23 10"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="mySliderContainer">
+            <div class="slidecontainer">
+                <input type="range" min="1" max="50" value="15" class="slider" id="mySlider">
+            </div>
+            <span id="spnValorSlider"></span>
+        </div>
+
+        <div class="divChks">
+            <div class="chk-item">
+                <input type="checkbox" name="chkCaracteresEspeciais" id="chkCaracteresEspeciais" checked="true">
+                <label for="chkCaracteresEspeciais">Especiais (@#$)</label>
+            </div>
+            <div class="chk-item">
+                <input type="checkbox" name="chkNumeros" id="chkNumeros" checked="true">
+                <label for="chkNumeros">Números (123)</label>
+            </div>
+            <div class="chk-item">
+                <input type="checkbox" name="chkMaiusculas" id="chkMaiusculas" checked="true">
+                <label for="chkMaiusculas">Maiúsculas (ABC)</label>
+            </div>
+            <div class="chk-item">
+                <input type="checkbox" name="chkMinusculas" id="chkMinusculas" checked="true">
+                <label for="chkMinusculas">Minúsculas (abc)</label>
+            </div>
+        </div>
+
+        <div class="divButtonCopiar">
+            <button id="btnCopiar">COPIAR SENHA GERADA</button>
+        </div>
+
+        <div class="divMensagens">
+            <span id="spnMensagens"></span>
+        </div>
+
+        <div class="divLinkActionsCenter" id="divLinkActionsCenter">
+            <div><a href="paginas/login.html">Login</a></div>
+            <div><a href="paginas/cadastrar.html">Cadastrar</a></div>
+        </div>
+
+        <div class="divLinkActionsCenter" id="divDeslogarLink" style="display: none;">
+            <div><a href="#" id="linkDeslogar">Sair</a></div>
+            <div><a href="paginas/alterar_dados.html">Alterar Dados</a></div>
+        </div>
 
     </main>
 
-
-    
-
     <script type="module" src="assets/scripts/index.js"></script>
-
-    <!-- <script src="scripts/testes/saveData.js"></script> -->
-    <!-- <script type="module" src="scripts/testes/readDom.js"></script> -->
 
 </body>
 

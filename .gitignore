@@ -1,1 +1,3 @@
 controle_password_gen/auxiliar/z-ignore.md
+server/meu-servidor-rest/__pycache__/
+server/meu-servidor-rest/db_json/
