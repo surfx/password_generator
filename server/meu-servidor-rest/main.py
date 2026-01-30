@@ -125,8 +125,8 @@ def create_token(db, user):
     db["tokens"] = [t for t in db["tokens"] if int(t.get("id_usuario", 0)) != int(user["id_usuario"])]
 
     token_str = str(uuid.uuid4())
-    # Data atual + 1 dia para validade
-    future_date = datetime.datetime.now() + datetime.timedelta(days=1)
+    # Data atual + 365 dias para validade
+    future_date = datetime.datetime.now() + datetime.timedelta(days=365)
     
     new_token = {
         "id_token": get_next_id(db["tokens"], "id_token"),
@@ -217,6 +217,28 @@ async def userservice(
 
     if tipo == "tokenvalido":
         return response_ok(token_info, "Token válido")
+
+    if tipo == "logout":
+        if authorization:
+            # Encontra e remove o token
+            token_str_to_remove = authorization
+            try:
+                # Tenta decodificar caso o token tenha sido enviado em Base64
+                token_str_to_remove = base64.b64decode(authorization).decode('utf-8')
+            except:
+                pass # Usa o header como está se não for Base64
+
+            initial_len = len(db["tokens"])
+            # Remove o token, comparando tanto a forma bruta quanto a decodificada
+            db["tokens"] = [
+                t for t in db["tokens"] 
+                if t["token"] != authorization and t["token"] != token_str_to_remove
+            ]
+            
+            if len(db["tokens"]) < initial_len:
+                save_db(db)
+                return response_ok(None, "Logout realizado com sucesso")
+        return response_error("Token não fornecido ou inválido para logout")
 
     if tipo == "listuser":
         # Retorna todos (cuidado em prod, mas ok pra local)

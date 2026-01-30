@@ -41,8 +41,7 @@ class DataAux {
         if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 ||
             !usuario.token || !usuario.token.id || usuario.token.id <= 0 ||
             !usuario.token.token || !usuario.token.validade ||
-            usuario.token.validade.length < 19 ||
-            usuario.dataValidadeToken() <= new Date()) { // verifica a data de validade
+            usuario.token.validade.length < 19) { 
             this.deslogar(key_user);
             return undefined;
         }
@@ -63,6 +62,17 @@ class DataAux {
     }
 
     static deslogar(key_user = "usuario_logado") {
+        // Carrega o usuário diretamente do local storage para evitar recursão com getUsuarioLogado
+        let usuario = this.#dtlocal.load_obj(key_user, Usuario.fromJsonSerialize);
+        
+        if (usuario && usuario.token && usuario.token.tokenToBase64()) {
+            // Tenta fazer o logout no servidor, mas não impede a limpeza local
+            this.#server.doLogout(usuario.token.tokenToBase64()).catch(err => {
+                console.error("Erro ao tentar deslogar no servidor:", err);
+            });
+        }
+        
+        // Limpa o usuário do local storage incondicionalmente
         this.#dtlocal.clear(key_user);
     }
 

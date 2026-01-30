@@ -12,7 +12,19 @@ let txtSenha = document.getElementById('txtSenha');
 let btnLogin = document.getElementById('btnLogin');
 let spnMensagens = document.getElementById('spnMensagens');
 
-if (!!txtUsuario) { txtUsuario.focus(); }
+function handleEnter(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); 
+        btnLogin.click();
+    }
+}
+
+if (txtUsuario) {
+    txtUsuario.addEventListener("keydown", handleEnter);
+}
+if (txtSenha) {
+    txtSenha.addEventListener("keydown", handleEnter);
+}
 
 addclick(btnLogin, async () => {
     try {
@@ -88,4 +100,11 @@ async function salvarSenhasLocais() {
 
 document.body.onload = () => {
     verificarUsuarioLogado();
+    
+    // Garante que o foco seja definido após a verificação de login
+    // e somente se o campo de usuário ainda existir.
+    let userField = document.getElementById('txtUsuario');
+    if (userField) {
+        userField.focus();
+    }
 };

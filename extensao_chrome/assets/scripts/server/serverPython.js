@@ -82,6 +82,19 @@ class ServerPython {
         return !!res ? res : this.#toerr_res(res);
     }
 
+    async doLogout(token) {
+        if (!token) { return this.#toerr("Informe o token em base 64"); }
+        let res = await fetch(`${this.#url}userservice/?tipo=logout`, {
+            method: "POST", 
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token
+            }
+        });
+        res = !res ? undefined : await res.json();
+        return !!res ? res : this.#toerr_res(res);
+    }
+
     //-- usuário
 
     async listUsers(token) {

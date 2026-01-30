@@ -63,7 +63,7 @@ getUrl(false).then(url => {
 
 function templateUsuariosSenhas(i, data) {
     if (!data) { return ''; }
-    return `<div class="password-item">
+    return `<div class="password-item" id="password-item-${i}">
         <div class="user-text" title="${data.login}">${data.login}</div>
         <div>
             <button class="btnCopy" id="btnCopyUser${i}" title="Copiar Usuário">
@@ -139,7 +139,12 @@ function tratarDataHTMLSenhas(data) {
                 return;
             }
             showMsg(spnMensagens, 'Usuário ' + data[i].login + ' excluído');
-            loadSenhas();
+            
+            // Remove o item da interface
+            let itemParaRemover = document.getElementById(`password-item-${i}`);
+            if (itemParaRemover) {
+                itemParaRemover.remove();
+            }
         });
     }
 }
@@ -291,39 +296,55 @@ document.getElementById('btnCopiar').onclick = copiarParaAreaTransferencia;
 function deslogar() { DataAux.deslogar(); location.reload(); }
 
 async function verificarUsuarioLogado() {
+    const loginRedirected = sessionStorage.getItem('loginRedirected');
+
     let usuario = DataAux.getUsuarioLogado();
-    if (!usuario) { return; }
 
-    // Verifica token no servidor
-    let tokenValido = await DataAux.verificarTokenOnline();
-    if (!tokenValido) {
-        deslogar();
-        return;
+    // Se não há usuário e o redirecionamento ainda não ocorreu nesta sessão
+    if (!usuario && !loginRedirected) {
+        // Marca que o redirecionamento ocorreu
+        sessionStorage.setItem('loginRedirected', 'true');
+        // Redireciona para a página de login
+        window.location.href = "paginas/login.html";
+        return; // Encerra a execução aqui
     }
 
-    let divLinkActionsCenter = document.getElementById('divLinkActionsCenter');
-    if (!!divLinkActionsCenter) { divLinkActionsCenter.remove(); }
+    // Se há um usuário, prossegue com a validação do token
+    if (usuario) {
+        let tokenValido = await DataAux.verificarTokenOnline();
+        if (!tokenValido) {
+            deslogar();
+            // Mesmo se o token for inválido, não força o redirecionamento
+            // permite que o usuário navegue para o login se desejar.
+            return;
+        }
 
-    let divDeslogarLink = document.getElementById('divDeslogarLink');
-    if (!!divDeslogarLink) { divDeslogarLink.style = ''; }
+        // --- Restante da lógica para usuário logado ---
+        let divLinkActionsCenter = document.getElementById('divLinkActionsCenter');
+        if (!!divLinkActionsCenter) { divLinkActionsCenter.remove(); }
 
-    let linkDeslogar = document.getElementById('linkDeslogar');
-    if (!!linkDeslogar) { addclick(linkDeslogar, () => { deslogar(); }); }
+        let divDeslogarLink = document.getElementById('divDeslogarLink');
+        if (!!divDeslogarLink) { divDeslogarLink.style = ''; }
 
-    let divBemVindo = document.getElementById('divBemVindo');
-    if (!!divBemVindo) {
-        divBemVindo.style = '';
-        divBemVindo.innerHTML = `<div>
-            <svg width="12px" height="12px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#dc143c">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-            </svg>
-            ${usuario.nome}
-        </div>
-        <div><a href="#" id="linkBemVindoSair">Sair</a></div>`;
+        let linkDeslogar = document.getElementById('linkDeslogar');
+        if (!!linkDeslogar) { addclick(linkDeslogar, () => { deslogar(); }); }
+
+        let divBemVindo = document.getElementById('divBemVindo');
+        if (!!divBemVindo) {
+            divBemVindo.style = '';
+            divBemVindo.innerHTML = `<div>
+                <svg width="12px" height="12px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#dc143c">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                ${usuario.nome}
+            </div>
+            <div><a href="#" id="linkBemVindoSair">Sair</a></div>`;
+        }
+
+        let linkBemVindoSair = document.getElementById('linkBemVindoSair');
+        if (!!linkBemVindoSair) { addclick(linkBemVindoSair, () => { deslogar(); }); }
     }
-
-    let linkBemVindoSair = document.getElementById('linkBemVindoSair');
-    if (!!linkBemVindoSair) { addclick(linkBemVindoSair, () => { deslogar(); }); }
+    // Se não houver usuário mas o redirecionamento já ocorreu, a página principal será exibida.
 }
 
 async function saveSenha(login, senha) {
