@@ -1,7 +1,12 @@
 class DataAux {
 
     //static #server = new ServerPHP();
-    static #server = (typeof ServerPython !== 'undefined') ? new ServerPython() : new ServerPHP();
+    static #server = (() => {
+        if (typeof ServerNative !== 'undefined') return new ServerNative();
+        if (typeof ServerPython !== 'undefined') return new ServerPython();
+        if (typeof ServerPHP !== 'undefined') return new ServerPHP();
+        return null;
+    })();
     static #dtlocal = new DataLocal();
 
     //------------------------------
@@ -18,6 +23,8 @@ class DataAux {
             }
             this.#dtlocal.clear(key_user);
         }
+
+        if (!this.#server) return undefined;
 
         let res = await this.#server.doLogin(login, senha);
         if (!res || !res.ok) {
@@ -52,6 +59,8 @@ class DataAux {
         let usuario = this.getUsuarioLogado(key_user);
         if (!usuario) return false;
 
+        if (!this.#server) return false;
+
         let res = await this.#server.tokenValido(usuario.token.tokenToBase64());
         
         if (!res || !res.ok) {
@@ -67,9 +76,11 @@ class DataAux {
         
         if (usuario && usuario.token && usuario.token.tokenToBase64()) {
             // Tenta fazer o logout no servidor, mas não impede a limpeza local
-            this.#server.doLogout(usuario.token.tokenToBase64()).catch(err => {
-                console.error("Erro ao tentar deslogar no servidor:", err);
-            });
+            if (this.#server) {
+                this.#server.doLogout(usuario.token.tokenToBase64()).catch(err => {
+                    console.error("Erro ao tentar deslogar no servidor:", err);
+                });
+            }
         }
         
         // Limpa o usuário do local storage incondicionalmente
@@ -83,6 +94,8 @@ class DataAux {
             this.deslogar(key_user);
             return { ok: false, msg: "Erro ao deslogar" };
         }
+
+        if (!this.#server) return { ok: false, msg: "Server não definido" };
 
         return this.#server.inativarUsuario(
             usuario.id_usuario, 
@@ -113,7 +126,7 @@ class DataAux {
         if (!this.#server) { return undefined; }
         let usuario = this.getUsuarioLogado();
 
-        if (!usuario || !dominio || !usuario.id_usuario || !usuario.token || !usuario.token.tokenToBase64()) {
+        if (!usuario || !usuario.id_usuario || !usuario.token || !usuario.token.tokenToBase64()) {
             // recupera as senhas localmente
             // cria o Promisse para manter a assinatura do método
             return new Promise((resolve, reject) => {

@@ -4,7 +4,7 @@ import {
 } from '../util/util.js';
 
 // const server = new ServerPython();
-const server = new ServerPython();
+const server = new ServerNative();
 
 
 let txtUsuario = document.getElementById('txtUsuario');

@@ -55,7 +55,7 @@ let urlRecuperada = '';
 getUrl(false).then(url => {
     urlRecuperada = url;
     !!divDominio && (divDominio.innerHTML = `site: ${urlRecuperada}`);
-    loadSenhas();
+    setTimeout(() => { loadSenhas(); }, 100);
 });
 
 /* Removido retrieveData e recuperarDataSenhasDominio que causavam erro */
@@ -354,10 +354,12 @@ async function saveSenha(login, senha) {
 async function loadSenhas() {
     divSenhasSalvas.innerHTML = '';
     let auxSenhas = await DataAux.loadSenhas(urlRecuperada);
-    if (!auxSenhas || !auxSenhas.ok || !auxSenhas.data) { 
+    if (!auxSenhas || !auxSenhas.ok) { 
+        showMsg(spnMensagens, auxSenhas ? auxSenhas.msg : "Erro ao carregar senhas");
         allPasswords = [];
         return; 
     }
+    if (!auxSenhas.data) { allPasswords = []; return; }
     allPasswords = auxSenhas.data;
     tratarDataHTMLSenhas(allPasswords);
 }

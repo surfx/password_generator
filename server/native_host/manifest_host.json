@@ -1,0 +1,9 @@
+{
+  "name": "com.emerson.password_generator",
+  "description": "Host nativo para Password Generator",
+  "path": "D:\\projetos\\javascript\\plugins\\password_generator\\server\\native_host\\run_host.bat",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://kngehbelineohghkkmkbhmkcolkonaif/"
+  ]
+}

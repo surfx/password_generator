@@ -4,7 +4,7 @@ import {
 } from '../util/util.js';
 
 // const server = new ServerPHP();
-const server = new ServerPython();
+const server = new ServerNative();
 
 let txtNome = document.getElementById('txtNome');
 let txtUsuario = document.getElementById('txtUsuario');
@@ -65,9 +65,19 @@ document.body.onload = async () => {
 
         showMsg(spnMensagens, res.msg);
 
-        if (!res.data.token) { res.data.token = usuario.token; }
+        // Reconstrói o objeto Usuario com o token existente
+        let novoUsuario = new Usuario(
+            res.data.id_usuario,
+            res.data.nome,
+            res.data.uuid,
+            res.data.login,
+            res.data.senha,
+            res.data.verificado,
+            res.data.ativo,
+            usuario.token
+        );
 
-        DataAux.saveUser(res.data);
+        DataAux.saveUser(novoUsuario);
         salvarSenhasLocais();
 
         // redireciona para a tela anterior

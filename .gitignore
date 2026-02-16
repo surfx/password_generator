@@ -1,3 +1,7 @@
 controle_password_gen/auxiliar/z-ignore.md
 server/meu-servidor-rest/__pycache__/
 server/meu-servidor-rest/db_json/
+server/native_host/db_json/pass_gen_db.json
+server/native_host/native_host.log
+server/native_host/db_json/pass_gen_db.json.bak
+server/native_host/logs/

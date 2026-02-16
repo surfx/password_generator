@@ -7,7 +7,21 @@ export const getUrl = (urlCompleta) => {
         }
 
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-            let url = tabs[0].url;
+            if (!tabs || tabs.length <= 0) {
+                // Tenta buscar na janela atual se a lastFocusedWindow falhar
+                chrome.tabs.query({ active: true, currentWindow: true }, tabs2 => {
+                    if (!tabs2 || tabs2.length <= 0) {
+                        resolve('');
+                        return;
+                    }
+                    processUrl(tabs2[0].url);
+                });
+                return;
+            }
+            processUrl(tabs[0].url);
+        });
+
+        function processUrl(url) {
             if (!urlCompleta) {
                 try {
                     const urlObj = new URL(url);
@@ -24,7 +38,7 @@ export const getUrl = (urlCompleta) => {
                 }
             }
             resolve(url);
-        });
+        }
     });
 }
 

@@ -34,7 +34,7 @@ async function verificarLoginPendente() {
              }
         }
     } catch (e) {
-        console.error("[AutoLogin] Erro ao verificar pendencia", e);
+        // Ignora erros silenciosamente
     }
 }
 
