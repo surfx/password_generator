@@ -17,6 +17,8 @@ class ServerNative {
 
     // Helper para comunicação nativa
     async #send(action, payload) {
+        console.log(`[Native] Enviando ação: ${action}`, payload);
+        
         return new Promise((resolve) => {
             try {
                 chrome.runtime.sendNativeMessage(this.#NATIVE_HOST, {
@@ -24,14 +26,17 @@ class ServerNative {
                     payload: payload
                 }, (response) => {
                     if (chrome.runtime.lastError) {
-                        console.error("Native Messaging Error:", chrome.runtime.lastError.message);
+                        console.error("[Native] ERRO:", chrome.runtime.lastError.message);
+                        console.error("[Native] Action:", action);
+                        console.error("[Native] Payload:", payload);
                         resolve({ ok: false, msg: "Erro Native: " + chrome.runtime.lastError.message });
                     } else {
+                        console.log("[Native] Resposta recebida:", response);
                         resolve(response);
                     }
                 });
             } catch (e) {
-                console.error("Exception sending message:", e);
+                console.error("[Native] Exception:", e);
                 resolve({ ok: false, msg: "Exceção: " + e.message });
             }
         });
@@ -118,12 +123,26 @@ class ServerNative {
     }
 
     async updateUserPart(usuario_obj, token) {
-        if (!token || !usuario_obj || !usuario_obj.id_usuario) { return this.#toerr("Informe os dados do usuário"); }
-        let payload = { ...usuario_obj, authorization: token };
+        if (!token || !usuario_obj || !usuario_obj.id_usuario) { 
+            return this.#toerr("Informe os dados do usuário"); 
+        }
+        
+        // Monta payload com todos os campos necessários
+        let payload = {
+            id_usuario: usuario_obj.id_usuario,
+            nome: usuario_obj.nome,
+            login: usuario_obj.login,
+            senha: usuario_obj.senha,
+            authorization: token
+        };
+        
+        console.log("[Native] Enviando update_user_part:", payload);
+        
         let res = await this.#send("update_user_part", payload);
         
         if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+        let aux = this.#toerr_res(res); 
+        if (!!aux) { return aux; }
         res.data = !!res.data ? Usuario.from(res.data) : undefined;
         return res;
     }

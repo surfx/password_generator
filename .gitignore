@@ -5,3 +5,4 @@ server/native_host/db_json/pass_gen_db.json
 server/native_host/native_host.log
 server/native_host/db_json/pass_gen_db.json.bak
 server/native_host/logs/
+server/native_host/native_host_debug.log

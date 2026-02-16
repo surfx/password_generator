@@ -39,29 +39,33 @@ document.body.onload = async () => {
         let nome = txtNome.value;
         let user = txtUsuario.value;
         let senha = txtSenha.value;
+        
         if (!nome) { showMsg(spnMensagens, "Informe o nome"); txtNome.focus(); return; }
         if (!user) { showMsg(spnMensagens, "Informe o usuário"); txtUsuario.focus(); return; }
         if (!senha) { showMsg(spnMensagens, "Informe a senha"); txtSenha.focus(); return; }
+        
         if (!usuario || !usuario.token || !usuario.token.tokenToBase64()) {
-            showMsg(spnMensagens, "Erro ao recuperar as informações"); txtSenha.focus(); return;
+            showMsg(spnMensagens, "Erro ao recuperar as informações"); 
+            return;
         }
 
+        // Atualiza os campos do usuário
         usuario.nome = nome;
         usuario.login = user;
         usuario.senha = senha;
 
+        console.log("Enviando para atualização:", usuario);  // Debug
+
         let res = await server.updateUserPart(usuario, usuario.token.tokenToBase64());
+        
+        console.log("Resposta do servidor:", res);  // Debug
+        
         if (!res || !res.ok) {
             let msgErr = !res.msg ? 'Erro na edição' : res.msg;
-            let i2dots = msgErr.indexOf(':');
-            if (i2dots >= 0) {
-                msgErr = msgErr.substring(0, i2dots + 1) + "<br/>" + msgErr.substring(i2dots + 1);
-            }
             showMsg(spnMensagens, msgErr);
             txtNome.focus();
             return;
         }
-        //console.log(res);
 
         showMsg(spnMensagens, res.msg);
 
@@ -74,16 +78,13 @@ document.body.onload = async () => {
             res.data.senha,
             res.data.verificado,
             res.data.ativo,
-            usuario.token
+            usuario.token  // Mantém o token atual
         );
 
         DataAux.saveUser(novoUsuario);
-        salvarSenhasLocais();
-
-        // redireciona para a tela anterior
+        
+        // Redireciona para a tela anterior
         location.href = '../index.html';
-
-
     });
 
     // addclick(btnInativarUsuario, async () => {
