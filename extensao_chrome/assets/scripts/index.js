@@ -12,6 +12,7 @@ import {
 // const server = new ServerPython();
 
 let allPasswords = []; // Armazena todas as senhas carregadas para filtro local
+let urlRecuperada = '';
 
 let txtSearch = document.getElementById("txtSearch");
 let divDominio = document.getElementById('divDominio');
@@ -51,12 +52,7 @@ if (!!btnClearSearchSenhas) {
     });
 }
 
-let urlRecuperada = '';
-getUrl(false).then(url => {
-    urlRecuperada = url;
-    !!divDominio && (divDominio.innerHTML = `site: ${urlRecuperada}`);
-    setTimeout(() => { loadSenhas(); }, 100);
-});
+
 
 /* Removido retrieveData e recuperarDataSenhasDominio que causavam erro */
 
@@ -364,7 +360,13 @@ async function loadSenhas() {
     tratarDataHTMLSenhas(allPasswords);
 }
 
-document.body.onload = () => {
-    verificarUsuarioLogado();
-};
+async function init() {
+    await verificarUsuarioLogado();
+    const url = await getUrl(false);
+    urlRecuperada = url;
+    !!divDominio && (divDominio.innerHTML = `site: ${urlRecuperada}`);
+    loadSenhas();
+}
+
+document.body.onload = init;
 
