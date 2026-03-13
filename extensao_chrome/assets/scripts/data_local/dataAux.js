@@ -152,6 +152,22 @@ class DataAux {
         return res;
     }
 
+    static async getSenhas(id_usuario) {
+        if (!this.#server) return undefined;
+        let usuario = this.getUsuarioLogado();
+        if (!usuario || !usuario.token) return undefined;
+        
+        return await this.#server.listarSenhas(usuario.id_usuario, "", usuario.token.tokenToBase64());
+    }
+
+    static async getSenhasRaw() {
+        if (!this.#server) return undefined;
+        let usuario = this.getUsuarioLogado();
+        if (!usuario || !usuario.token) return undefined;
+        
+        return await this.#server.listarSenhasRaw(usuario.id_usuario, "", usuario.token.tokenToBase64());
+    }
+
     static async #syncToChromeStorage(novasSenhas) {
         if (typeof chrome === 'undefined' || !chrome || !chrome.storage || !chrome.storage.local) return;
         

@@ -321,6 +321,107 @@ async function verificarUsuarioLogado() {
         let linkDeslogar = document.getElementById('linkDeslogar');
         if (!!linkDeslogar) { addclick(linkDeslogar, () => { deslogar(); }); }
 
+        let linkExportarSenhas = document.getElementById('linkExportarSenhas');
+        if (!!linkExportarSenhas) {
+            addclick(linkExportarSenhas, async () => {
+                try {
+                    let usuario = DataAux.getUsuarioLogado();
+                    if (!usuario || !usuario.token) {
+                        alert("Usuário não está logado");
+                        return;
+                    }
+
+                    let resSenhas = await DataAux.getSenhasRaw();
+                    if (!resSenhas || !resSenhas.ok || !resSenhas.data) {
+                        alert("Erro ao buscar senhas: " + (resSenhas?.msg || "desconhecido"));
+                        return;
+                    }
+
+                    // Agrupar por domínio
+                    let agrupado = {};
+                    for (let s of resSenhas.data) {
+                        let dominio = s.dominio || "outros";
+                        if (!agrupado[dominio]) {
+                            agrupado[dominio] = [];
+                        }
+                        agrupado[dominio].push({
+                            login: s.login,
+                            senha: s.senha
+                        });
+                    }
+
+                    let jsonData = JSON.stringify(agrupado, null, 2);
+                    let blob = new Blob([jsonData], { type: "application/json" });
+                    let url = URL.createObjectURL(blob);
+                    let a = document.createElement("a");
+                    a.href = url;
+                    a.download = "senhas.json";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } catch (e) {
+                    alert("Erro ao exportar: " + e.message);
+                    console.error(e);
+                }
+            });
+        }
+
+        // Importar senhas
+        let linkImportarSenhas = document.getElementById('linkImportarSenhas');
+        let fileImportarSenhas = document.getElementById('fileImportarSenhas');
+        if (!!linkImportarSenhas && !!fileImportarSenhas) {
+            addclick(linkImportarSenhas, () => {
+                fileImportarSenhas.click();
+            });
+
+            fileImportarSenhas.addEventListener('change', async (event) => {
+                let file = event.target.files[0];
+                if (!file) return;
+
+                try {
+                    let text = await file.text();
+                    let data = JSON.parse(text);
+                    
+                    let usuario = DataAux.getUsuarioLogado();
+                    if (!usuario || !usuario.token) {
+                        alert("Usuário não está logado");
+                        return;
+                    }
+
+                    let importadas = 0;
+
+                    // Formato novo: { "dominio": [{login, senha}, ...] }
+                    if (!Array.isArray(data)) {
+                        for (let dominio in data) {
+                            let lista = data[dominio];
+                            if (!Array.isArray(lista)) continue;
+                            for (let s of lista) {
+                                if (!s.login || !s.senha) continue;
+                                await DataAux.saveSenha(s.login, s.senha, dominio);
+                                importadas++;
+                            }
+                        }
+                    } 
+                    // Formato antigo: [{dominio, login, senha}]
+                    else {
+                        for (let s of data) {
+                            if (!s.dominio || !s.login || !s.senha) continue;
+                            await DataAux.saveSenha(s.login, s.senha, s.dominio);
+                            importadas++;
+                        }
+                    }
+
+                    alert(`${importadas} senhas importadas!`);
+                    location.reload();
+                } catch (e) {
+                    alert("Erro ao importar: " + e.message);
+                }
+
+                fileImportarSenhas.value = '';
+            });
+        }
+
         let divBemVindo = document.getElementById('divBemVindo');
         if (!!divBemVindo) {
             divBemVindo.style = '';

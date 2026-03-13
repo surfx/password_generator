@@ -242,6 +242,32 @@ class ServerPython {
         res = !res ? undefined : await res.json();
         if (!res) { return this.#toerr_res(res); }
         let aux = this.#toerr_res(res); if (!!aux) { return aux; }
+
+        let data = [];
+        if (res.data && Array.isArray(res.data)) {
+            res.data.forEach(element => { data.push(Senha.from(element)); });
+        }
+        res.data = data;
+        return res;
+    }
+
+    async listarSenhasRaw(id_usuario, dominio, token) {
+        if (!token || !id_usuario || id_usuario <= 0) {
+            return this.#toerr("Informe os dados");
+        }
+        let res = await fetch(`${this.#url}senhas/?tipo=listar`, {
+            method: "POST",
+            body: JSON.stringify({
+                id_usuario: id_usuario,
+                dominio: dominio || ""
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "authorization": token
+            }
+        });
+        return !res ? undefined : await res.json();
+    }
         let data = [];
         res.data.forEach(element => { data.push(Senha.from(element)); });
         res.data = data;

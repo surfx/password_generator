@@ -6,7 +6,14 @@ import datetime
 import uuid
 import base64
 import traceback
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 from pathlib import Path
+from dotenv import load_dotenv
+from cryptography.fernet import Fernet
 
 # --- Configurações de Encoding ---
 if sys.platform == "win32":
@@ -22,6 +29,57 @@ LOG_FILE = os.path.join(BASE_DIR, "native_host_debug.log")
 BAT_LOG_FILE = os.path.join(BASE_DIR, "native_host.log")
 
 LOG_RETENTION_DAYS = 1
+
+# Email config
+env_file = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), ".env")
+load_dotenv(env_file)
+
+SMTP_CONFIG = {
+    "smtp_host": os.getenv("SMTP_HOST", "smtp.gmail.com"),
+    "smtp_port": int(os.getenv("SMTP_PORT", "587")),
+    "smtp_user": os.getenv("SMTP_USER", ""),
+    "smtp_password": os.getenv("SMTP_PASSWORD", ""),
+    "use_tls": os.getenv("SMTP_USE_TLS", "true").lower() == "true",
+    "from_name": os.getenv("SMTP_FROM_NAME", "Password Generator"),
+}
+
+
+# Criptografia
+def get_fernet():
+    env_file = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), ".env")
+    if os.path.exists(env_file):
+        load_dotenv(env_file)
+    key = os.getenv("ENCRYPTION_KEY", "")
+    if not key:
+        return None
+    try:
+        return Fernet(key.encode())
+    except:
+        return None
+
+
+def criptografar(texto):
+    if not texto:
+        return texto
+    f = get_fernet()
+    if not f:
+        return texto
+    try:
+        return f.encrypt(texto.encode()).decode()
+    except:
+        return texto
+
+
+def descriptografar(texto):
+    if not texto:
+        return texto
+    f = get_fernet()
+    if not f:
+        return texto
+    try:
+        return f.decrypt(texto.encode()).decode()
+    except:
+        return texto
 
 
 def limpar_logs_antigos():
@@ -325,6 +383,56 @@ def process_message(msg):
                 return response_ok(None, "Logout realizado")
         return response_error("Token inválido")
 
+    # --- RECUPERAR SENHAS ---
+    if action == "recuperar_senhas":
+        email = payload.get("email")
+        senhas = payload.get("senhas", [])
+
+        if not email:
+            return response_error("Email não informado")
+
+        try:
+            msg = MIMEMultipart()
+            msg["From"] = f"{SMTP_CONFIG['from_name']} <{SMTP_CONFIG['smtp_user']}>"
+            msg["To"] = email
+            msg["Subject"] = "Recuperação de Senhas - Password Generator"
+
+            body = "Segue em anexo o arquivo com suas senhas salvas."
+            msg.attach(MIMEText(body, "plain"))
+
+            # Attach JSON
+            json_data = json.dumps(senhas, indent=2, ensure_ascii=False)
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(json_data.encode("utf-8"))
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename="senhas.json")
+            msg.attach(part)
+
+            # Attach CSV
+            csv_data = "dominio,login,senha\n"
+            for s in senhas:
+                csv_data += f"{s.get('dominio', '')},{s.get('login', '')},{s.get('senha', '')}\n"
+            part2 = MIMEBase("application", "octet-stream")
+            part2.set_payload(csv_data.encode("utf-8"))
+            encoders.encode_base64(part2)
+            part2.add_header("Content-Disposition", "attachment", filename="senhas.csv")
+            msg.attach(part2)
+
+            with smtplib.SMTP(
+                SMTP_CONFIG["smtp_host"], SMTP_CONFIG["smtp_port"]
+            ) as server:
+                if SMTP_CONFIG["use_tls"]:
+                    server.starttls()
+                server.login(SMTP_CONFIG["smtp_user"], SMTP_CONFIG["smtp_password"])
+                server.sendmail(SMTP_CONFIG["smtp_user"], email, msg.as_string())
+
+            log("INFO", f"Senhas enviadas para {email}")
+            return response_ok(None, "Email enviado com sucesso")
+
+        except Exception as e:
+            log_error(f"Erro ao enviar email: {str(e)}")
+            return response_error(f"Erro ao enviar email: {str(e)}")
+
     # --- TOKEN VÁLIDO ---
     if action == "tokenvalido":
         token_info = validate_token(db, authorization)
@@ -454,12 +562,19 @@ def process_message(msg):
     # --- LISTAR SENHAS ---
     if action == "listar_senhas":
         dominio_req = payload.get("dominio", "").lower().strip()
-        result = [
-            pwd
-            for pwd in db["passwords"]
-            if int(pwd.get("id_usuario", 0)) == user_id_from_token
-            and (not dominio_req or pwd.get("dominio", "").lower() == dominio_req)
-        ]
+        result = []
+        for pwd in db["passwords"]:
+            if int(pwd.get("id_usuario", 0)) == user_id_from_token:
+                if not dominio_req or pwd.get("dominio", "").lower() == dominio_req:
+                    result.append(
+                        {
+                            "id_senha": pwd.get("id_senha"),
+                            "id_usuario": pwd.get("id_usuario"),
+                            "dominio": pwd.get("dominio"),
+                            "login": descriptografar(pwd.get("login", "")),
+                            "senha": descriptografar(pwd.get("senha", "")),
+                        }
+                    )
         return response_ok(result)
 
     # --- SALVAR SENHA ---
@@ -472,27 +587,31 @@ def process_message(msg):
         if not dominio or not login or not senha:
             return response_error("Domínio, login e senha são obrigatórios")
 
-        # Atualiza se já existe
+        # Atualiza se já existe (compara descriptografado)
         for pwd in db["passwords"]:
             if (
                 int(pwd["id_usuario"]) == user_id_from_token
                 and pwd.get("dominio", "").lower() == dominio.lower()
-                and pwd.get("login", "") == login
+                and descriptografar(pwd.get("login", "")) == login
             ):
-                pwd["senha"] = senha
+                pwd["senha"] = criptografar(senha)
                 save_db(db)
+                pwd["login"] = login
+                pwd["senha"] = senha
                 return response_ok(pwd, "Senha atualizada")
 
-        # Cria nova
+        # Cria nova (criptografa login e senha)
         new_pwd = {
             "id_senha": get_next_id(db["passwords"], "id_senha"),
             "id_usuario": user_id_from_token,
             "dominio": dominio,
-            "login": login,
-            "senha": senha,
+            "login": criptografar(login),
+            "senha": criptografar(senha),
         }
         db["passwords"].append(new_pwd)
         save_db(db)
+        new_pwd["login"] = login
+        new_pwd["senha"] = senha
         return response_ok(new_pwd, "Senha salva")
 
     # --- EDITAR SENHA ---

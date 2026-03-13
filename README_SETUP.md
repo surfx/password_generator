@@ -27,13 +27,10 @@ Para que a extensão funcione corretamente e se comunique com o sistema de arqui
     .\install_host.ps1 kngehbelineohghkkmkbhmkcolkonaif
     ```
 
-*   **Erro "Uncaught ReferenceError"**:
-    *   Isso foi corrigido na última atualização do código `DataAux.js`. Recarregue a extensão.
-
 *   **Lista de senhas vazia**:
     *   Certifique-se de que está logado na extensão.
-    *   Se o problema persistir, verifique se o arquivo `server/meu-servidor-rest/db_json/pass_gen_db.json` existe e tem permissão de escrita.
+    *   Se o problema persistir, verifique se o arquivo `server/native_host/db_json/pass_gen_db.json` existe e tem permissão de escrita.
 
-## Sobre a Arquitetura
+## Arquitetura
 
 Esta extensão utiliza **Native Messaging** para comunicar diretamente com um script Python (`native_host.py`). Não é necessário rodar um servidor HTTP separadamente, pois o Chrome inicia o script Python automaticamente quando necessário.

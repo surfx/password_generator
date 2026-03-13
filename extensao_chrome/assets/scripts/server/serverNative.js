@@ -180,6 +180,11 @@ class ServerNative {
         return res;
     }
 
+    async listarSenhasRaw(id_usuario, dominio, token) {
+        if (!token || !id_usuario) { return this.#toerr("Informe os dados"); }
+        return await this.#send("listar_senhas", { id_usuario, dominio, authorization: token });
+    }
+
     async salvarSenha(id_usuario, dominio, login, senha, token) {
         if (!token || !id_usuario) { return this.#toerr("Informe os dados"); }
         let res = await this.#send("salvar_senha", { id_usuario, dominio, login, senha, authorization: token });
@@ -240,5 +245,11 @@ class ServerNative {
 
     async testescors() {
         return { ok: true, msg: "Native Messaging não usa CORS" };
+    }
+
+    async recuperarSenhas(email, senhas) {
+        if (!email || !senhas) { return this.#toerr("Informe o email e as senhas"); }
+        let res = await this.#send("recuperar_senhas", { email, senhas });
+        return !!res ? res : this.#toerr_res(res);
     }
 }
