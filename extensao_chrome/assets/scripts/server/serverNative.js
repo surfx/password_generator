@@ -42,6 +42,14 @@ class ServerNative {
         });
     }
 
+    async log(level, message, details = "") {
+        try {
+            await this.#send("log", { level, message, details });
+        } catch (e) {
+            console.error("Failed to send log:", e);
+        }
+    }
+
     async doLogin(login, senha) {
         if (!login || !senha) { return this.#toerr("Informe o login e a senha"); }
         let res = await this.#send("login", { login, senha });

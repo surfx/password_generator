@@ -13,7 +13,7 @@ uv add fastapi --extra standard
 uv run fastapi dev main.py
 ```
 
-Para subir o servidor use o script: `D:\projetos\javascript\grid\server\\start.ps1`
+Para subir o servidor use o script: `D:\projetos\javascript\grid\server\start.ps1`
 
 # urls
 

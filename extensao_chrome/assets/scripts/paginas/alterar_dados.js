@@ -3,7 +3,6 @@ import {
     addclick
 } from '../util/util.js';
 
-// const server = new ServerPHP();
 const server = new ServerNative();
 
 let txtNome = document.getElementById('txtNome');

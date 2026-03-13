@@ -62,7 +62,9 @@
 }
 
 .divButtonAction button:hover {
-    background-color: var(--primary-hover);
+    background-color: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
 }
 
 .divButtonAction button:active {

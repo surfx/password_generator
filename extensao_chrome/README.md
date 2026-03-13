@@ -24,8 +24,6 @@ A extensão pode ser baixada em [../assets/extensao_chrome.7z](../assets/extensa
 - [ ] Criptografia
 - [ ] Subir projeto no Chrome Web Store
 
-O serviço de hospedagem gratuito possui suporte a `php` e base `mysql`. Talvez possa ser útil para armazenar as senhas e criar um service REST para consumo do aplicativo.
-
 # Urls
 
 - [Extensão Hello World](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world?hl=pt-br)

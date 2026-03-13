@@ -40,7 +40,7 @@ body {
 /* Header */
 header {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    padding: 10px 15px;
+    padding: 8px 12px;
     color: white;
     box-shadow: var(--shadow);
 }
@@ -48,7 +48,7 @@ header {
 .header-content {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     max-width: 600px;
     margin: 0 auto;
     width: 100%;
@@ -56,12 +56,12 @@ header {
 
 header svg {
     fill: white;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
 }
 
 header h1 {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     margin: 0;
 }

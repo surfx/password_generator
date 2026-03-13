@@ -1,10 +1,8 @@
 class DataAux {
 
-    //static #server = new ServerPHP();
     static #server = (() => {
         if (typeof ServerNative !== 'undefined') return new ServerNative();
         if (typeof ServerPython !== 'undefined') return new ServerPython();
-        if (typeof ServerPHP !== 'undefined') return new ServerPHP();
         return null;
     })();
     static #dtlocal = new DataLocal();
@@ -47,27 +45,36 @@ class DataAux {
         let usuario = this.#dtlocal.load_obj(key_user, Usuario.fromJsonSerialize);
         if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 ||
             !usuario.token || !usuario.token.id || usuario.token.id <= 0 ||
-            !usuario.token.token || !usuario.token.validade ||
-            usuario.token.validade.length < 19) { 
+            !usuario.token.token) { 
             this.deslogar(key_user);
             return undefined;
         }
         return usuario;
     }
 
-    static async verificarTokenOnline(key_user = "usuario_logado") {
+    static async verificarTokenOnline(key_user = "usuario_logado", retries = 3, delay = 1000) {
         let usuario = this.getUsuarioLogado(key_user);
         if (!usuario) return false;
 
         if (!this.#server) return false;
 
-        let res = await this.#server.tokenValido(usuario.token.tokenToBase64());
-        
-        if (!res || !res.ok) {
-            this.deslogar(key_user);
-            return false;
+        for (let i = 0; i < retries; i++) {
+            try {
+                let res = await this.#server.tokenValido(usuario.token.tokenToBase64());
+                
+                if (!res || !res.ok) {
+                    return false;
+                }
+                return true;
+            } catch (err) {
+                console.warn(`Token verification attempt ${i + 1} failed:`, err);
+                if (i < retries - 1) {
+                    await new Promise(r => setTimeout(r, delay));
+                }
+            }
         }
-        return true;
+        
+        return false;
     }
 
     static deslogar(key_user = "usuario_logado") {

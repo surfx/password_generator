@@ -8,7 +8,6 @@ import {
 } from './passwordgen/pasword_generator.js';
 
 
-// const server = new ServerPHP();
 // const server = new ServerPython();
 
 let allPasswords = []; // Armazena todas as senhas carregadas para filtro local
@@ -309,10 +308,7 @@ async function verificarUsuarioLogado() {
     if (usuario) {
         let tokenValido = await DataAux.verificarTokenOnline();
         if (!tokenValido) {
-            deslogar();
-            // Mesmo se o token for inválido, não força o redirecionamento
-            // permite que o usuário navegue para o login se desejar.
-            return;
+            console.log("Token validation failed, but keeping user logged in locally");
         }
 
         // --- Restante da lógica para usuário logado ---
