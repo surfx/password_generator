@@ -1,6 +1,8 @@
 import {
     showMsg,
-    addclick
+    addclick,
+    showLoading,
+    hideLoading
 } from '../util/util.js';
 
 // const server = new ServerPython();
@@ -27,30 +29,30 @@ if (txtSenha) {
 }
 
 addclick(btnLogin, async () => {
-    try {
-        let user = txtUsuario.value;
-        let senha = txtSenha.value;
-        if (!user) { showMsg(spnMensagens, "Informe o usuário"); txtUsuario.focus(); return; }
-        if (!senha) { showMsg(spnMensagens, "Informe a senha"); txtSenha.focus(); return; }
+    let user = txtUsuario.value;
+    let senha = txtSenha.value;
+    if (!user) { showMsg(spnMensagens, "Informe o usuário"); txtUsuario.focus(); return; }
+    if (!senha) { showMsg(spnMensagens, "Informe a senha"); txtSenha.focus(); return; }
 
+    showLoading(btnLogin, 'Entrando...');
+
+    try {
         let res = await server.doLogin(user, senha);
         if (!res || !res.ok) {
-            showMsg(spnMensagens, "Erro no login");
+            showMsg(spnMensagens, res?.msg || "Erro no login");
             return;
         }
-        //console.log(res);
-        if (!res || !res.ok) { console.log(res.toString()); return; }
-            //console.log(res.data.toString());
         
-            showMsg(spnMensagens, "Sucesso");
-            DataAux.saveUser(res.data);
-            salvarSenhasLocais();
-            verificarUsuarioLogado();
-        // redireciona para a tela anterior
+        showMsg(spnMensagens, "Sucesso");
+        DataAux.saveUser(res.data);
+        salvarSenhasLocais();
+        
         location.href = '../index.html';
     } catch (error) {
         console.error(error);
         showMsg(spnMensagens, "Erro: " + error.message);
+    } finally {
+        hideLoading(btnLogin);
     }
 });
 

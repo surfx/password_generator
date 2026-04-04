@@ -1,21 +1,24 @@
+from __future__ import annotations
 import uuid
-from typing import Optional, Dict
+from typing import Any
 
 from util.database import db
 from util.logger import logger
 from util.response import response_ok, response_error
 from util.servicos.token_service import TokenService, get_next_id
-from util.Scripto import Criptografia
+from util.cripto.cripto import Criptografia
 
 
-cripto = Criptografia()
+cripto: Criptografia = Criptografia()
 
 
-def find_user_by_login(login: str, password: Optional[str] = None) -> Optional[Dict]:
+def find_user_by_login(
+    login: str, password: str | None = None
+) -> dict[str, Any] | None:
     if not login:
         return None
 
-    data = db.load()
+    data: dict[str, Any] = db.load()
     for user in data["users"]:
         if cripto.descriptografar(user.get("login", "")) != login:
             continue
@@ -28,19 +31,19 @@ def find_user_by_login(login: str, password: Optional[str] = None) -> Optional[D
 
 class UserService:
     @staticmethod
-    def _criptografar_usuario(user: dict) -> dict:
+    def _criptografar_usuario(user: dict[str, Any]) -> dict[str, Any]:
         return cripto.criptografar_campos(user, ["login", "senha"])
 
     @staticmethod
-    def _descriptografar_usuario(user: dict) -> dict:
+    def _descriptografar_usuario(user: dict[str, Any]) -> dict[str, Any]:
         return cripto.descriptografar_campos(user, ["login", "senha"])
 
     @staticmethod
-    def find_by_login(login: str, password: Optional[str] = None) -> Optional[Dict]:
+    def find_by_login(login: str, password: str | None = None) -> dict[str, Any] | None:
         if not login:
             return None
 
-        data = db.load()
+        data: dict[str, Any] = db.load()
         for user in data["users"]:
             if cripto.descriptografar(user.get("login", "")) != login:
                 continue
@@ -51,7 +54,7 @@ class UserService:
         return None
 
     @staticmethod
-    def login(login: str, senha: str) -> Dict:
+    def login(login: str, senha: str) -> dict[str, Any]:
         user = UserService.find_by_login(login, senha)
         if not user:
             return response_error("Login ou senha inválidos")
@@ -61,12 +64,12 @@ class UserService:
         return response_ok(user, "Login realizado", token=token)
 
     @staticmethod
-    def insert(nome: str, login: str, senha: str) -> Dict:
+    def insert(nome: str, login: str, senha: str) -> dict[str, Any]:
         if UserService.find_by_login(login):
             return response_error("Usuário já existe")
 
-        data = db.load()
-        new_user = UserService._criptografar_usuario(
+        data: dict[str, Any] = db.load()
+        new_user: dict[str, Any] = UserService._criptografar_usuario(
             {
                 "id_usuario": get_next_id(data["users"], "id_usuario"),
                 "nome": nome,
@@ -89,8 +92,8 @@ class UserService:
         )
 
     @staticmethod
-    def update(uid: int, fields: Dict) -> Dict:
-        data = db.load()
+    def update(uid: int, fields: dict[str, Any]) -> dict[str, Any]:
+        data: dict[str, Any] = db.load()
 
         for user in data["users"]:
             if int(user["id_usuario"]) != int(uid):
@@ -105,8 +108,8 @@ class UserService:
         return response_error("Usuário não encontrado")
 
     @staticmethod
-    def inativar(uid: int) -> Dict:
-        data = db.load()
+    def inativar(uid: int) -> dict[str, Any]:
+        data: dict[str, Any] = db.load()
 
         for user in data["users"]:
             if int(user["id_usuario"]) != int(uid):
@@ -119,7 +122,9 @@ class UserService:
         return response_error("Usuário não encontrado")
 
     @staticmethod
-    def list_all() -> Dict:
-        data = db.load()
-        usuarios = [UserService._descriptografar_usuario(u) for u in data["users"]]
+    def list_all() -> dict[str, Any]:
+        data: dict[str, Any] = db.load()
+        usuarios: list[dict[str, Any]] = [
+            UserService._descriptografar_usuario(u) for u in data["users"]
+        ]
         return response_ok(usuarios)

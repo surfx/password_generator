@@ -4,7 +4,7 @@ import json
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from util.Scripto import Criptografia
+from util.cripto.cripto import Criptografia
 from util.database import db
 
 

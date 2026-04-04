@@ -130,26 +130,39 @@ class DataAux {
     }
 
     static async loadSenhas(dominio) {
-        if (!this.#server) { return undefined; }
         let usuario = this.getUsuarioLogado();
 
         if (!usuario || !usuario.id_usuario || !usuario.token || !usuario.token.tokenToBase64()) {
-            // recupera as senhas localmente
-            // cria o Promisse para manter a assinatura do método
-            return new Promise((resolve, reject) => {
-                let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
-                resolve({ ok: true, msg: undefined, data: rt });
-            });
+            let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
+            return { ok: true, msg: undefined, data: rt };
         }
 
-        let res = await this.#server.listarSenhas(usuario.id_usuario, dominio, usuario.token.tokenToBase64());
-        if (!res || !res.ok || !res.data || res.data.length <= 0) { return undefined; }
+        if (!this.#server) {
+            let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
+            return { ok: true, msg: undefined, data: rt };
+        }
 
-        // Sincroniza com o storage compartilhado para automação
-        this.#syncToChromeStorage(res.data);
+        try {
+            let res = await this.#server.listarSenhas(usuario.id_usuario, dominio, usuario.token.tokenToBase64());
+            
+            if (!res || !res.ok) {
+                console.log("[DataAux] Servidor retornou erro, carregando do storage local");
+                let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
+                return { ok: true, msg: "Carregado do storage local", data: rt };
+            }
+            
+            if (!res.data || res.data.length <= 0) {
+                let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
+                return { ok: true, msg: undefined, data: rt };
+            }
 
-        //res.data.forEach(senha => {console.log(senha);});
-        return res;
+            this.#syncToChromeStorage(res.data);
+            return res;
+        } catch (e) {
+            console.error("[DataAux] Erro ao carregar do servidor:", e);
+            let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
+            return { ok: true, msg: "Carregado do storage local", data: rt };
+        }
     }
 
     static async getSenhas(id_usuario) {

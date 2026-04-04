@@ -1,17 +1,18 @@
+from __future__ import annotations
 import uuid
 import base64
 import datetime
-from typing import Optional, List, Dict, Any
+from typing import Any
 
 from util.database import db
 from util.logger import logger
 
 
-def get_next_id(collection: List, id_field: str = "id") -> int:
+def get_next_id(collection: list[dict[str, Any]], id_field: str = "id") -> int:
     if not collection:
         return 1
 
-    ids = [
+    ids: list[int] = [
         int(item.get(id_field, 0))
         for item in collection
         if str(item.get(id_field, 0)).isdigit()
@@ -21,15 +22,15 @@ def get_next_id(collection: List, id_field: str = "id") -> int:
 
 class TokenService:
     @staticmethod
-    def validate(token_str: Optional[str]) -> Optional[Dict]:
+    def validate(token_str: str | None) -> dict[str, Any] | None:
         if not token_str:
             return None
 
-        candidates = [token_str]
+        candidates: list[str] = [token_str]
         try:
-            decoded = base64.b64decode(token_str).decode("utf-8")
+            decoded: str = base64.b64decode(token_str).decode("utf-8")
             candidates.append(decoded)
-        except:
+        except Exception:
             pass
 
         for candidate in candidates:
@@ -39,18 +40,18 @@ class TokenService:
                 if token.get("validade") is None:
                     return token
                 try:
-                    val = datetime.datetime.strptime(
+                    val: datetime.datetime = datetime.datetime.strptime(
                         token["validade"], "%Y-%m-%d %H:%M:%S"
                     )
                     if val >= datetime.datetime.now():
                         return token
-                except:
+                except Exception:
                     pass
         return None
 
     @staticmethod
-    def create(user: Dict) -> Dict:
-        data = db.load()
+    def create(user: dict[str, Any]) -> dict[str, Any]:
+        data: dict[str, Any] = db.load()
 
         data["tokens"] = [
             t
@@ -58,8 +59,8 @@ class TokenService:
             if int(t.get("id_usuario", 0)) != int(user["id_usuario"])
         ]
 
-        token_str = str(uuid.uuid4())
-        new_token = {
+        token_str: str = str(uuid.uuid4())
+        new_token: dict[str, Any] = {
             "id_token": get_next_id(data["tokens"], "id_token"),
             "id_usuario": user["id_usuario"],
             "token": token_str,
@@ -73,13 +74,13 @@ class TokenService:
 
     @staticmethod
     def remove(token_str: str) -> bool:
-        data = db.load()
-        initial_len = len(data["tokens"])
+        data: dict[str, Any] = db.load()
+        initial_len: int = len(data["tokens"])
 
-        token_to_remove = token_str
+        token_to_remove: str = token_str
         try:
             token_to_remove = base64.b64decode(token_str).decode("utf-8")
-        except:
+        except Exception:
             pass
 
         data["tokens"] = [
@@ -95,27 +96,29 @@ class TokenService:
         return False
 
     @staticmethod
-    def clean():
-        data = db.load()
-        now = datetime.datetime.now()
-        valid_tokens = []
+    def clean() -> None:
+        data: dict[str, Any] = db.load()
+        now: datetime.datetime = datetime.datetime.now()
+        valid_tokens: list[dict[str, Any]] = []
 
         for token in data["tokens"]:
             if token.get("validade") is None:
                 valid_tokens.append(token)
                 continue
             try:
-                val = datetime.datetime.strptime(token["validade"], "%Y-%m-%d %H:%M:%S")
+                val: datetime.datetime = datetime.datetime.strptime(
+                    token["validade"], "%Y-%m-%d %H:%M:%S"
+                )
                 if val > now:
                     valid_tokens.append(token)
-            except:
+            except Exception:
                 pass
 
         valid_tokens.sort(key=lambda x: x.get("validade") or "", reverse=True)
 
-        unique = {}
+        unique: dict[int, dict[str, Any]] = {}
         for token in valid_tokens:
-            uid = token["id_usuario"]
+            uid: int = token["id_usuario"]
             if uid not in unique:
                 unique[uid] = token
 

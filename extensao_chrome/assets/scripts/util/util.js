@@ -66,7 +66,37 @@ export function showMsg(alvo, mensagem) {
     alvo.innerHTML = mensagem;
     aux = setTimeout(() => {
         alvo.innerHTML = '';
-    }, 1000);
+    }, 3000);
+}
+
+export function showLoading(btn, texto = "Aguarde...") {
+    if (!btn) return;
+    btn._originalText = btn.textContent || btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite;">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+        </svg>
+        ${texto}
+    </span>
+    <style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>`;
+}
+
+export function hideLoading(btn) {
+    if (!btn || btn._originalText === undefined) return;
+    btn.disabled = false;
+    btn.innerHTML = btn._originalText;
+}
+
+export function withLoading(btn, asyncFn, texto = "Aguarde...") {
+    return async function(...args) {
+        showLoading(btn, texto);
+        try {
+            return await asyncFn.apply(this, args);
+        } finally {
+            hideLoading(btn);
+        }
+    };
 }
 
 // export const exPromisse = (algumParametro) => {

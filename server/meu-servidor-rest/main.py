@@ -20,9 +20,11 @@ app.add_middleware(
 @app.get("/authenticacao/")
 async def authenticacao(
     tipo: str = Query(...), body: Dict[str, Any] = Body(default={})
-):
+) -> Dict[str, Any]:
     if tipo == "token":
-        user = UserService.find_by_login(body.get("login"), body.get("senha"))
+        login: str = body.get("login") or ""
+        senha: str = body.get("senha") or ""
+        user = UserService.find_by_login(login, senha)
         if user:
             token = TokenService.create(user)
             return response_ok(token, "Token gerado")
@@ -40,14 +42,17 @@ async def userservice(
     tipo: str = Query(...),
     authorization: Optional[str] = Header(None),
     body: Dict[str, Any] = Body(default={}),
-):
+) -> Dict[str, Any]:
     if tipo == "login":
-        return UserService.login(body.get("login", ""), body.get("senha", ""))
+        login: str = body.get("login") or ""
+        senha: str = body.get("senha") or ""
+        return UserService.login(login, senha)
 
     if tipo == "insert":
-        return UserService.insert(
-            body.get("nome", ""), body.get("login", ""), body.get("senha", "")
-        )
+        nome: str = body.get("nome") or ""
+        login: str = body.get("login") or ""
+        senha: str = body.get("senha") or ""
+        return UserService.insert(nome, login, senha)
 
     token_info = TokenService.validate(authorization)
     if not token_info:
@@ -67,10 +72,12 @@ async def userservice(
         return UserService.list_all()
 
     if tipo in ("update", "update_part"):
-        return UserService.update(body.get("id_usuario"), body)
+        uid: int = int(body.get("id_usuario") or 0)
+        return UserService.update(uid, body)
 
     if tipo == "inativar":
-        return UserService.inativar(body.get("id_usuario"))
+        uid: int = int(body.get("id_usuario") or 0)
+        return UserService.inativar(uid)
 
     return response_error("Tipo não implementado em userservice")
 
@@ -81,43 +88,46 @@ async def senhas_service(
     tipo: str = Query(...),
     authorization: Optional[str] = Header(None),
     body: Union[Dict[str, Any], List[Dict[str, Any]]] = Body(default={}),
-):
+) -> Dict[str, Any]:
     token_info = TokenService.validate(authorization)
     if not token_info:
         return response_error("Não autorizado")
 
-    user_id = int(token_info["id_usuario"])
+    user_id: int = int(token_info["id_usuario"])
 
     if tipo == "listar":
         if isinstance(body, list):
             return response_error("Body inválido")
-        return PasswordService.listar(user_id, body.get("dominio", ""))
+        dominio: str = body.get("dominio") or ""
+        return PasswordService.listar(user_id, dominio)
 
     if tipo == "salvar":
         if isinstance(body, list):
             return response_error("Body inválido")
         return PasswordService.salvar(
             user_id,
-            body.get("dominio", ""),
-            body.get("login", ""),
-            body.get("senha", ""),
+            body.get("dominio") or "",
+            body.get("login") or "",
+            body.get("senha") or "",
         )
 
     if tipo == "editar":
         if isinstance(body, list):
             return response_error("Body inválido")
+        id_senha: int = int(body.get("id_senha") or 0)
         return PasswordService.editar(
             user_id,
-            body.get("id_senha"),
-            body.get("dominio", ""),
-            body.get("login", ""),
-            body.get("senha", ""),
+            id_senha,
+            body.get("dominio") or "",
+            body.get("login") or "",
+            body.get("senha") or "",
         )
 
     if tipo == "excluir":
         if isinstance(body, list):
             return response_error("Body inválido")
-        return PasswordService.excluir(user_id, body.get("id_senha"))
+        id_senha: int = int(body.get("id_senha") or 0)
+        return PasswordService.excluir(user_id, id_senha)
 
     if tipo == "update_insert":
         if not isinstance(body, list):

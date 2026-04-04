@@ -1,33 +1,32 @@
+from __future__ import annotations
 import os
-import base64
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2
 
 
 class Criptografia:
-    _instance = None
-    _fernet = None
+    _instance: Criptografia | None = None
+    _fernet: Fernet | None = None
+    _initialized: bool = False
 
-    def __new__(cls):
+    def __new__(cls) -> Criptografia:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self):
+    def __init__(self) -> None:
         if self._initialized:
             return
         self._initialized = True
 
-        BASE_DIR = os.path.dirname(
+        base_dir: str = os.path.dirname(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         )
-        key_file = os.path.join(BASE_DIR, "db_json", ".key")
+        key_file: str = os.path.join(base_dir, "db_json", ".key")
 
         if os.path.exists(key_file):
             with open(key_file, "rb") as f:
-                key = f.read()
+                key: bytes = f.read()
         else:
             key = Fernet.generate_key()
             os.makedirs(os.path.dirname(key_file), exist_ok=True)
@@ -39,29 +38,33 @@ class Criptografia:
     def criptografar(self, texto: str) -> str:
         if not texto:
             return texto
+        if self._fernet is None:
+            raise RuntimeError("Fernet not initialized")
         return self._fernet.encrypt(texto.encode()).decode()
 
     def descriptografar(self, texto: str) -> str:
         if not texto:
             return texto
         try:
+            if self._fernet is None:
+                raise RuntimeError("Fernet not initialized")
             return self._fernet.decrypt(texto.encode()).decode()
-        except:
+        except Exception:
             return texto
 
-    def criptografar_campos(self, dados: dict, campos: list) -> dict:
-        resultado = dados.copy()
+    def criptografar_campos(self, dados: dict, campos: list[str]) -> dict:
+        resultado: dict = dados.copy()
         for campo in campos:
             if campo in resultado and resultado[campo]:
                 resultado[campo] = self.criptografar(resultado[campo])
         return resultado
 
-    def descriptografar_campos(self, dados: dict, campos: list) -> dict:
-        resultado = dados.copy()
+    def descriptografar_campos(self, dados: dict, campos: list[str]) -> dict:
+        resultado: dict = dados.copy()
         for campo in campos:
             if campo in resultado and resultado[campo]:
                 resultado[campo] = self.descriptografar(resultado[campo])
         return resultado
 
 
-cripto = Criptografia()
+cripto: Criptografia = Criptografia()

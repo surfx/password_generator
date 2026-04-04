@@ -1,6 +1,8 @@
 import {
     showMsg,
-    addclick
+    addclick,
+    showLoading,
+    hideLoading
 } from '../util/util.js';
 
 // const server = new ServerPython();
@@ -26,26 +28,31 @@ document.body.onload = () => {
         if (!user) { showMsg(spnMensagens, "Informe o usuário"); txtUsuario.focus(); return; }
         if (!senha) { showMsg(spnMensagens, "Informe a senha"); txtSenha.focus(); return; }
 
-        let res = await server.insertUser(nome, user, senha);
-        if (!res || !res.ok) {
-            let msgErr = !res.msg ? 'Erro no cadastro' : res.msg;
-            let i2dots = msgErr.indexOf(':');
-            if (i2dots >= 0){
-                msgErr = msgErr.substring(0, i2dots+1) + "<br/>" + msgErr.substring(i2dots + 1);
+        showLoading(btnCadastrar, 'Cadastrando...');
+
+        try {
+            let res = await server.insertUser(nome, user, senha);
+            if (!res || !res.ok) {
+                let msgErr = !res.msg ? 'Erro no cadastro' : res.msg;
+                let i2dots = msgErr.indexOf(':');
+                if (i2dots >= 0){
+                    msgErr = msgErr.substring(0, i2dots+1) + "<br/>" + msgErr.substring(i2dots + 1);
+                }
+                showMsg(spnMensagens, msgErr);
+                txtNome.focus();
+                return;
             }
-            showMsg(spnMensagens, msgErr);
-            txtNome.focus();
-            return;
+
+            showMsg(spnMensagens, res.msg);
+            DataAux.saveUser(res.data);
+            salvarSenhasLocais();
+
+            location.href = '../index.html';
+        } catch (e) {
+            showMsg(spnMensagens, "Erro: " + e.message);
+        } finally {
+            hideLoading(btnCadastrar);
         }
-        //console.log(res);
-
-        showMsg(spnMensagens, res.msg);
-
-        DataAux.saveUser(res.data);
-        salvarSenhasLocais();
-
-        // redireciona para a tela anterior
-        location.href = '../index.html';
 
     });
 

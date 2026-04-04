@@ -1,6 +1,8 @@
 import {
     showMsg,
-    addclick
+    addclick,
+    showLoading,
+    hideLoading
 } from '../util/util.js';
 
 const server = new ServerNative();
@@ -48,42 +50,43 @@ document.body.onload = async () => {
             return;
         }
 
-        // Atualiza os campos do usuário
         usuario.nome = nome;
         usuario.login = user;
         usuario.senha = senha;
 
-        console.log("Enviando para atualização:", usuario);  // Debug
+        showLoading(btnEditarUsuario, 'Salvando...');
 
-        let res = await server.updateUserPart(usuario, usuario.token.tokenToBase64());
-        
-        console.log("Resposta do servidor:", res);  // Debug
-        
-        if (!res || !res.ok) {
-            let msgErr = !res.msg ? 'Erro na edição' : res.msg;
-            showMsg(spnMensagens, msgErr);
-            txtNome.focus();
-            return;
+        try {
+            let res = await server.updateUserPart(usuario, usuario.token.tokenToBase64());
+            
+            if (!res || !res.ok) {
+                let msgErr = !res.msg ? 'Erro na edição' : res.msg;
+                showMsg(spnMensagens, msgErr);
+                txtNome.focus();
+                return;
+            }
+
+            showMsg(spnMensagens, res.msg);
+
+            let novoUsuario = new Usuario(
+                res.data.id_usuario,
+                res.data.nome,
+                res.data.uuid,
+                res.data.login,
+                res.data.senha,
+                res.data.verificado,
+                res.data.ativo,
+                usuario.token
+            );
+
+            DataAux.saveUser(novoUsuario);
+            
+            location.href = '../index.html';
+        } catch (e) {
+            showMsg(spnMensagens, "Erro: " + e.message);
+        } finally {
+            hideLoading(btnEditarUsuario);
         }
-
-        showMsg(spnMensagens, res.msg);
-
-        // Reconstrói o objeto Usuario com o token existente
-        let novoUsuario = new Usuario(
-            res.data.id_usuario,
-            res.data.nome,
-            res.data.uuid,
-            res.data.login,
-            res.data.senha,
-            res.data.verificado,
-            res.data.ativo,
-            usuario.token  // Mantém o token atual
-        );
-
-        DataAux.saveUser(novoUsuario);
-        
-        // Redireciona para a tela anterior
-        location.href = '../index.html';
     });
 
     // addclick(btnInativarUsuario, async () => {

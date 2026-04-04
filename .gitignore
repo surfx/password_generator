@@ -12,3 +12,7 @@ server/native_host/native_host_debug.log
 server/meu-servidor-rest/.env
 server/meu-servidor-rest/server.log
 
+create_graph.py
+scan_project.py
+write_scan.py
+.understand-anything/

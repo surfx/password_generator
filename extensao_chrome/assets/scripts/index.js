@@ -1,6 +1,6 @@
 import {
     getUrl, copyToClipboard, showMsg,
-    addclick
+    addclick, showLoading, hideLoading
 } from './util/util.js';
 
 import {
@@ -99,7 +99,21 @@ function templateUsuariosSenhas(i, data) {
 
 function tratarDataHTMLSenhas(data) {
     divSenhasSalvas.innerHTML = '';
-    if (!data) { return; }
+    
+    if (!data || data.length === 0) {
+        divSenhasSalvas.innerHTML = `
+            <div style="text-align:center;padding:40px 20px;color:#666;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" style="margin-bottom:12px;">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <p style="margin:0;font-size:14px;">Nenhuma senha salva para este site</p>
+                <p style="margin:8px 0 0;font-size:12px;color:#999;">Use o formulário abaixo para adicionar</p>
+            </div>
+        `;
+        return;
+    }
+    
     let size = data.length;
     for (let i = 0; i < size; i++) {
         divSenhasSalvas.innerHTML += templateUsuariosSenhas(i, data[i]);
@@ -128,17 +142,25 @@ function tratarDataHTMLSenhas(data) {
         let btnExcluirPassword = document.getElementById('btnExcluirPassword' + i);
         btnExcluirPassword.addEventListener("click", async function () {
             if (!window.confirm("Deseja excluir a senha? [" + data[i].login + "]")) { return; }
-            let res = await DataAux.excluirSenha(data[i]);
-            if (!res || !res.ok) {
-                showMsg(spnMensagens, !!res && !!res.msg ? res.msg : 'Erro ao excluir o usuário: ' + data[i].login);
-                return;
-            }
-            showMsg(spnMensagens, 'Usuário ' + data[i].login + ' excluído');
             
-            // Remove o item da interface
-            let itemParaRemover = document.getElementById(`password-item-${i}`);
-            if (itemParaRemover) {
-                itemParaRemover.remove();
+            showLoading(btnExcluirPassword, 'Excluindo...');
+            
+            try {
+                let res = await DataAux.excluirSenha(data[i]);
+                if (!res || !res.ok) {
+                    showMsg(spnMensagens, !!res && !!res.msg ? res.msg : 'Erro ao excluir: ' + data[i].login);
+                    return;
+                }
+                showMsg(spnMensagens, 'Senha excluída');
+                
+                let itemParaRemover = document.getElementById(`password-item-${i}`);
+                if (itemParaRemover) {
+                    itemParaRemover.remove();
+                }
+            } catch (e) {
+                showMsg(spnMensagens, "Erro: " + e.message);
+            } finally {
+                hideLoading(btnExcluirPassword);
             }
         });
     }
@@ -188,22 +210,24 @@ if (!!btnSaveAddSenhas) {
 
         if (!window.confirm("Deseja salvar a senha?")) { return; }
 
-        let res = await saveSenha(userAdd, senhaAdd);
-        //console.log(res);
-        if (!res || !res.ok) {
-            showMsg(spnMensagens, !!res && !!res.msg ? res.msg : "Erro ao salvar a senha");
-            return;
+        showLoading(btnSaveAddSenhas, 'Salvando...');
+        
+        try {
+            let res = await saveSenha(userAdd, senhaAdd);
+            if (!res || !res.ok) {
+                showMsg(spnMensagens, !!res && !!res.msg ? res.msg : "Erro ao salvar a senha");
+                return;
+            }
+
+            txtAddUsuario.value = '';
+            txtAddSenha.value = '';
+            showMsg(spnMensagens, 'Senha Salva');
+            loadSenhas();
+        } catch (e) {
+            showMsg(spnMensagens, "Erro: " + e.message);
+        } finally {
+            hideLoading(btnSaveAddSenhas);
         }
-
-        txtAddUsuario.value = '';
-        txtAddSenha.value = '';
-
-        //saveDataSenhas({ usuario: userAdd, senha: senhaAdd, dominio: urlRecuperada });
-
-        showMsg(spnMensagens, 'Senha Salva');
-
-        //loadDataSenhas();
-        loadSenhas();
     });
 }
 
@@ -327,17 +351,18 @@ async function verificarUsuarioLogado() {
                 try {
                     let usuario = DataAux.getUsuarioLogado();
                     if (!usuario || !usuario.token) {
-                        alert("Usuário não está logado");
+                        showMsg(spnMensagens, "Usuário não está logado");
                         return;
                     }
+
+                    showLoading(linkExportarSenhas, 'Exportando...');
 
                     let resSenhas = await DataAux.getSenhasRaw();
                     if (!resSenhas || !resSenhas.ok || !resSenhas.data) {
-                        alert("Erro ao buscar senhas: " + (resSenhas?.msg || "desconhecido"));
+                        showMsg(spnMensagens, "Erro ao buscar senhas: " + (resSenhas?.msg || "desconhecido"));
                         return;
                     }
 
-                    // Agrupar por domínio
                     let agrupado = {};
                     for (let s of resSenhas.data) {
                         let dominio = s.dominio || "outros";
@@ -360,9 +385,11 @@ async function verificarUsuarioLogado() {
                     a.click();
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
+                    showMsg(spnMensagens, "Senhas exportadas!");
                 } catch (e) {
-                    alert("Erro ao exportar: " + e.message);
-                    console.error(e);
+                    showMsg(spnMensagens, "Erro ao exportar: " + e.message);
+                } finally {
+                    hideLoading(linkExportarSenhas);
                 }
             });
         }
@@ -379,19 +406,21 @@ async function verificarUsuarioLogado() {
                 let file = event.target.files[0];
                 if (!file) return;
 
+                let usuario = DataAux.getUsuarioLogado();
+                if (!usuario || !usuario.token) {
+                    showMsg(spnMensagens, "Usuário não está logado");
+                    fileImportarSenhas.value = '';
+                    return;
+                }
+
+                showLoading(linkImportarSenhas, 'Importando...');
+
                 try {
                     let text = await file.text();
                     let data = JSON.parse(text);
                     
-                    let usuario = DataAux.getUsuarioLogado();
-                    if (!usuario || !usuario.token) {
-                        alert("Usuário não está logado");
-                        return;
-                    }
-
                     let importadas = 0;
 
-                    // Formato novo: { "dominio": [{login, senha}, ...] }
                     if (!Array.isArray(data)) {
                         for (let dominio in data) {
                             let lista = data[dominio];
@@ -403,7 +432,6 @@ async function verificarUsuarioLogado() {
                             }
                         }
                     } 
-                    // Formato antigo: [{dominio, login, senha}]
                     else {
                         for (let s of data) {
                             if (!s.dominio || !s.login || !s.senha) continue;
@@ -412,13 +440,14 @@ async function verificarUsuarioLogado() {
                         }
                     }
 
-                    alert(`${importadas} senhas importadas!`);
-                    location.reload();
+                    showMsg(spnMensagens, `${importadas} senhas importadas!`);
+                    setTimeout(() => location.reload(), 1500);
                 } catch (e) {
-                    alert("Erro ao importar: " + e.message);
+                    showMsg(spnMensagens, "Erro ao importar: " + e.message);
+                } finally {
+                    hideLoading(linkImportarSenhas);
+                    fileImportarSenhas.value = '';
                 }
-
-                fileImportarSenhas.value = '';
             });
         }
 
@@ -445,16 +474,24 @@ async function saveSenha(login, senha) {
 }
 
 async function loadSenhas() {
-    divSenhasSalvas.innerHTML = '';
-    let auxSenhas = await DataAux.loadSenhas(urlRecuperada);
-    if (!auxSenhas || !auxSenhas.ok) { 
-        showMsg(spnMensagens, auxSenhas ? auxSenhas.msg : "Erro ao carregar senhas");
-        allPasswords = [];
-        return; 
+    try {
+        let auxSenhas = await DataAux.loadSenhas(urlRecuperada);
+        
+        if (!auxSenhas || !auxSenhas.ok) { 
+            showMsg(spnMensagens, auxSenhas?.msg || "Erro ao carregar senhas");
+            return; 
+        }
+        
+        if (!auxSenhas.data || auxSenhas.data.length === 0) { 
+            allPasswords = [];
+            return; 
+        }
+        
+        allPasswords = auxSenhas.data;
+        tratarDataHTMLSenhas(allPasswords);
+    } catch (e) {
+        console.error("Erro ao carregar senhas:", e);
     }
-    if (!auxSenhas.data) { allPasswords = []; return; }
-    allPasswords = auxSenhas.data;
-    tratarDataHTMLSenhas(allPasswords);
 }
 
 async function init() {
@@ -462,7 +499,7 @@ async function init() {
     const url = await getUrl(false);
     urlRecuperada = url;
     !!divDominio && (divDominio.innerHTML = `site: ${urlRecuperada}`);
-    loadSenhas();
+    await loadSenhas();
 }
 
 document.body.onload = init;

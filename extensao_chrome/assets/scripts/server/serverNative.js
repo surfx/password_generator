@@ -1,34 +1,21 @@
-class ServerNative {
+/**
+ * Native messaging client for Chrome extension
+ * Extends ServerBase with chrome.runtime.sendNativeMessage communication
+ */
+class ServerNative extends ServerBase {
+    _NATIVE_HOST = "com.emerson.password_generator";
 
-    #NATIVE_HOST = "com.emerson.password_generator";
-
-    #toerr(msg = undefined) {
-        msg = !!msg ? msg : "Erro";
-        // Assume Erro class exists globally as in original file
-        return new Promise((resolve, reject) => { resolve(new Erro(false, msg)); });
-    }
-
-    #toerr_res(res) {
-        if (!res || res === undefined || res === 'undefined') { return { "ok": false, "msg": "Erro - null" }; }
-        if (!res.ok) { return Erro.from(res); }
-        if (!res.data) { return { "ok": true, "data": undefined, "msg": res.msg }; }
-        return undefined;
-    }
-
-    // Helper para comunicação nativa
-    async #send(action, payload) {
+    async _send(action, payload) {
         console.log(`[Native] Enviando ação: ${action}`, payload);
         
         return new Promise((resolve) => {
             try {
-                chrome.runtime.sendNativeMessage(this.#NATIVE_HOST, {
+                chrome.runtime.sendNativeMessage(this._NATIVE_HOST, {
                     action: action,
                     payload: payload
                 }, (response) => {
                     if (chrome.runtime.lastError) {
                         console.error("[Native] ERRO:", chrome.runtime.lastError.message);
-                        console.error("[Native] Action:", action);
-                        console.error("[Native] Payload:", payload);
                         resolve({ ok: false, msg: "Erro Native: " + chrome.runtime.lastError.message });
                     } else {
                         console.log("[Native] Resposta recebida:", response);
@@ -44,212 +31,94 @@ class ServerNative {
 
     async log(level, message, details = "") {
         try {
-            await this.#send("log", { level, message, details });
+            await this._send("log", { level, message, details });
         } catch (e) {
             console.error("Failed to send log:", e);
         }
     }
 
-    async doLogin(login, senha) {
-        if (!login || !senha) { return this.#toerr("Informe o login e a senha"); }
-        let res = await this.#send("login", { login, senha });
-        
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        
-        res.data = !!res.data ? Usuario.from(res.data) : undefined;
-        if (!!res.data && !!res.token) { res.data.token = Token.from(res.token); }
-        return res;
+    async _sendLogin(login, senha) {
+        return await this._send("login", { login, senha });
     }
 
-    async getToken(login, senha) {
-        if (!login || !senha) { return this.#toerr("Informe o login e a senha"); }
-        let res = await this.#send("get_token", { login, senha });
-        
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        
-        res.data = !!res.data ? Token.from(res.data) : undefined;
-        return res;
+    async _sendGetToken(login, senha) {
+        return await this._send("get_token", { login, senha });
     }
 
-    async excluirTokensInvalidos() {
-        let res = await this.#send("tokensinvalidos", {});
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        return res;
+    async _sendExcluirTokensInvalidos() {
+        return await this._send("tokensinvalidos", {});
     }
 
-    async tokenValido(token) {
-        if (!token) { return this.#toerr("Informe o token em base 64"); }
-        let res = await this.#send("tokenvalido", { authorization: token });
-        return !!res ? res : this.#toerr_res(res);
+    async _sendTokenValido(token) {
+        return await this._send("tokenvalido", { authorization: token });
     }
 
-    async doLogout(token) {
-        if (!token) { return this.#toerr("Informe o token em base 64"); }
-        let res = await this.#send("logout", { authorization: token });
-        return !!res ? res : this.#toerr_res(res);
+    async _sendLogout(token) {
+        return await this._send("logout", { authorization: token });
     }
 
-    async listUsers(token) {
-        if (!token) { return this.#toerr("Informe o token em base 64"); }
-        let res = await this.#send("list_users", { authorization: token });
-        
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        
-        let data = [];
-        if (res.data && Array.isArray(res.data)) {
-            res.data.forEach(element => { data.push(Usuario.from(element)); });
-        }
-        res.data = data;
-        return res;
+    async _sendListUsers(token) {
+        return await this._send("list_users", { authorization: token });
     }
 
-    async insertUser(nome, login, senha) {
-        if (!nome || !login || !senha) { return this.#toerr("Informe o nome, login e senha"); }
-        let res = await this.#send("insert_user", { nome, login, senha });
-        
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        
-        res.data = !!res.data ? Usuario.from(res.data) : undefined;
-        if (!!res.data && !!res.token) { res.data.token = Token.from(res.token); }
-        return res;
+    async _sendInsertUser(nome, login, senha) {
+        return await this._send("insert_user", { nome, login, senha });
     }
 
-    async updateUser(usuario_obj, token) {
-        if (!token || !usuario_obj || !usuario_obj.id_usuario) { return this.#toerr("Informe os dados do usuário"); }
-        let payload = { ...usuario_obj, authorization: token };
-        let res = await this.#send("update_user", payload);
-        
-        if (!res) { return this.#toerr_res(res); }
-        res.data = !!res.data ? Usuario.from(res.data) : undefined;
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        return res;
+    async _sendUpdateUser(usuario_obj, token) {
+        return await this._send("update_user", { ...usuario_obj, authorization: token });
     }
 
-    async updateUserPart(usuario_obj, token) {
-        if (!token || !usuario_obj || !usuario_obj.id_usuario) { 
-            return this.#toerr("Informe os dados do usuário"); 
-        }
-        
-        // Monta payload com todos os campos necessários
-        let payload = {
+    async _sendUpdateUserPart(usuario_obj, token) {
+        console.log("[Native] Enviando update_user_part:", usuario_obj);
+        return await this._send("update_user_part", {
             id_usuario: usuario_obj.id_usuario,
             nome: usuario_obj.nome,
             login: usuario_obj.login,
             senha: usuario_obj.senha,
             authorization: token
-        };
-        
-        console.log("[Native] Enviando update_user_part:", payload);
-        
-        let res = await this.#send("update_user_part", payload);
-        
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); 
-        if (!!aux) { return aux; }
-        res.data = !!res.data ? Usuario.from(res.data) : undefined;
-        return res;
+        });
     }
 
-    async inativarUsuario(id_usuario, uuid, login, token) {
-        if (!token || !id_usuario) { return this.#toerr("Informe os dados"); }
-        let res = await this.#send("inativar_user", { id_usuario, uuid, login, authorization: token });
-        
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        res.data = !!res.data ? Usuario.from(res.data) : undefined;
-        return res;
+    async _sendInativarUsuario(id_usuario, uuid, login, token) {
+        return await this._send("inativar_user", { id_usuario, uuid, login, authorization: token });
     }
 
-    async listarSenhas(id_usuario, dominio, token) {
-        if (!token || !id_usuario) { return this.#toerr("Informe os dados"); }
-        let res = await this.#send("listar_senhas", { id_usuario, dominio, authorization: token });
-        
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        
-        let data = [];
-        if (res.data && Array.isArray(res.data)) {
-            res.data.forEach(element => { data.push(Senha.from(element)); });
-        }
-        res.data = data;
-        return res;
+    async _sendListarSenhas(id_usuario, dominio, token) {
+        return await this._send("listar_senhas", { id_usuario, dominio, authorization: token });
     }
 
-    async listarSenhasRaw(id_usuario, dominio, token) {
-        if (!token || !id_usuario) { return this.#toerr("Informe os dados"); }
-        return await this.#send("listar_senhas", { id_usuario, dominio, authorization: token });
+    async _sendListarSenhasRaw(id_usuario, dominio, token) {
+        return await this._send("listar_senhas", { id_usuario, dominio, authorization: token });
     }
 
-    async salvarSenha(id_usuario, dominio, login, senha, token) {
-        if (!token || !id_usuario) { return this.#toerr("Informe os dados"); }
-        let res = await this.#send("salvar_senha", { id_usuario, dominio, login, senha, authorization: token });
-        
-        if (!res) { return this.#toerr_res(res); }
-        res.data = !!res.data ? Senha.from(res.data) : undefined;
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        return res;
+    async _sendSalvarSenha(id_usuario, dominio, login, senha, token) {
+        return await this._send("salvar_senha", { id_usuario, dominio, login, senha, authorization: token });
     }
 
-    async atualizarSenha(id_senha, id_usuario, dominio, login, senha, token) {
-        if (!token || !id_senha) { return this.#toerr("Informe os dados"); }
-        let res = await this.#send("editar_senha", { id_senha, id_usuario, dominio, login, senha, authorization: token });
-        
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        res.data = !!res.data ? Senha.from(res.data) : undefined;
-        return res;
+    async _sendAtualizarSenha(id_senha, id_usuario, dominio, login, senha, token) {
+        return await this._send("editar_senha", { id_senha, id_usuario, dominio, login, senha, authorization: token });
     }
 
-    async deletarSenha(id_senha, id_usuario, dominio, token) {
-        if (!token || !id_senha) { return this.#toerr("Informe os dados"); }
-        let res = await this.#send("excluir_senha", { id_senha, id_usuario, dominio, authorization: token });
-        
-        if (!res) { return this.#toerr_res(res); }
-        res.data = !!res.data ? Senha.from(res.data) : undefined;
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        return res;
+    async _sendDeletarSenha(id_senha, id_usuario, dominio, token) {
+        return await this._send("excluir_senha", { id_senha, id_usuario, dominio, authorization: token });
     }
 
-    async updateInsertSenhas(senhas, id_usuario, token) {
-        if (!token || !senhas) { return this.#toerr("Informe os dados"); }
-        
-        // Converte objetos de senha se necessário (assume que toJsonSerialize retorna string JSON)
-        let senhas_plain = [];
-        for (let s of senhas) {
-            if (s && typeof s.toJsonSerialize === 'function') {
-                try {
-                    let obj = JSON.parse(s.toJsonSerialize()); 
-                    senhas_plain.push(obj);
-                } catch(e) { senhas_plain.push(s); }
-            } else {
-                senhas_plain.push(s);
-            }
-        }
-
-        let res = await this.#send("update_insert_senhas", { senhas: senhas_plain, id_usuario, authorization: token });
-        
-        if (!res) { return this.#toerr_res(res); }
-        let aux = this.#toerr_res(res); if (!!aux) { return aux; }
-        return res;
+    async _sendUpdateInsertSenhas(senhas, id_usuario, token) {
+        return await this._send("update_insert_senhas", { senhas, id_usuario, authorization: token });
     }
 
-    async fetchDataUK() {
-        const res = await fetch("https://api.coronavirus.data.gov.uk/v1/data", { method: "GET" });
-        return await res.json();
+    async _sendFetchDataUK() {
+        return fetch("https://api.coronavirus.data.gov.uk/v1/data", { method: "GET" });
     }
 
-    async testescors() {
+    async _sendTestesCORS() {
         return { ok: true, msg: "Native Messaging não usa CORS" };
     }
 
     async recuperarSenhas(email, senhas) {
-        if (!email || !senhas) { return this.#toerr("Informe o email e as senhas"); }
-        let res = await this.#send("recuperar_senhas", { email, senhas });
-        return !!res ? res : this.#toerr_res(res);
+        if (!email || !senhas) { return this._toerr("Informe o email e as senhas"); }
+        let res = await this._send("recuperar_senhas", { email, senhas });
+        return !!res ? res : this._toerr_res(res);
     }
 }
