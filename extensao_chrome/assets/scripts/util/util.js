@@ -22,6 +22,10 @@ export const getUrl = (urlCompleta) => {
         });
 
         function processUrl(url) {
+            if (!url || typeof url !== 'string') {
+                resolve('');
+                return;
+            }
             if (!urlCompleta) {
                 try {
                     const urlObj = new URL(url);
