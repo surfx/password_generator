@@ -8,8 +8,7 @@ import {
 } from './passwordgen/pasword_generator.js';
 
 
-// const server = new ServerPython();
-
+// const allPasswords = []; // Armazena todas as senhas carregadas para filtro local
 let allPasswords = []; // Armazena todas as senhas carregadas para filtro local
 let urlRecuperada = '';
 
@@ -350,7 +349,7 @@ async function verificarUsuarioLogado() {
             addclick(linkExportarSenhas, async () => {
                 try {
                     let usuario = DataAux.getUsuarioLogado();
-                    if (!usuario || !usuario.token) {
+                    if (!usuario) {
                         showMsg(spnMensagens, "Usuário não está logado");
                         return;
                     }
@@ -407,7 +406,7 @@ async function verificarUsuarioLogado() {
                 if (!file) return;
 
                 let usuario = DataAux.getUsuarioLogado();
-                if (!usuario || !usuario.token) {
+                if (!usuario) {
                     showMsg(spnMensagens, "Usuário não está logado");
                     fileImportarSenhas.value = '';
                     return;

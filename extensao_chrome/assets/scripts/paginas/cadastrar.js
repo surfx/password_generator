@@ -5,9 +5,6 @@ import {
     hideLoading
 } from '../util/util.js';
 
-// const server = new ServerPython();
-const server = new ServerNative();
-
 let txtNome = document.getElementById('txtNome');
 let txtUsuario = document.getElementById('txtUsuario');
 let txtSenha = document.getElementById('txtSenha');
@@ -18,7 +15,6 @@ let spnMensagens = document.getElementById('spnMensagens');
 document.body.onload = () => { 
     if (!!txtNome) { txtNome.focus(); }
 
-    
     addclick(btnCadastrar, async () => {
 
         let nome = txtNome.value;
@@ -31,22 +27,13 @@ document.body.onload = () => {
         showLoading(btnCadastrar, 'Cadastrando...');
 
         try {
-            let res = await server.insertUser(nome, user, senha);
+            let res = await DataAux.registerUser(nome, user, senha);
             if (!res || !res.ok) {
-                let msgErr = !res.msg ? 'Erro no cadastro' : res.msg;
-                let i2dots = msgErr.indexOf(':');
-                if (i2dots >= 0){
-                    msgErr = msgErr.substring(0, i2dots+1) + "<br/>" + msgErr.substring(i2dots + 1);
-                }
-                showMsg(spnMensagens, msgErr);
-                txtNome.focus();
+                showMsg(spnMensagens, res.msg || 'Erro no cadastro');
                 return;
             }
 
             showMsg(spnMensagens, res.msg);
-            DataAux.saveUser(res.data);
-            salvarSenhasLocais();
-
             location.href = '../index.html';
         } catch (e) {
             showMsg(spnMensagens, "Erro: " + e.message);
@@ -57,12 +44,3 @@ document.body.onload = () => {
     });
 
 };
-
-async function salvarSenhasLocais() {
-    // salva/atualiza as senhas locais (browser) na base de dados
-    let res = await DataAux.updateInsertSenhasLocais(server);
-    // limpa as senhas locais
-    if (!!res && !!res.ok) {
-        DataAux.clearSenhasLocal();
-    }
-}

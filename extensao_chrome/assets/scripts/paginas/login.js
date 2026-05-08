@@ -5,10 +5,6 @@ import {
     hideLoading
 } from '../util/util.js';
 
-// const server = new ServerPython();
-const server = new ServerNative();
-
-
 let txtUsuario = document.getElementById('txtUsuario');
 let txtSenha = document.getElementById('txtSenha');
 let btnLogin = document.getElementById('btnLogin');
@@ -37,16 +33,14 @@ addclick(btnLogin, async () => {
     showLoading(btnLogin, 'Entrando...');
 
     try {
-        let res = await server.doLogin(user, senha);
-        if (!res || !res.ok) {
-            showMsg(spnMensagens, res?.msg || "Erro no login");
+        let resUser = await DataAux.loadUser(user, senha);
+        if (!resUser) {
+            showMsg(spnMensagens, "Usuário ou senha inválidos");
             return;
         }
         
         showMsg(spnMensagens, "Sucesso");
-        DataAux.saveUser(res.data);
-        salvarSenhasLocais();
-        
+        // DataAux.loadUser already saves the user locally if found
         location.href = '../index.html';
     } catch (error) {
         console.error(error);
@@ -69,18 +63,13 @@ function verificarUsuarioLogado() {
     let divButtonSair = document.getElementById('divButtonSair');
     if (!divButtonSair) { return; } divButtonSair.style = '';
 
-    /*<div>id_usuario</div>
-    <div>${usuario.id_usuario}</div>*/
-
     let html =
         `<div>nome</div>
         <div>${usuario.nome}</div>
         <div>login</div>
         <div>${usuario.login}</div>
         <div>senha</div>
-        <div>***</div>
-        <div>verificado</div>
-        <div>${usuario.verificado}</div>`;
+        <div>***</div>`;
     divDadosUsuario.innerHTML = html;
 
     let btnSair = document.getElementById('btnSair');
@@ -91,20 +80,9 @@ function verificarUsuarioLogado() {
     });
 }
 
-async function salvarSenhasLocais() {
-    // salva/atualiza as senhas locais (browser) na base de dados
-    let res = await DataAux.updateInsertSenhasLocais(server);
-    // limpa as senhas locais
-    if (!!res && !!res.ok) {
-        DataAux.clearSenhasLocal();
-    }
-}
-
 document.body.onload = () => {
     verificarUsuarioLogado();
     
-    // Garante que o foco seja definido após a verificação de login
-    // e somente se o campo de usuário ainda existir.
     let userField = document.getElementById('txtUsuario');
     if (userField) {
         userField.focus();

@@ -1,10 +1,5 @@
 class DataAux {
 
-    static #server = (() => {
-        if (typeof ServerNative !== 'undefined') return new ServerNative();
-        if (typeof ServerPython !== 'undefined') return new ServerPython();
-        return null;
-    })();
     static #dtlocal = new DataLocal();
 
     //------------------------------
@@ -12,407 +7,167 @@ class DataAux {
     //------------------------------
 
     static async loadUser(login, senha, key_user = "usuario_logado") {
-        let usuario = this.#dtlocal.load_obj(key_user, Usuario.fromJsonSerialize);
+        let usuario = await this.getUsuarioLogado(key_user);
 
-        if (!!usuario && !!usuario.id_usuario && usuario.id_usuario > 0) {
-            // verifica se o login informados correspondem com o que está na memória
-            if (usuario.login === login) {
+        if (!!usuario) {
+            if (usuario.login === login && usuario.senha === senha) {
                 return usuario;
             }
-            this.#dtlocal.clear(key_user);
         }
 
-        if (!this.#server) return undefined;
-
-        let res = await this.#server.doLogin(login, senha);
-        if (!res || !res.ok) {
-            this.#dtlocal.clear(key_user);
-            //console.log(res.toString());
-            return undefined;
+        // Busca usuários locais
+        const data = await chrome.storage.sync.get("users_local");
+        let users = data.users_local || [];
+        
+        let found = users.find(u => u.login === login && u.senha === senha);
+        if (found) {
+            let userObj = Usuario.from(found);
+            await this.saveUser(userObj, key_user);
+            return userObj;
         }
 
-        this.#dtlocal.save_obj(key_user, res.data, u => u.toJsonSerialize()); //salva o usuário
-        return res.data;
+        return undefined;
     }
 
-    static saveUser(usuario, key_user = "usuario_logado") {
-        this.deslogar(key_user);
-        if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0) { return; }
-        this.#dtlocal.save_obj(key_user, usuario, u => u.toJsonSerialize()); //salva o usuário
+    static async saveUser(usuario, key_user = "usuario_logado") {
+        if (!usuario) return;
+        
+        // Salva como usuário logado no storage local (sessão)
+        this.#dtlocal.save_obj(key_user, usuario, u => u.toJsonSerialize());
+
+        // Também salva na lista de usuários do profile (chrome.storage.sync)
+        const data = await chrome.storage.sync.get("users_local");
+        let users = data.users_local || [];
+        
+        const index = users.findIndex(u => u.login === usuario.login);
+        let userJson = JSON.parse(usuario.toJsonSerialize());
+        
+        if (index >= 0) {
+            users[index] = userJson;
+        } else {
+            if (!userJson.id_usuario) userJson.id_usuario = Date.now();
+            users.push(userJson);
+        }
+        
+        await chrome.storage.sync.set({ "users_local": users });
+    }
+
+    static async registerUser(nome, login, senha) {
+        let newUser = new Usuario(Date.now(), nome, crypto.randomUUID(), login, senha, true, true);
+        await this.saveUser(newUser);
+        return { ok: true, msg: "Usuário cadastrado com sucesso", data: newUser };
     }
 
     static getUsuarioLogado(key_user = "usuario_logado") {
-        let usuario = this.#dtlocal.load_obj(key_user, Usuario.fromJsonSerialize);
-        if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 ||
-            !usuario.token || !usuario.token.id || usuario.token.id <= 0 ||
-            !usuario.token.token) { 
-            this.deslogar(key_user);
-            return undefined;
-        }
-        return usuario;
+        return this.#dtlocal.load_obj(key_user, Usuario.fromJsonSerialize);
     }
 
-    static async verificarTokenOnline(key_user = "usuario_logado", retries = 3, delay = 1000) {
+    static async verificarTokenOnline(key_user = "usuario_logado") {
+        // Localmente o token é sempre válido se o usuário estiver na sessão
         let usuario = this.getUsuarioLogado(key_user);
-        if (!usuario) return false;
-
-        if (!this.#server) return false;
-
-        for (let i = 0; i < retries; i++) {
-            try {
-                let res = await this.#server.tokenValido(usuario.token.tokenToBase64());
-                
-                if (!res || !res.ok) {
-                    return false;
-                }
-                return true;
-            } catch (err) {
-                console.warn(`Token verification attempt ${i + 1} failed:`, err);
-                if (i < retries - 1) {
-                    await new Promise(r => setTimeout(r, delay));
-                }
-            }
-        }
-        
-        return false;
+        return !!usuario;
     }
 
     static deslogar(key_user = "usuario_logado") {
-        // Carrega o usuário diretamente do local storage para evitar recursão com getUsuarioLogado
-        let usuario = this.#dtlocal.load_obj(key_user, Usuario.fromJsonSerialize);
-        
-        if (usuario && usuario.token && usuario.token.tokenToBase64()) {
-            // Tenta fazer o logout no servidor, mas não impede a limpeza local
-            if (this.#server) {
-                this.#server.doLogout(usuario.token.tokenToBase64()).catch(err => {
-                    console.error("Erro ao tentar deslogar no servidor:", err);
-                });
-            }
-        }
-        
-        // Limpa o usuário do local storage incondicionalmente
         this.#dtlocal.clear(key_user);
-    }
-
-    static inativarUsuario(key_user = "usuario_logado"){
-        let usuario = this.getUsuarioLogado();
-        //console.log(usuario);
-        if (!usuario){
-            this.deslogar(key_user);
-            return { ok: false, msg: "Erro ao deslogar" };
-        }
-
-        if (!this.#server) return { ok: false, msg: "Server não definido" };
-
-        return this.#server.inativarUsuario(
-            usuario.id_usuario, 
-            usuario.uuid, 
-            usuario.login, 
-            usuario.token.tokenToBase64()
-        );
     }
 
     //------------------------------
     // senhas
     //------------------------------
     static async saveSenha(login, senha, dominio) {
-        if (!this.#server) { return undefined; }
+        if (!dominio || !login || !senha) return { ok: false, msg: "Dados incompletos" };
+        
         let usuario = this.getUsuarioLogado();
-        if (!usuario || !dominio || !usuario.id_usuario || !login || !senha || !usuario.token || !usuario.token.tokenToBase64()) {
-            // salvar a senha localmente
-            // cria o Promisse para manter a assinatura do método
-            return new Promise((resolve, reject) => {
-                let rt = this.#saveSenhasLocal(new Senha(undefined, undefined, dominio, login, senha));
-                resolve({ ok: rt, msg: undefined });
-            });
+        let id_usuario = usuario ? usuario.id_usuario : 'public';
+
+        try {
+            const data = await chrome.storage.sync.get("senhas_sync");
+            let atuais = data.senhas_sync || [];
+            
+            let nova = new Senha(Date.now(), id_usuario, dominio, login, senha);
+            let objSalvar = JSON.parse(nova.toJsonSerialize());
+
+            const index = atuais.findIndex(a => 
+                a.dominio === dominio && a.login === login && a.id_usuario === id_usuario
+            );
+            
+            if (index >= 0) {
+                atuais[index] = objSalvar;
+            } else {
+                atuais.push(objSalvar);
+            }
+            
+            await chrome.storage.sync.set({ "senhas_sync": atuais });
+            return { ok: true, msg: "Senha salva com sucesso" };
+        } catch (e) {
+            console.error("Erro ao salvar senha", e);
+            return { ok: false, msg: "Erro ao salvar: " + e.message };
         }
-        return await this.#server.salvarSenha(usuario.id_usuario, dominio, login, senha, usuario.token.tokenToBase64());
     }
 
     static async loadSenhas(dominio) {
         let usuario = this.getUsuarioLogado();
-
-        if (!usuario || !usuario.id_usuario || !usuario.token || !usuario.token.tokenToBase64()) {
-            let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
-            return { ok: true, msg: undefined, data: rt };
-        }
-
-        if (!this.#server) {
-            let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
-            return { ok: true, msg: undefined, data: rt };
-        }
+        let id_usuario = usuario ? usuario.id_usuario : 'public';
 
         try {
-            let res = await this.#server.listarSenhas(usuario.id_usuario, dominio, usuario.token.tokenToBase64());
+            const data = await chrome.storage.sync.get("senhas_sync");
+            let atuais = data.senhas_sync || [];
             
-            if (!res || !res.ok) {
-                console.log("[DataAux] Servidor retornou erro, carregando do storage local");
-                let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
-                return { ok: true, msg: "Carregado do storage local", data: rt };
-            }
+            let filtradas = atuais.filter(s => 
+                s.id_usuario === id_usuario && 
+                (!dominio || s.dominio.toLowerCase() === dominio.toLowerCase())
+            ).map(s => Senha.from(s));
             
-            if (!res.data || res.data.length <= 0) {
-                let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
-                return { ok: true, msg: undefined, data: rt };
-            }
-
-            this.#syncToChromeStorage(res.data);
-            return res;
+            return { ok: true, data: filtradas };
         } catch (e) {
-            console.error("[DataAux] Erro ao carregar do servidor:", e);
-            let rt = this.#recuperarSenhasDominioLocal(dominio, undefined);
-            return { ok: true, msg: "Carregado do storage local", data: rt };
+            console.error("Erro ao carregar senhas", e);
+            return { ok: false, msg: "Erro ao carregar: " + e.message };
         }
-    }
-
-    static async getSenhas(id_usuario) {
-        if (!this.#server) return undefined;
-        let usuario = this.getUsuarioLogado();
-        if (!usuario || !usuario.token) return undefined;
-        
-        return await this.#server.listarSenhas(usuario.id_usuario, "", usuario.token.tokenToBase64());
     }
 
     static async getSenhasRaw() {
-        if (!this.#server) return undefined;
         let usuario = this.getUsuarioLogado();
-        if (!usuario || !usuario.token) return undefined;
-        
-        return await this.#server.listarSenhasRaw(usuario.id_usuario, "", usuario.token.tokenToBase64());
-    }
-
-    static async #syncToChromeStorage(novasSenhas) {
-        if (typeof chrome === 'undefined' || !chrome || !chrome.storage || !chrome.storage.local) return;
-        
+        let id_usuario = usuario ? usuario.id_usuario : 'public';
         try {
-            const data = await chrome.storage.local.get("senhas_sync");
+            const data = await chrome.storage.sync.get("senhas_sync");
             let atuais = data.senhas_sync || [];
-            
-            novasSenhas.forEach(nova => {
-                // Converte instância de Senha para objeto plano (POJO)
-                // Campos privados (#) não são serializados automaticamente pelo Chrome
-                let objSalvar = nova;
-                if (nova.constructor.name === 'Senha' || typeof nova.toJsonSerialize === 'function') {
-                    objSalvar = {
-                        id_senha: nova.id_senha,
-                        id_usuario: nova.id_usuario,
-                        dominio: nova.dominio,
-                        login: nova.login,
-                        senha: nova.senha
-                    };
-                }
-                
-                const index = atuais.findIndex(a => 
-                    (a.id_senha && objSalvar.id_senha && a.id_senha === objSalvar.id_senha) ||
-                    (a.dominio === objSalvar.dominio && a.login === objSalvar.login)
-                );
-                
-                if (index >= 0) {
-                    atuais[index] = objSalvar;
-                } else {
-                    atuais.push(objSalvar);
-                }
-            });
-            
-            await chrome.storage.local.set({ "senhas_sync": atuais });
+            let filtradas = atuais.filter(s => s.id_usuario === id_usuario);
+            return { ok: true, data: filtradas };
         } catch (e) {
-            console.error("Erro ao sincronizar storage", e);
+            return { ok: false, msg: e.message };
         }
     }
 
     static async excluirSenha(senha) {
-        if (!this.#server || !senha || !senha.dominio || !senha.login || !senha.dominio) { return undefined; }
+        if (!senha || !senha.dominio || !senha.login) return { ok: false, msg: "Dados incompletos" };
+        
         let usuario = this.getUsuarioLogado();
-        if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 ||
-            !usuario.token || !usuario.token.tokenToBase64() ||
-            !senha.id_senha || senha.id_senha <= 0) {
-            //exclui a senha localmente
-            // cria o Promisse para manter a assinatura do método
-            return new Promise((resolve, reject) => {
-                let rt = this.#excluirSenhaLocal(senha.dominio, senha.login);
-                resolve({ ok: rt, msg: undefined });
-            });
-        }
+        let id_usuario = usuario ? usuario.id_usuario : 'public';
 
-        let res = await this.#server.deletarSenha(senha.id_senha, usuario.id_usuario, senha.dominio, usuario.token.tokenToBase64());
-        if (!res || !res.ok) { return undefined; }
-        
-        // Remove do storage sync também
-        this.#removeFromChromeStorage(senha);
-        
-        return res;
-    }
-    
-    static async #removeFromChromeStorage(senhaRemover) {
-        if (typeof chrome === 'undefined' || !chrome || !chrome.storage || !chrome.storage.local) return;
         try {
-            const data = await chrome.storage.local.get("senhas_sync");
+            const data = await chrome.storage.sync.get("senhas_sync");
             let atuais = data.senhas_sync || [];
+            
             const novoArray = atuais.filter(s => 
-                !((s.id_senha && senhaRemover.id_senha && s.id_senha === senhaRemover.id_senha) ||
-                  (s.dominio === senhaRemover.dominio && s.login === senhaRemover.login))
+                !(s.id_usuario === id_usuario && s.dominio === senha.dominio && s.login === senha.login)
             );
-            await chrome.storage.local.set({ "senhas_sync": novoArray });
-        } catch(e) { console.error(e); }
+            
+            await chrome.storage.sync.set({ "senhas_sync": novoArray });
+            return { ok: true, msg: "Senha excluída" };
+        } catch (e) {
+            console.error("Erro ao excluir senha", e);
+            return { ok: false, msg: "Erro ao excluir: " + e.message };
+        }
     }
 
+    // Mantido para compatibilidade se necessário, mas agora é um no-op ou redireciona
     static async updateInsertSenhasLocais() {
-        if (!this.#server) { return undefined; }
-        let usuario = this.getUsuarioLogado();
-        if (!usuario || !usuario.id_usuario || usuario.id_usuario <= 0 ||
-            !usuario.token || !usuario.token.tokenToBase64()) {
-            return undefined;
-        }
-
-        // senhas da memória do browser
-        let senhas = this.#recuperarSenhasLocal();
-        if (!senhas || senhas.length <= 0) { return undefined; }
-
-        let res = await this.#server.updateInsertSenhas(
-            senhas, usuario.id_usuario, usuario.token.tokenToBase64()
-        );
-        return res;
-    }
-
-    //-------------------
-    // Local Data Browser
-    //-------------------
-    // #id_senha; #id_usuario; #dominio; #login; #senha;
-    static #saveSenhasLocal(senha) {
-        if (!senha || !senha.login || !senha.senha || !senha.dominio) { return false; }
-
-        let data = this.#recuperarSenhasLocal();
-        if (!data) { data = []; }
-
-        let auxDataSenhas = data.filter(
-            item => {
-                return !!item && !!item.dominio && !!item.login &&
-                    item.dominio.toLowerCase().trim() === senha.dominio.toLowerCase().trim() &&
-                    item.login.toLowerCase().trim() === senha.login.toLowerCase().trim()
-            }
-        );
-
-        // sem usuário para esse domínio
-        if (!!auxDataSenhas && auxDataSenhas.length <= 0) {
-            data.push(senha);
-            this.#saveDataSenhas(data);
-            return true;
-        }
-
-        // atualizar a senha e salvar a base
-        for (let i = 0; i < data.length; i++) {
-            let auxItem = data[i];
-            if (!auxItem || !auxItem.login || !auxItem.dominio) { continue; }
-            if (auxItem.dominio.toLowerCase().trim() !== senha.dominio.toLowerCase().trim()) { continue; }
-            if (auxItem.login.toLowerCase().trim() !== senha.login.toLowerCase().trim()) { continue; }
-
-            auxItem.senha = senha.senha;
-            data[i] = auxItem;
-            break;
-        }
-
-        if (!data || data.length <= 0) {
-            this.clearSenhasLocal();
-            return false;
-        }
-
-        this.#saveDataSenhas(data);
-        return true;
-    }
-
-    static #recuperarSenhasDominioLocal(dominio, filtroLogin) {
-        if (!dominio) { return []; }
-        dominio = dominio.toLowerCase().trim();
-        if (!dominio || dominio.length <= 0) { return []; }
-        let dataSenhas = this.#recuperarSenhasLocal();
-        if (!dataSenhas) { return []; }
-
-        let rt = dataSenhas.filter(
-            item => {
-                return !!item && !!item.dominio && item.dominio.toLowerCase().trim() === dominio
-            }
-        );
-        if (!rt || rt.length <= 0) { return []; }
-
-        if (!!filtroLogin && filtroLogin.length > 0) {
-            filtroLogin = filtroLogin.toLowerCase().trim();
-            rt = rt.filter(
-                item => {
-                    return !!item && !!item.login && item.login.toLowerCase().trim().indexOf(filtroLogin) >= 0
-                }
-            );
-        }
-
-        return !rt || rt.length <= 0 ? [] : rt;
-    }
-
-    static #recuperarSenhasLocal() {
-        let rt = localStorage["dataSenhas"];
-        if (!rt) { return undefined; }
-        try {
-            rt = JSON.parse(atob(rt));
-        } catch (error) {
-            this.clearSenhasLocal();
-            return undefined;
-        }
-        if (!rt) { return undefined; }
-        let data = [];
-        rt.forEach(s => {
-            if (this.#isEmpty(s)) { return; }
-            data.push(Senha.fromJsonSerialize(s));
-        });
-        return data;
-    }
-
-    static #excluirSenhaLocal(dominio, login) {
-        if (!dominio || !login) { return false; }
-        dominio = dominio.toLowerCase().trim();
-        login = login.toLowerCase().trim();
-        if (!dominio || dominio.length <= 0 || !login || login.length <= 0) { return false; }
-        let data = this.#recuperarSenhasLocal();
-        if (!data || data.length <= 0) { return false; }
-
-        let indexRemover = data.findIndex(item =>
-            !!item && !!item.dominio && item.dominio.toLowerCase().trim() === dominio &&
-            !!item.login && item.login.toLowerCase().trim() === login
-        );
-        if (indexRemover < 0) { return false; }
-        data.splice(indexRemover, 1);
-        this.#saveDataSenhas(data);
-        return true;
+        return { ok: true };
     }
 
     static clearSenhasLocal() {
-        localStorage.removeItem("dataSenhas");
+        // No-op agora que usamos sync
     }
-
-
-    // static #removeInvalid(data) {
-    //     if (!data || data.length <= 0) { return data; }
-    //     let indexRemover = data.findIndex(item => this.#isEmpty(item));
-    //     while (indexRemover >= 0) {
-    //         data.splice(indexRemover, 1);
-    //         indexRemover = data.findIndex(item => this.#isEmpty(item));
-    //     }
-    //     return data;
-    // }
-
-    static #saveDataSenhas(data) {
-        if (!data || data.length <= 0) { return; }
-        let aux = [];
-        data.forEach(s => {
-            if (!s) { return; }
-            let sJson = s.toJsonSerialize();
-            if (!sJson) { return; }
-            aux.push(sJson);
-        });
-        if (!aux || aux.length <= 0) { return; }
-        localStorage["dataSenhas"] = btoa(JSON.stringify(aux));
-        
-        // Sincroniza também as locais
-        this.#syncToChromeStorage(aux);
-    }
-
-    static #isEmpty(obj) { return !obj || Object.keys(obj).length === 0; }
 
 }
